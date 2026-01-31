@@ -13,7 +13,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/movimentacoes")
-@CrossOrigin(value = "http://localhost:3000")
+@CrossOrigin(origins = {"https://app-despesas-front.vercel.app", "localhost:3000"})
 public class MovimentacoesController {
 
     @Autowired
