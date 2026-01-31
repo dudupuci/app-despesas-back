@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.models.entities.base;
 
-import io.github.dudupuci.appdespesas.exceptions.NotFoundException;
+import io.github.dudupuci.appdespesas.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 
 public interface BaseRepository<T> {
@@ -9,7 +9,7 @@ public interface BaseRepository<T> {
     void deletar(T entidade);
 
     default void throwEntityNotFound(String nomeEntidade, Long id) {
-        throw new NotFoundException(
+        throw new EntityNotFoundException(
             AppDespesasMessages.getMessage("entity.not.found", new Object[]{nomeEntidade, id})
         );
     }

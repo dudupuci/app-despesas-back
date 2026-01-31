@@ -1,9 +1,8 @@
 package io.github.dudupuci.appdespesas.controllers.advice;
 
 import io.github.dudupuci.appdespesas.exceptions.AppDespesasException;
-import io.github.dudupuci.appdespesas.exceptions.CategoriaJaExistenteException;
-import io.github.dudupuci.appdespesas.exceptions.CategoriaNotFoundException;
-import io.github.dudupuci.appdespesas.exceptions.NotFoundException;
+import io.github.dudupuci.appdespesas.exceptions.CategoriaJaExisteException;
+import io.github.dudupuci.appdespesas.exceptions.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +26,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(CategoriaJaExistenteException.class)
-    public ResponseEntity<ErrorResponse> handleCategoriaJaExistente(CategoriaJaExistenteException ex) {
+    @ExceptionHandler(CategoriaJaExisteException.class)
+    public ResponseEntity<ErrorResponse> handleCategoriaJaExistente(CategoriaJaExisteException ex) {
         ErrorResponse body = new ErrorResponse(
                 Instant.now().toString(),
                 HttpStatus.CONFLICT.value(),
@@ -38,8 +37,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(EntityNotFoundException ex) {
         ErrorResponse body = new ErrorResponse(
                 Instant.now().toString(),
                 HttpStatus.NOT_FOUND.value(),

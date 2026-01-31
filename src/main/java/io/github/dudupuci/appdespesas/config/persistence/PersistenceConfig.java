@@ -63,7 +63,7 @@ public class PersistenceConfig {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource());
         factory.setJpaVendorAdapter(vendorAdapter);
-        // pacotes onde suas entidades estão localizadas
+        // pacotes onde as entidades estão localizadas
         factory.setPackagesToScan("io.github.dudupuci.appdespesas.models.entities");
 
         Properties jpaProperties = new Properties();

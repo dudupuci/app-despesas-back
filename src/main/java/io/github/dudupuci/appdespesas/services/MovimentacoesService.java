@@ -6,7 +6,6 @@ import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.repositories.MovimentacoesRepository;
-import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import io.github.dudupuci.appdespesas.utils.AppDespesasUtils;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +15,20 @@ public class MovimentacoesService {
     private final MovimentacoesRepository repository;
     private final CategoriasService categoriasService;
 
-    private Categoria tempCategoria;
-
     public MovimentacoesService(MovimentacoesRepository repository, CategoriasService categoriasService) {
         this.repository = repository;
         this.categoriasService = categoriasService;
     }
 
-    public Movimentacao buscarPorId(Long id) throws NotFoundException {
+    public Movimentacao buscarPorId(Long id) throws EntityNotFoundException {
         return this.repository.buscarPorId(id);
     }
 
     @Transacional
-    public Movimentacao createMovimentacao(CriarMovimentacaoDto dto) {
+    public Movimentacao criarMovimentacao(CriarMovimentacaoDto dto) {
         Movimentacao movimentacao;
+        Categoria tempCategoria;
+
         try {
             tempCategoria = this.categoriasService.validarCategoriaPorId(dto.categoriaId());
             movimentacao = dto.toMovimentacao();
@@ -37,12 +36,10 @@ public class MovimentacoesService {
 
             repository.salvar(movimentacao);
 
-        } catch (NotFoundException e) {
+        } catch (EntityNotFoundException e) {
             throw new CategoriaNotFoundException(e.getMessage());
         } catch (CategoriaInativaException e) {
             throw new CategoriaInativaException(e.getMessage());
-        } finally {
-            tempCategoria = null;
         }
 
         return movimentacao;
@@ -56,7 +53,7 @@ public class MovimentacoesService {
             if (AppDespesasUtils.isEntidadeNotNull(movimentacao)) {
                 this.repository.deletar(movimentacao);
             }
-        } catch (NotFoundException e) {
+        } catch (EntityNotFoundException e) {
             throw new MovimentacaoNotFoundException(e.getMessage());
         }
     }

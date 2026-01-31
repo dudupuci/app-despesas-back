@@ -2,7 +2,7 @@ package io.github.dudupuci.appdespesas.controllers.dtos.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.dudupuci.appdespesas.config.app.DateSerializer;
-import io.github.dudupuci.appdespesas.controllers.dtos.Dto;
+import io.github.dudupuci.appdespesas.controllers.dtos.base.ResponseDto;
 import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
-public class MovimentacaoCriadaDto extends Dto {
+public class MovimentacaoCriadaDto extends ResponseDto {
     private final String titulo;
     private final String descricao;
     private final BigDecimal valor;

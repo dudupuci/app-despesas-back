@@ -4,13 +4,13 @@ import io.github.dudupuci.appdespesas.config.persistence.Transacional;
 import io.github.dudupuci.appdespesas.controllers.dtos.CriarCategoriaDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
-import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.repositories.CategoriasRepository;
 import io.github.dudupuci.appdespesas.utils.AppDespesasConstants;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import io.github.dudupuci.appdespesas.utils.AppDespesasUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,6 +22,10 @@ public class CategoriasService {
         this.repository = repository;
     }
 
+    public List<Categoria> listarCategoriasBySearch(String search) {
+        return this.repository.listarCategoriasBySearch(search);
+    }
+
     @Transacional
     public Categoria createCategoria(CriarCategoriaDto dto) {
         try {
@@ -29,19 +33,15 @@ public class CategoriasService {
             Categoria categoria = dto.toCategoria();
             this.repository.salvar(categoria);
             return categoria;
-        } catch (CategoriaJaExistenteException err) {
-            throw new CategoriaJaExistenteException(AppDespesasMessages.getMessage(
+        } catch (CategoriaJaExisteException err) {
+            throw new CategoriaJaExisteException(AppDespesasMessages.getMessage(
                     "categoria.ja.existente",
                     new Object[]{dto.nome()})
-            );
-        } catch (Exception err) {
-            throw new AppDespesasException(AppDespesasMessages.getMessage(
-                    "erro.interno", null)
             );
         }
     }
 
-    public Categoria buscarPorId(Long id) throws NotFoundException {
+    public Categoria buscarPorId(Long id) throws EntityNotFoundException {
         return this.repository.buscarPorId(id);
     }
 
@@ -53,12 +53,12 @@ public class CategoriasService {
         Optional<Categoria> categoria = this.repository.buscarPorNome(dto.nome());
 
         if (categoria.isPresent()) {
-            throw new CategoriaJaExistenteException("Categoria com o nome '" + dto.nome() + "' já existe.");
+            throw new CategoriaJaExisteException("Categoria com o nome '" + dto.nome() + "' já existe.");
         }
 
     }
 
-    public Categoria validarCategoriaPorId(Long categoriaId) throws NotFoundException, CategoriaInativaException {
+    public Categoria validarCategoriaPorId(Long categoriaId) throws EntityNotFoundException, CategoriaInativaException {
         Categoria categoria = buscarPorId(categoriaId);
 
         if (!isCategoriaAtiva(categoria)) {
@@ -79,7 +79,7 @@ public class CategoriasService {
             if (AppDespesasUtils.isEntidadeNotNull(categoria)) {
                 this.repository.deletar(categoria);
             }
-        } catch (NotFoundException e) {
+        } catch (EntityNotFoundException e) {
             throw new CategoriaNotFoundException(e.getMessage());
         }
     }
