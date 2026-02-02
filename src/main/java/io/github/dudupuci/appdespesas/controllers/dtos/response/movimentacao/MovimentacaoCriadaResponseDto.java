@@ -1,4 +1,4 @@
-package io.github.dudupuci.appdespesas.controllers.dtos.response;
+package io.github.dudupuci.appdespesas.controllers.dtos.response.movimentacao;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.dudupuci.appdespesas.config.app.DateSerializer;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
-public class MovimentacaoCriadaDto extends ResponseDto {
+public class MovimentacaoCriadaResponseDto extends ResponseDto {
     private final String titulo;
     private final String descricao;
     private final BigDecimal valor;
@@ -20,7 +20,7 @@ public class MovimentacaoCriadaDto extends ResponseDto {
     private final String tipoMovimentacao;
     private final String nomeCategoria;
 
-    public MovimentacaoCriadaDto(
+    public MovimentacaoCriadaResponseDto(
             String titulo,
             String descricao,
             BigDecimal valor,
@@ -38,12 +38,12 @@ public class MovimentacaoCriadaDto extends ResponseDto {
         this.nomeCategoria = nomeCategoria;
     }
 
-    public static MovimentacaoCriadaDto fromEntityCriada(Movimentacao movimentacao) {
+    public static MovimentacaoCriadaResponseDto fromEntityCriada(Movimentacao movimentacao) {
         return fromEntity(movimentacao, "movimentacao.criada.sucesso");
     }
 
-    private static MovimentacaoCriadaDto fromEntity(Movimentacao movimentacao, String mensagemKey) {
-        return new MovimentacaoCriadaDto(
+    private static MovimentacaoCriadaResponseDto fromEntity(Movimentacao movimentacao, String mensagemKey) {
+        return new MovimentacaoCriadaResponseDto(
                 movimentacao.getTitulo(),
                 movimentacao.getDescricao(),
                 movimentacao.getValor(),

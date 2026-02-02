@@ -17,4 +17,8 @@ public final class AppDespesasMessages {
     public static String getMessage(String code, Object[] args) {
         return messageSource.getMessage(code, args, new Locale("pt", "BR"));
     }
+
+    public static String getMessage(String code) {
+        return messageSource.getMessage(code, null, new Locale("pt", "BR"));
+    }
 }

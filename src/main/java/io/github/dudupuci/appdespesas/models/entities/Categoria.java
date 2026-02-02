@@ -21,14 +21,14 @@ public class Categoria extends Entidade {
     private Status status;
 
     @OneToMany(mappedBy = "categoria")
-    private Set<Movimentacao> movimentacaos;
+    private Set<Movimentacao> movimentacoes;
 
     public Categoria() {}
 
     public Categoria(String nome, String descricao) {
         this.nome = nome;
         this.descricao = descricao;
-        this.movimentacaos = new HashSet<>();
+        this.movimentacoes = new HashSet<>();
         this.status = Status.ATIVO;
     }
 }

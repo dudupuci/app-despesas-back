@@ -1,8 +1,8 @@
-package io.github.dudupuci.appdespesas.controllers.dtos;
+package io.github.dudupuci.appdespesas.controllers.dtos.request.categoria;
 
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
 
-public record CriarCategoriaDto(
+public record CriarCategoriaRequestDto(
         String nome,
         String descricao
 ) {

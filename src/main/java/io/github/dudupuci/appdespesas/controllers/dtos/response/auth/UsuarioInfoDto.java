@@ -1,0 +1,20 @@
+package io.github.dudupuci.appdespesas.controllers.dtos.response.auth;
+
+import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
+
+public record UsuarioInfoDto(
+        String nome,
+        String nomeUsuario,
+        String email,
+        String role
+) {
+    public static UsuarioInfoDto fromEntity(UsuarioSistema usuario) {
+        return new UsuarioInfoDto(
+                usuario.getNome(),
+                usuario.getNomeUsuario(),
+                usuario.getEmail(),
+                usuario.getRole().getNome()
+        );
+    }
+}
+

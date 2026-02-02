@@ -1,7 +1,7 @@
 package io.github.dudupuci.appdespesas.services;
 
 import io.github.dudupuci.appdespesas.config.persistence.Transacional;
-import io.github.dudupuci.appdespesas.controllers.dtos.CriarCategoriaDto;
+import io.github.dudupuci.appdespesas.controllers.dtos.request.categoria.CriarCategoriaRequestDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.repositories.CategoriasRepository;
@@ -27,7 +27,7 @@ public class CategoriasService {
     }
 
     @Transacional
-    public Categoria createCategoria(CriarCategoriaDto dto) {
+    public Categoria createCategoria(CriarCategoriaRequestDto dto) {
         try {
             validarCriacao(dto);
             Categoria categoria = dto.toCategoria();
@@ -49,7 +49,7 @@ public class CategoriasService {
         return AppDespesasConstants.ATIVO.equalsIgnoreCase(categoria.getStatus().getNome());
     }
 
-    private void validarCriacao(CriarCategoriaDto dto) {
+    private void validarCriacao(CriarCategoriaRequestDto dto) {
         Optional<Categoria> categoria = this.repository.buscarPorNome(dto.nome());
 
         if (categoria.isPresent()) {

@@ -1,15 +1,15 @@
-package io.github.dudupuci.appdespesas.controllers.dtos.response;
+package io.github.dudupuci.appdespesas.controllers.dtos.response.categoria;
 
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
 
-public record ListCategoriaDto(
+public record ListCategoriaResponseDto(
         Long id,
         String nome,
         String descricao
 ) {
 
-    public static ListCategoriaDto toDto(Categoria categoria) {
-        return new ListCategoriaDto(
+    public static ListCategoriaResponseDto toDto(Categoria categoria) {
+        return new ListCategoriaResponseDto(
                 categoria.getId(),
                 categoria.getNome(),
                 categoria.getDescricao()

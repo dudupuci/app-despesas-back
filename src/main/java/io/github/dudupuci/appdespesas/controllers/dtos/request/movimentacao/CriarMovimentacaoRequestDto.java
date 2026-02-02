@@ -1,4 +1,4 @@
-package io.github.dudupuci.appdespesas.controllers.dtos;
+package io.github.dudupuci.appdespesas.controllers.dtos.request.movimentacao;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.github.dudupuci.appdespesas.config.app.DateDeserializer;
@@ -8,7 +8,7 @@ import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public record CriarMovimentacaoDto(
+public record CriarMovimentacaoRequestDto(
         String titulo,
         String descricao,
         BigDecimal valor,
