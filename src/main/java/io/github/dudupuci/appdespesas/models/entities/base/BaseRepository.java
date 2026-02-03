@@ -5,10 +5,10 @@ import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 
 public interface BaseRepository<T> {
     void salvar(T entidade);
-    T buscarPorId(Long id);
+    T buscarPorId(Object id);
     void deletar(T entidade);
 
-    default void throwEntityNotFound(String nomeEntidade, Long id) {
+    default void throwEntityNotFound(String nomeEntidade, Object id) {
         throw new EntityNotFoundException(
             AppDespesasMessages.getMessage("entity.not.found", new Object[]{nomeEntidade, id})
         );

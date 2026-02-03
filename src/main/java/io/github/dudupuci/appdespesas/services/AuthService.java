@@ -4,6 +4,7 @@ import io.github.dudupuci.appdespesas.config.app.jwt.JwtConfig;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.auth.AuthRequestDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.registro.RegistroRequestDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.AuthResponseDto;
+import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.RefreshTokenResponseDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.Role;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
@@ -14,6 +15,8 @@ import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class AuthService {
@@ -50,6 +53,9 @@ public class AuthService {
             );
         }
 
+        // Validar senha e confirmação de senha
+        validarSenha(dto);
+
         // Buscar role padrão (USER)
         Role roleUser = rolesRepository.buscarPorNome("USER");
         if (roleUser == null) {
@@ -64,6 +70,7 @@ public class AuthService {
         novoUsuario.setSenha(passwordEncoder.encode(dto.senha()));
         novoUsuario.setRole(roleUser);
         novoUsuario.setAtivo(true);
+        novoUsuario.setMovimentacoes(new ArrayList<>());
 
         // Gerar username automaticamente no formato nome.sobrenome
         String usernameGerado = usernameGenerator.gerarUsernameParaUsuarioSistema(novoUsuario);
@@ -108,6 +115,50 @@ public class AuthService {
         String refreshToken = jwtConfig.generateRefreshToken(usuario);
 
         return AuthResponseDto.fromEntityLogin(usuario, accessToken, refreshToken);
+    }
+
+    private void validarSenha(RegistroRequestDto dto) {
+        if (dto.senha() != null && !dto.senha().isBlank() && dto.confirmacaoSenha() != null && !dto.confirmacaoSenha().isBlank()) {
+            if (!dto.senha().equals(dto.confirmacaoSenha())) {
+                throw new SenhasNaoCoincidemException(
+                        AppDespesasMessages.getMessage("auth.senha.confirmacaoSenha.diferentes")
+                );
+            }
+        }
+    }
+
+    @Transactional
+    public RefreshTokenResponseDto refreshToken(String refreshToken) {
+        try {
+            // Extrai o email do refresh token
+            String email = jwtConfig.extractEmail(refreshToken);
+
+            // Busca o usuário
+            UsuarioSistema usuario = usuariosRepository.buscarPorEmail(email);
+
+            if (usuario == null) {
+                throw new CredenciaisInvalidasException(
+                        AppDespesasMessages.getMessage("auth.token.invalido")
+                );
+            }
+
+            // Valida se usuário está ativo
+            if (!usuario.getAtivo()) {
+                throw new UsuarioInativoException(
+                        AppDespesasMessages.getMessage("auth.usuario.inativo")
+                );
+            }
+
+            // Gera novo access token
+            String newAccessToken = jwtConfig.generateAccessToken(usuario);
+
+            return RefreshTokenResponseDto.of(newAccessToken);
+
+        } catch (Exception e) {
+            throw new CredenciaisInvalidasException(
+                    AppDespesasMessages.getMessage("auth.token.invalido")
+            );
+        }
     }
 }
 

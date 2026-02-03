@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/health")
-@CrossOrigin(value = "*")
 public class HealthCheckController {
 
     @GetMapping

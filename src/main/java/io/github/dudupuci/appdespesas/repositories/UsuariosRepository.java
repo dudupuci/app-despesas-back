@@ -28,7 +28,7 @@ public class UsuariosRepository implements BaseRepository<UsuarioSistema> {
     }
 
     @Override
-    public UsuarioSistema buscarPorId(Long id) {
+    public UsuarioSistema buscarPorId(Object id) {
         return entityManager.find(UsuarioSistema.class, id);
     }
 

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Table(name = "usuarios")
 @Entity
@@ -28,6 +30,9 @@ public class UsuarioSistema extends Usuario {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @OneToMany(mappedBy = "usuarioSistema", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Movimentacao> movimentacoes;
 
     private Boolean ativo;
 

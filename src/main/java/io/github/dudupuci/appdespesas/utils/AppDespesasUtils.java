@@ -1,13 +1,19 @@
 package io.github.dudupuci.appdespesas.utils;
 
+import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.models.entities.base.Entidade;
 
 import java.util.Calendar;
 import java.util.Date;
 
 public final class AppDespesasUtils {
+
     public static boolean isEntidadeNotNull(Entidade entidade) {
         return entidade != null && entidade.getId() != null;
+    }
+
+    public static boolean isCategoriaAtiva(Categoria categoria) {
+        return isEntidadeNotNull(categoria) && AppDespesasConstants.ATIVO.equalsIgnoreCase(categoria.getStatus().getNome());
     }
 
     public static Date converterDataFromStringDiaMesAno(String dataString) {

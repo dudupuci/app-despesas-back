@@ -45,10 +45,6 @@ public class CategoriasService {
         return this.repository.buscarPorId(id);
     }
 
-    public boolean isCategoriaAtiva(Categoria categoria) {
-        return AppDespesasConstants.ATIVO.equalsIgnoreCase(categoria.getStatus().getNome());
-    }
-
     private void validarCriacao(CriarCategoriaRequestDto dto) {
         Optional<Categoria> categoria = this.repository.buscarPorNome(dto.nome());
 
@@ -61,7 +57,7 @@ public class CategoriasService {
     public Categoria validarCategoriaPorId(Long categoriaId) throws EntityNotFoundException, CategoriaInativaException {
         Categoria categoria = buscarPorId(categoriaId);
 
-        if (!isCategoriaAtiva(categoria)) {
+        if (!AppDespesasUtils.isCategoriaAtiva(categoria)) {
             throw new CategoriaInativaException(AppDespesasMessages.getMessage(
                     "categoria.inativa",
                     new Object[]{categoria.getNome()})

@@ -7,7 +7,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class Pessoa extends Entidade {
+public abstract class Pessoa extends EntidadeUuid {
     protected String nome;
     protected String sobrenome;
 }

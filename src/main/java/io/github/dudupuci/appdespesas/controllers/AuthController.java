@@ -1,6 +1,7 @@
 package io.github.dudupuci.appdespesas.controllers;
 
 import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.AuthResponseDto;
+import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.RefreshTokenResponseDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.auth.AuthRequestDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.registro.RegistroRequestDto;
 import io.github.dudupuci.appdespesas.services.AuthService;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin("*")
 public class AuthController {
 
     private final AuthService authService;
@@ -29,6 +29,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody AuthRequestDto dto) {
         AuthResponseDto response = authService.login(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponseDto> refresh(@RequestHeader("Authorization") String authHeader) {
+        // Remove "Bearer " do token
+        String refreshToken = authHeader.substring(7);
+        RefreshTokenResponseDto response = authService.refreshToken(refreshToken);
         return ResponseEntity.ok(response);
     }
 }

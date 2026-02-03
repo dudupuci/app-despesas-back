@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.github.dudupuci.appdespesas.models.entities.base.Entidade;
 import io.github.dudupuci.appdespesas.models.enums.Status;
 import jakarta.persistence.Entity;
@@ -21,6 +22,7 @@ public class Categoria extends Entidade {
     private Status status;
 
     @OneToMany(mappedBy = "categoria")
+    @JsonManagedReference
     private Set<Movimentacao> movimentacoes;
 
     public Categoria() {}

@@ -26,6 +26,7 @@ public class JwtConfig {
     public String generateAccessToken(UsuarioSistema user) {
         return Jwts.builder()
                 .subject(user.getEmail())
+                .claim("userId", user.getId())
                 .claim("role", user.getRole().getNome())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
@@ -50,6 +51,16 @@ public class JwtConfig {
                 .getPayload();
 
         return claims.getSubject();
+    }
+
+    public Long extractUserId(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.get("userId", Long.class);
     }
 
     public boolean isTokenValid(String token) {

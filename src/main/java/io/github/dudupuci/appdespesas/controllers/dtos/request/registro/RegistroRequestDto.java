@@ -17,7 +17,10 @@ public record RegistroRequestDto(
 
         @NotBlank(message = "Senha é obrigatória")
         @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
-        String senha
+        String senha,
+
+        @NotBlank(message = "Confirmação de senha é obrigatória")
+        String confirmacaoSenha
 ) {
 }
 

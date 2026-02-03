@@ -41,7 +41,7 @@ public class CategoriasRepository implements BaseRepository<Categoria> {
     }
 
     @Override
-    public Categoria buscarPorId(Long id) throws EntityNotFoundException {
+    public Categoria buscarPorId(Object id) throws EntityNotFoundException {
         Categoria categoria = entityManager.find(Categoria.class, id);
         if (categoria == null) {
             throwEntityNotFound("Categoria", id);

@@ -29,7 +29,7 @@ public class RolesRepository implements BaseRepository<Role> {
     }
 
     @Override
-    public Role buscarPorId(Long id) {
+    public Role buscarPorId(Object id) {
         return entityManager.find(Role.class, id);
     }
 

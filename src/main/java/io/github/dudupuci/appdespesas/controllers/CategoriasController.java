@@ -17,11 +17,24 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/categorias")
-@CrossOrigin(origins = {"https://app-despesas-front.vercel.app", "localhost:3000"})
 public class CategoriasController {
 
-    @Autowired
-    private CategoriasService service;
+    private final CategoriasService service;
+
+    public CategoriasController(CategoriasService service) {
+        this.service = service;
+    }
+
+    @PostMapping
+    public ResponseEntity<CategoriaCriadaResponseDto> create(@RequestBody CriarCategoriaRequestDto dto) {
+        try {
+            Categoria categoria = service.createCategoria(dto);
+            return ResponseEntity.created(URI.create("/categorias/" + categoria.getId()))
+                    .body(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
+        } catch (CategoriaJaExisteException err) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
 
     @GetMapping
     public ResponseEntity<List<ListCategoriaResponseDto>> listarCategorias() {
@@ -37,17 +50,6 @@ public class CategoriasController {
         var categorias = service.listarCategoriasBySearch(search);
         var dto = categorias.stream().map(ListCategoriaResponseDto::toDto).collect(Collectors.toList());
         return ResponseEntity.ok(dto);
-    }
-
-    @PostMapping
-    public ResponseEntity<CategoriaCriadaResponseDto> create(@RequestBody CriarCategoriaRequestDto dto) {
-        try {
-            Categoria categoria = service.createCategoria(dto);
-            return ResponseEntity.created(URI.create("/categorias/" + categoria.getId()))
-                    .body(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
-        } catch (CategoriaJaExisteException err) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
     }
 
     @DeleteMapping("/{id}")
