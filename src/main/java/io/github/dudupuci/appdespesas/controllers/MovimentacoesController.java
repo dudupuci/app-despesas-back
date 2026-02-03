@@ -4,12 +4,15 @@ import io.github.dudupuci.appdespesas.controllers.dtos.request.movimentacao.Cria
 import io.github.dudupuci.appdespesas.controllers.dtos.response.movimentacao.MovimentacaoCriadaResponseDto;
 import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
+import io.github.dudupuci.appdespesas.models.enums.TipoPeriodo;
 import io.github.dudupuci.appdespesas.services.MovimentacoesService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,10 +39,18 @@ public class MovimentacoesController {
 
     @GetMapping
     public ResponseEntity<List<Movimentacao>> listarTodas(
-            @RequestParam(required = false) TipoMovimentacao tipo
+            @RequestParam(required = false) TipoMovimentacao tipo,
+            @RequestParam(required = false) TipoPeriodo tipoPeriodo,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date dataReferencia
     ) {
         UUID usuarioId = getUsuarioAutenticadoId();
-        List<Movimentacao> movimentacoes = service.listarTodasPorUsuarioId(usuarioId, tipo);
+
+        List<Movimentacao> movimentacoes = service.listarTodasPorUsuarioId(
+                usuarioId,
+                tipo,
+                tipoPeriodo,
+                dataReferencia
+        );
         return ResponseEntity.ok(movimentacoes);
     }
 

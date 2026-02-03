@@ -1,0 +1,58 @@
+Teste Manual de Cálculo de Semana
+===================================
+
+Data de Referência: 03/02/2026 (Terça-feira)
+
+Cálculo Esperado:
+- Segunda-feira: 02/02/2026 00:00:00
+- Domingo: 08/02/2026 23:59:59
+
+Lógica do Código Corrigido:
+----------------------------
+
+1. dataReferencia = 03/02/2026 12:00:00
+2. calendar.get(Calendar.DAY_OF_WEEK) = 3 (Terça-feira)
+   - Calendar.SUNDAY = 1
+   - Calendar.MONDAY = 2
+   - Calendar.TUESDAY = 3 ✅
+   - Calendar.WEDNESDAY = 4
+   - Calendar.THURSDAY = 5
+   - Calendar.FRIDAY = 6
+   - Calendar.SATURDAY = 7
+
+3. diaDaSemanaAtual = 3 (Terça)
+4. diasParaVoltar = diaDaSemanaAtual - Calendar.MONDAY = 3 - 2 = 1
+
+5. Voltar 1 dia: 03/02 - 1 = 02/02 (Segunda) ✅
+6. Definir horário 00:00:00
+7. dataInicio = 02/02/2026 00:00:00 ✅
+
+8. Avançar 6 dias: 02/02 + 6 = 08/02 (Domingo) ✅
+9. Definir horário 23:59:59
+10. dataFim = 08/02/2026 23:59:59 ✅
+
+Teste para outros dias:
+-----------------------
+
+Segunda-feira (02/02/2026):
+- diaDaSemanaAtual = 2
+- diasParaVoltar = 2 - 2 = 0
+- Não volta nenhum dia ✅
+- Período: 02/02 00:00 até 08/02 23:59
+
+Domingo (08/02/2026):
+- diaDaSemanaAtual = 1 (SUNDAY)
+- diasParaVoltar = 6 (caso especial)
+- Volta 6 dias: 08/02 - 6 = 02/02 ✅
+- Período: 02/02 00:00 até 08/02 23:59
+
+CONCLUSÃO:
+==========
+A lógica está CORRETA ✅
+
+Próximos passos de debug:
+1. Verificar se o formato da data vindo do front está correto
+2. Verificar se o conversor @DateTimeFormat está funcionando
+3. Verificar a query JPQL no repository
+4. Verificar se há movimentações no banco com dataDaMovimentacao = 03/02/2026
+

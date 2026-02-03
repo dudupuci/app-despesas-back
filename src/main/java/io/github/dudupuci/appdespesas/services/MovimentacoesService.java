@@ -7,11 +7,13 @@ import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
+import io.github.dudupuci.appdespesas.models.enums.TipoPeriodo;
 import io.github.dudupuci.appdespesas.repositories.MovimentacoesRepository;
 import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
 import io.github.dudupuci.appdespesas.utils.AppDespesasUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +38,31 @@ public class MovimentacoesService {
         return this.repository.buscarPorId(id);
     }
 
-    public List<Movimentacao> listarTodasPorUsuarioId(UUID usuarioId, TipoMovimentacao tipoMovimentacao) {
-        return this.repository.listarTodasPorUsuarioId(usuarioId, tipoMovimentacao);
+    public List<Movimentacao> listarTodasPorUsuarioId(
+            UUID usuarioId,
+            TipoMovimentacao tipoMovimentacao,
+            TipoPeriodo tipoPeriodo,
+            Date dataReferencia
+    ) {
+        Date dataInicio = null;
+        Date dataFim = null;
+
+        // Calcula o período baseado no tipo e data de referência
+        if (tipoPeriodo != null && dataReferencia != null) {
+            Date[] periodo = AppDespesasUtils.calcularPeriodo(tipoPeriodo, dataReferencia);
+            dataInicio = periodo[0];
+            dataFim = periodo[1];
+
+            // ⚠️ LOG TEMPORÁRIO PARA DEBUG
+            System.out.println("========== DEBUG PERÍODO ==========");
+            System.out.println("Data Referência: " + dataReferencia);
+            System.out.println("Tipo Período: " + tipoPeriodo);
+            System.out.println("Data Início: " + dataInicio);
+            System.out.println("Data Fim: " + dataFim);
+            System.out.println("===================================");
+        }
+
+        return this.repository.listarTodasPorUsuarioId(usuarioId, tipoMovimentacao, dataInicio, dataFim);
     }
 
     @Transacional

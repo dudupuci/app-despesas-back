@@ -9,6 +9,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,7 +37,12 @@ public class MovimentacoesRepository implements BaseRepository<Movimentacao> {
         return movimentacao;
     }
 
-    public List<Movimentacao> listarTodasPorUsuarioId(UUID usuarioId, TipoMovimentacao tipoMovimentacao) {
+    public List<Movimentacao> listarTodasPorUsuarioId(
+            UUID usuarioId,
+            TipoMovimentacao tipoMovimentacao,
+            Date dataInicio,
+            Date dataFim
+    ) {
         StringBuilder jpql = new StringBuilder("SELECT m FROM Movimentacao m WHERE m.usuarioSistema.id = :usuarioId");
 
         // Adiciona filtro por tipo se fornecido
@@ -44,7 +50,21 @@ public class MovimentacoesRepository implements BaseRepository<Movimentacao> {
             jpql.append(" AND m.tipoMovimentacao = :tipoMovimentacao");
         }
 
+        // Adiciona filtro por período se fornecido
+        if (dataInicio != null && dataFim != null) {
+            jpql.append(" AND m.dataDaMovimentacao BETWEEN :dataInicio AND :dataFim");
+        }
+
         jpql.append(" ORDER BY m.dataDaMovimentacao DESC");
+
+        // ⚠️ LOG TEMPORÁRIO PARA DEBUG
+        System.out.println("========== DEBUG QUERY ==========");
+        System.out.println("JPQL: " + jpql.toString());
+        System.out.println("usuarioId: " + usuarioId);
+        System.out.println("tipoMovimentacao: " + tipoMovimentacao);
+        System.out.println("dataInicio: " + dataInicio);
+        System.out.println("dataFim: " + dataFim);
+        System.out.println("=================================");
 
         TypedQuery<Movimentacao> query = entityManager.createQuery(jpql.toString(), Movimentacao.class);
         query.setParameter("usuarioId", usuarioId);
@@ -53,7 +73,19 @@ public class MovimentacoesRepository implements BaseRepository<Movimentacao> {
             query.setParameter("tipoMovimentacao", tipoMovimentacao);
         }
 
-        return query.getResultList();
+        if (dataInicio != null && dataFim != null) {
+            query.setParameter("dataInicio", dataInicio);
+            query.setParameter("dataFim", dataFim);
+        }
+
+        List<Movimentacao> resultado = query.getResultList();
+
+        // ⚠️ LOG TEMPORÁRIO PARA DEBUG
+        System.out.println("========== DEBUG RESULTADO ==========");
+        System.out.println("Total de movimentações encontradas: " + resultado.size());
+        System.out.println("=====================================");
+
+        return resultado;
     }
 
     @Override
