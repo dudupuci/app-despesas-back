@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 
 public record CriarMovimentacaoRequestDto(
         @NotBlank(message = "Título é obrigatório")
@@ -22,7 +23,7 @@ public record CriarMovimentacaoRequestDto(
         @NotNull(message = "Tipo de movimentação é obrigatório")
         TipoMovimentacao tipoMovimentacao,
         @NotNull(message = "Categoria é obrigatória")
-        Long categoriaId
+        UUID categoriaId
 ) {
     public Movimentacao toMovimentacao() {
         Movimentacao movimentacao = new Movimentacao();

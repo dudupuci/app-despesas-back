@@ -2,13 +2,16 @@ package io.github.dudupuci.appdespesas.repositories;
 
 import io.github.dudupuci.appdespesas.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
+import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.models.entities.base.BaseRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class CategoriasRepository implements BaseRepository<Categoria> {
@@ -38,6 +41,26 @@ public class CategoriasRepository implements BaseRepository<Categoria> {
         return entityManager.createQuery(jpql, Categoria.class)
                 .setParameter("search", "%" + search + "%")
                 .getResultList();
+    }
+
+    public List<Categoria> listarTodasPorUsuarioId(UUID usuarioId, Object tipoMovimentacao) {
+        StringBuilder jpql = new StringBuilder("SELECT c FROM Categoria c WHERE c.usuarioSistema.id = :usuarioId");
+
+        // Adiciona filtro por tipo se fornecido
+        if (tipoMovimentacao != null) {
+            jpql.append(" AND c.tipoMovimentacao = :tipoMovimentacao");
+        }
+
+        jpql.append(" ORDER BY c.dataCriacao DESC");
+
+        TypedQuery<Categoria> query = entityManager.createQuery(jpql.toString(), Categoria.class);
+        query.setParameter("usuarioId", usuarioId);
+
+        if (tipoMovimentacao != null) {
+            query.setParameter("tipoMovimentacao", tipoMovimentacao);
+        }
+
+        return query.getResultList();
     }
 
     @Override

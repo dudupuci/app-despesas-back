@@ -2,8 +2,10 @@ package io.github.dudupuci.appdespesas.controllers.dtos.response.categoria;
 
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
 
+import java.util.UUID;
+
 public record ListCategoriaResponseDto(
-        Long id,
+        UUID id,
         String nome,
         String descricao
 ) {

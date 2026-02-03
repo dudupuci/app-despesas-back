@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Table(name = "movimentacoes")
@@ -45,7 +46,7 @@ public class Movimentacao extends Entidade {
     private UsuarioSistema usuarioSistema;
 
     @JsonProperty("categoriaId")
-    public Long getCategoriaId() {
+    public UUID getCategoriaId() {
         return categoria != null ? categoria.getId() : null;
     }
 
