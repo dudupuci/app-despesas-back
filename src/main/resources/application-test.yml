@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: AppDespesas
+  ai:
+    openai:
+      api-key: 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
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: llama-3.3-70b-versatile
+          temperature: 0.3
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+
+server:
+  servlet:
+    context-path: /api
+
+app:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: update
+    show-sql: true
+    format-sql: true
+  jwt:
+    secret: 9P@rB7xF!mE2W^Tq5yKZ0D#H1J8L$A6cR%M4GQnCseUoipVYdOaXhI
+  url:
+    frontend: http://localhost:3000
+

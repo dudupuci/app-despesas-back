@@ -3,12 +3,12 @@ package io.github.dudupuci.appdespesas.controllers;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.role.CriarRoleRequestDto;
 import io.github.dudupuci.appdespesas.models.entities.Role;
 import io.github.dudupuci.appdespesas.services.RolesService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/roles")
+//@PreAuthorize("hasRole('ADMIN')")
 public class RolesController {
 
     private final RolesService rolesService;

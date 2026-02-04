@@ -27,7 +27,8 @@ public class Categoria extends EntidadeUuid {
     private TipoMovimentacao tipoMovimentacao;
 
     @OneToMany(mappedBy = "categoria")
-    @JsonManagedReference
+    //@JsonManagedReference
+    @JsonIgnore
     private Set<Movimentacao> movimentacoes;
 
     @ManyToOne

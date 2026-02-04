@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: AppDespesas
+
+server:
+  servlet:
+    context-path: /api
+
+app:
+  url:
+    frontend: http://localhost:3000
+

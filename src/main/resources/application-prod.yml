@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: AppDespesas
+
+server:
+  servlet:
+    context-path: /api
+
+app:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: update
+    show-sql: true
+    format-sql: true
+  jwt:
+    secret: kR9$F7pLx2A!mZQ4vE#N8JcW@D6sT%qH0B^aM1yUo5eCGrhKPiL
+  url:
+    frontend: http://localhost:3000
+
