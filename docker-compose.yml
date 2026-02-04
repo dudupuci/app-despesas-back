@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-appdespesas
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-appdespesas}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-senha123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - appdespesas-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-appdespesas
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-appdespesas}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-senha123}
+      SPRING_AI_OPENAI_API_KEY: ${GROQ_API_KEY}
+      SPRING_AI_OPENAI_BASE_URL: https://api.groq.com/openai
+      APP_WEBHOOK_API_KEY: ${WEBHOOK_API_KEY:-wh_8F3kL9mN2pQ7rT1vY4xZ6aB0cD5eG8hJ}
+      APP_JWT_SECRET: ${JWT_SECRET}
+      APP_URL_FRONTEND: ${FRONTEND_URL:-http://localhost:3000}
+      WAHA_API_URL: http://waha:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - appdespesas-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: waha-whatsapp
+    restart: unless-stopped
+    environment:
+      WHATSAPP_HOOK_URL: http://backend:8080/api/webhooks/waha
+      WHATSAPP_HOOK_EVENTS: message,message.any
+      WHATSAPP_HOOK_HEADERS: '{"X-Webhook-Token":"${WEBHOOK_API_KEY:-wh_8F3kL9mN2pQ7rT1vY4xZ6aB0cD5eG8hJ}"}'
+      WAHA_PRINT_QR: "True"
+      WAHA_LOG_LEVEL: ${WAHA_LOG_LEVEL:-info}
+      WHATSAPP_SWAGGER_ENABLED: ${WAHA_SWAGGER_ENABLED:-false}
+      WHATSAPP_SWAGGER_USERNAME: ${WAHA_SWAGGER_USER:-admin}
+      WHATSAPP_SWAGGER_PASSWORD: ${WAHA_SWAGGER_PASS:-admin}
+    ports:
+      - "3001:3000"
+    volumes:
+      - waha_data:/app/.wwebjs_auth
+      - waha_files:/app/.wwebjs_cache
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - appdespesas-network
+
+networks:
+  appdespesas-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  waha_data:
+    driver: local
+  waha_files:
+    driver: local

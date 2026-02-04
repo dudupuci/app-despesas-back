@@ -33,4 +33,11 @@ app:
     secret: 9P@rB7xF!mE2W^Tq5yKZ0D#H1J8L$A6cR%M4GQnCseUoipVYdOaXhI
   url:
     frontend: http://localhost:3000
+  webhook:
+    api-key: wh_8F3kL9mN2pQ7rT1vY4xZ6aB0cD5eG8hJ
+
+waha:
+  api:
+    url: http://localhost:3001
+    key: 0a506b5cef4643e6972a47579051fc6f
 

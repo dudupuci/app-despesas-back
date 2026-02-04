@@ -22,4 +22,11 @@ app:
     secret: kR9$F7pLx2A!mZQ4vE#N8JcW@D6sT%qH0B^aM1yUo5eCGrhKPiL
   url:
     frontend: http://localhost:3000
+  webhook:
+    api-key: ${WEBHOOK_API_KEY:wh_8F3kL9mN2pQ7rT1vY4xZ6aB0cD5eG8hJ}
+
+waha:
+  api:
+    url: ${WAHA_API_URL:http://waha:3000}
+    key: ${WAHA_API_KEY:0a506b5cef4643e6972a47579051fc6f}
 
