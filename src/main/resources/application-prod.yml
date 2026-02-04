@@ -1,6 +1,17 @@
 spring:
   application:
-    name: AppDespesas
+    name: ${APPLICATION_NAME}
+  ai:
+    openai:
+      api-key: ${AI_OPENAI_API_KEY}
+      base-url: ${AI_OPENAI_BASE_URL}
+      chat:
+        options:
+          model: ${AI_OPENAI_CHAT_OPTIONS_MODEL}
+          temperature: ${AI_OPENAI_CHAT_OPTIONS_TEMPERATURE}
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
 
 server:
   servlet:
@@ -8,25 +19,25 @@ server:
 
 app:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+    url: ${APP_DATASOURCE_URL}
+    username: ${APP_DATASOURCE_USERNAME}
+    password: ${APP_DATASOURCE_PASSWORD}
+    driver-class-name: ${APP_DATASOURCE_DRIVER_CLASS_NAME}
   jpa:
     hibernate:
       dialect: org.hibernate.dialect.PostgreSQLDialect
       ddl-auto: update
-    show-sql: true
-    format-sql: true
+    show-sql: ${APP_JPA_SHOW_SQL:true}
+    format-sql: ${APP_JPA_FORMAT_SQL:true}
   jwt:
-    secret: kR9$F7pLx2A!mZQ4vE#N8JcW@D6sT%qH0B^aM1yUo5eCGrhKPiL
+    secret: ${APP_JWT_SECRET}
   url:
-    frontend: http://localhost:3000
+    frontend: ${APP_URL_FRONTEND}
   webhook:
-    api-key: ${WEBHOOK_API_KEY:wh_8F3kL9mN2pQ7rT1vY4xZ6aB0cD5eG8hJ}
+    api-key: ${WEBHOOK_API_KEY}
 
 waha:
   api:
-    url: ${WAHA_API_URL:http://waha:3000}
-    key: ${WAHA_API_KEY:0a506b5cef4643e6972a47579051fc6f}
+    url: ${WAHA_API_URL}
+    key: ${WAHA_API_KEY}
 

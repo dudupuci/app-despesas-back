@@ -1,14 +1,14 @@
 spring:
   application:
-    name: AppDespesas
+    name: ${APPLICATION_NAME:AppDespesas}
   ai:
     openai:
-      api-key: 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
-      base-url: https://api.groq.com/openai
+      api-key: ${AI_OPENAI_API_KEY}
+      base-url: ${AI_OPENAI_BASE_URL}
       chat:
         options:
-          model: llama-3.3-70b-versatile
-          temperature: 0.3
+          model: ${AI_OPENAI_CHAT_OPTIONS_MODEL:llama-3.3-70b-versatile}
+          temperature: ${AI_OPENAI_CHAT_OPTIONS_TEMPERATURE:0.3}
   jackson:
     deserialization:
       fail-on-unknown-properties: false
@@ -19,25 +19,25 @@ server:
 
 app:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+    url: ${APP_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${APP_DATASOURCE_USERNAME:postgres}
+    password: ${APP_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: ${APP_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
   jpa:
     hibernate:
       dialect: org.hibernate.dialect.PostgreSQLDialect
-      ddl-auto: update
-    show-sql: true
-    format-sql: true
+      ddl-auto: ${APP_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${APP_JPA_SHOW_SQL:true}
+    format-sql: ${APP_JPA_FORMAT_SQL:true}
   jwt:
-    secret: 9P@rB7xF!mE2W^Tq5yKZ0D#H1J8L$A6cR%M4GQnCseUoipVYdOaXhI
+    secret: ${APP_JWT_SECRET}
   url:
-    frontend: http://localhost:3000
+    frontend: ${APP_URL_FRONTEND}
   webhook:
-    api-key: wh_8F3kL9mN2pQ7rT1vY4xZ6aB0cD5eG8hJ
+    api-key: ${APP_WEBHOOK_API_KEY}
 
 waha:
   api:
-    url: http://localhost:3001
-    key: 0a506b5cef4643e6972a47579051fc6f
+    url: ${WAHA_API_URL}
+    key: ${WAHA_API_KEY}
 
