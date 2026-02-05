@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.controllers.webhooks;
 
-import io.github.dudupuci.appdespesas.controllers.dtos.request.waha.WahaMessageRequestDto;
+import io.github.dudupuci.appdespesas.controllers.dtos.request.waha.WahaWebhookDto;
 import io.github.dudupuci.appdespesas.services.ai.ChatBotService;
 import io.github.dudupuci.appdespesas.services.waha.WahaService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,25 +30,54 @@ public class WebhooksController {
     @PostMapping("/waha")
     public ResponseEntity<?> handleWahaPostWebhook(
             @RequestHeader(value = "X-Webhook-Token") String token,
-            @RequestBody String rawPayload  // ← MUDE AQUI
+            @RequestBody WahaWebhookDto dto
     ) {
-
-        System.out.println("=== PAYLOAD CRU DO WAHA ===");
-        System.out.println(rawPayload);
-        System.out.println("============================");
+        System.out.println("=== DEBUG WEBHOOK ===");
+        System.out.println("Event: " + dto.event());
+        System.out.println("From: " + dto.payload().from());
+        System.out.println("To: " + dto.payload().to());
+        System.out.println("Body: " + dto.payload().body());
+        System.out.println("FromMe: " + dto.payload().fromMe());
+        System.out.println("=== FIM DEBUG ===");
 
         if (token == null || !token.equals(webhookApiKey)) {
-            System.out.println("Token de autenticação ausente ou inválido: " + token);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
 
-        if (rawPayload != null && !rawPayload.isBlank()) {
-            return ResponseEntity.ok("Payload recebido: "+rawPayload);
-
-        } else {
-            System.out.println("Aguardando mensagem de texto para processar...");
-            return ResponseEntity.ok().body("Sem mensagem de texto para processar. Aguardando input do usuário...");
+        // ⚠️ IGNORAR mensagens SUAS
+        if (dto.payload().fromMe()) {
+            return ResponseEntity.ok("Mensagem própria ignorada");
         }
+
+        // ⚠️ IGNORAR mensagens de CANAIS (newsletter)
+        if (dto.payload().from().contains("@newsletter")) {
+            return ResponseEntity.ok("Mensagem de canal ignorada");
+        }
+
+        if (dto.payload().body() != null && !dto.payload().body().isBlank()) {
+            try {
+                String resposta = chatBotService.processarComContexto(
+                        dto.payload().from(),  // chatId
+                        dto.session(),
+                        dto.payload().body()   // texto
+                );
+
+                boolean enviado = wahaService.enviarMensagem(
+                        dto.session(),
+                        dto.payload().from(),
+                        resposta
+                );
+
+                return enviado ?
+                        ResponseEntity.ok("Resposta enviada") :
+                        ResponseEntity.status(500).body("Falha ao enviar");
+
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body("Erro: " + e.getMessage());
+            }
+        }
+
+        return ResponseEntity.ok("Sem mensagem de texto");
     }
 
 
