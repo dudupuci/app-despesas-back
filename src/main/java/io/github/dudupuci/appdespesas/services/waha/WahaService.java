@@ -22,7 +22,7 @@ public class WahaService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${waha.webhook.url:http://localhost:3001}")
+    @Value("${waha.api.url:http://localhost:3001}")
     private String wahaApiUrl;
 
     @Value("${waha.api.key:}")

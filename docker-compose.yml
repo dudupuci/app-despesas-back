@@ -48,7 +48,7 @@ services:
       APP_URL_FRONTEND: ${FRONTEND_URL:-https://seu-frontend.vercel.app}
 
       # WAHA API
-      WAHA_WEBHOOK_URL: http://waha:3000
+      WAHA_API_URL: http://waha:3000
       WAHA_API_KEY: ${WAHA_API_KEY}
     ports:
       - "8080:8080"
