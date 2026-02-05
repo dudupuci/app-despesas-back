@@ -38,7 +38,8 @@ app:
     api-key: ${APP_WEBHOOK_API_KEY}
 
 waha:
+  webhook:
+    url: ${WAHA_WEBHOOK_URL}
   api:
-    url: ${WAHA_API_URL}
     key: ${WAHA_API_KEY}
 
