@@ -32,6 +32,14 @@ public class WebhooksController {
             @RequestBody WahaMessageRequestDto dto
     ) {
 
+        System.out.println("=== DEBUG WEBHOOK ===");
+        System.out.println("Token recebido: " + token);
+        System.out.println("DTO recebido: " + dto);
+        System.out.println("DTO text: " + dto.text());
+        System.out.println("DTO session: " + dto.session());
+        System.out.println("DTO chatId: " + dto.chatId());
+        System.out.println("=== FIM DEBUG ===");
+
         if (token == null || !token.equals(webhookApiKey)) {
             System.out.println("Token de autenticação ausente ou inválido: " + token);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
