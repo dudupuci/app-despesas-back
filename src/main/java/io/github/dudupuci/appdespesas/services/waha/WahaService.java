@@ -84,46 +84,5 @@ public class WahaService {
         }
     }
 
-    /**
-     * Envia uma mensagem de reação (emoji) para uma mensagem específica
-     *
-     * @param session   Nome da sessão do WAHA
-     * @param chatId    ID do chat
-     * @param messageId ID da mensagem para reagir
-     * @param emoji     Emoji da reação (ex: 👍, ❤️)
-     * @return true se enviado com sucesso
-     */
-    public boolean enviarReacao(String session, String chatId, String messageId, String emoji) {
-        try {
-            String url = wahaApiUrl + "/api/sendReaction";
-
-            Map<String, String> payload = Map.of(
-                    "session", session,
-                    "chatId", chatId,
-                    "messageId", messageId,
-                    "reaction", emoji
-            );
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            // Adicionar X-Api-Key se configurado
-            if (wahaApiKey != null && !wahaApiKey.isBlank()) {
-                headers.set("X-Api-Key", wahaApiKey);
-            }
-
-            HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
-
-            log.info("📤 Enviando reação para WAHA: emoji={}", emoji);
-
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-            return response.getStatusCode().is2xxSuccessful();
-
-        } catch (Exception e) {
-            log.error("❌ Erro ao enviar reação para o WAHA", e);
-            return false;
-        }
-    }
 }
 

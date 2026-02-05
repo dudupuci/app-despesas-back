@@ -26,7 +26,33 @@ public class WebhooksController {
         this.wahaService = wahaService;
     }
 
+
     @PostMapping("/waha")
+    public ResponseEntity<?> handleWahaPostWebhook(
+            @RequestHeader(value = "X-Webhook-Token") String token,
+            @RequestBody String rawPayload  // ← MUDE AQUI
+    ) {
+
+        System.out.println("=== PAYLOAD CRU DO WAHA ===");
+        System.out.println(rawPayload);
+        System.out.println("============================");
+
+        if (token == null || !token.equals(webhookApiKey)) {
+            System.out.println("Token de autenticação ausente ou inválido: " + token);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+
+        if (rawPayload != null && !rawPayload.isBlank()) {
+            return ResponseEntity.ok("Payload recebido: "+rawPayload);
+
+        } else {
+            System.out.println("Aguardando mensagem de texto para processar...");
+            return ResponseEntity.ok().body("Sem mensagem de texto para processar. Aguardando input do usuário...");
+        }
+    }
+
+
+    /*@PostMapping("/waha")
     public ResponseEntity<?> handleWahaPostWebhook(
             @RequestHeader(value = "X-Webhook-Token") String token,
             @RequestBody WahaMessageRequestDto dto
@@ -82,4 +108,6 @@ public class WebhooksController {
             return ResponseEntity.ok().body("Sem mensagem de texto para processar. Aguardando input do usuário...");
         }
     }
+
+     */
 }
