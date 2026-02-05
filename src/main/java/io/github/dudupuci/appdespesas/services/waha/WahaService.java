@@ -2,6 +2,8 @@ package io.github.dudupuci.appdespesas.services.waha;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,6 +27,9 @@ public class WahaService {
 
     @Value("${waha.api.key:}")
     private String wahaApiKey;
+
+    @Value("${app.webhook.url:http://localhost:8080}") // URL do SEU backend
+    private String backendUrl;
 
     public WahaService() {
         this.restTemplate = new RestTemplate();

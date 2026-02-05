@@ -1,14 +1,16 @@
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
   application:
     name: ${APPLICATION_NAME}
   ai:
     openai:
-      api-key: ${AI_OPENAI_API_KEY}
-      base-url: ${AI_OPENAI_BASE_URL}
+      api-key: ${SPRING_AI_OPENAI_API_KEY}
+      base-url: ${SPRING_AI_OPENAI_BASE_URL}
       chat:
         options:
-          model: ${AI_OPENAI_CHAT_OPTIONS_MODEL}
-          temperature: ${AI_OPENAI_CHAT_OPTIONS_TEMPERATURE}
+          model: ${SPRING_AI_OPENAI_CHAT_OPTIONS_MODEL}
+          temperature: ${SPRING_AI_OPENAI_CHAT_OPTIONS_TEMPERATURE}
   jackson:
     deserialization:
       fail-on-unknown-properties: false
@@ -34,6 +36,7 @@ app:
   url:
     frontend: ${APP_URL_FRONTEND}
   webhook:
+    url: ${APP_WEBHOOK_URL}
     api-key: ${WEBHOOK_API_KEY}
 
 waha:

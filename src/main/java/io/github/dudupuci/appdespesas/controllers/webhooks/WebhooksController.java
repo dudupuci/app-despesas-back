@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/webhooks")
 @Slf4j
@@ -30,12 +31,12 @@ public class WebhooksController {
             @RequestHeader(value = "X-Webhook-Token", required = false) String token,
             @RequestBody WahaMessageRequestDto dto
     ) {
-        // Validar API Key
+        /*
         if (token == null || !token.equals(webhookApiKey)) {
-            log.warn("⚠️ Tentativa de acesso ao webhook sem API Key válida");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Unauthorized: Invalid or missing X-Webhook-Token");
+            log.warn("⚠️ Token inválido");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
+        */
 
         log.info("📱 Webhook WAHA recebido:");
         log.info("Chat ID: {}", dto.chatId());

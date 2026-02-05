@@ -35,5 +35,5 @@ build/
 ### Environment Variables ###
 .env
 ./CONVERSA-CONTINUA-IMPLEMENTADA.md
-./GUIA-COMPLETO-DOCKER-WAHA.md
+./DOCKER-GUIDE.md
 
