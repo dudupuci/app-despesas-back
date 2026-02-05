@@ -27,7 +27,7 @@ public class ChatBotService {
     }
 
     /**
-     * Processa mensagem COM contexto da conversa (NOVO!)
+     * Processa mensagem COM contexto da conversa
      */
     public String processarComContexto(String chatId, String session, String mensagemUsuario) {
         log.info("📩 Processando mensagem com contexto: chatId={}, mensagem={}", chatId, mensagemUsuario);
@@ -95,63 +95,4 @@ public class ChatBotService {
         }
     }
 
-    /**
-     * Processa mensagem SEM contexto (método legado mantido por compatibilidade)
-     */
-    public String processar(String mensagem) {
-        log.info("📩 Processando mensagem com Groq: {}", mensagem);
-
-        String systemPrompt = """
-            Você é um assistente financeiro do app AppDespesas configurado pelo Eduardo.
-            Suas funções são:
-            - Verificar se o usuário tem registro no AppDespesas
-            - Se ele tiver registro, validar a autenticação (mas não peça senha em hipótese alguma)
-            - Se ele não tiver registro, oriente-o a criar uma conta no AppDespesas
-            - Ajudar usuários a registrar despesas e entradas.
-            
-            Quando o usuário descrever uma despesa ou entrada, extraia:
-            ====================== JSON - INICIO ======================
-            - Tipo (obrigátorio): DESPESA ou ENTRADA
-            - Valor em reais (obrigátorio)
-            - Descrição (opcional)
-            - Categoria (obrigátorio) (Alimentação, Transporte, Lazer, etc)
-            - Data (se não especificada, use a data atual)
-             ====================== JSON - FIM ======================
-            Observação:
-            - Quando tiver pelo menos todos os campos obrigatórios, retorne APENAS o JSON solicitado, sem texto adicional.
-            - Se faltar algum campo obrigatório, peça educadamente que o usuário forneça as informações faltantes.
-            - Nunca retorne nada que não seja o JSON quando todos os campos obrigatórios estiverem presentes.
-            - Sempre retorne o JSON no formato correto, com aspas duplas.
-            - Peça para o usuário confirmar as informações antes de registrar a despesa ou entrada.
-            - Caso ele queira adicionar ou editar algum campo, permita que ele faça isso antes de finalizar o registro.
-            - Lembre-se de ser educado e prestativo.
-            
-            Seja breve e objetivo.
-            """;
-
-        try {
-            log.info("🔧 Criando SystemMessage e UserMessage...");
-            Message systemMessage = new SystemMessage(systemPrompt);
-            Message userMessage = new UserMessage(mensagem);
-
-            log.info("🔧 Criando Prompt com {} mensagens", List.of(systemMessage, userMessage).size());
-            Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
-
-            log.info("🚀 Chamando Groq API...");
-            ChatResponse response = chatModel.call(prompt);
-
-            String resposta = response.getResult().getOutput().getText();
-            log.info("✅ Resposta do Groq recebida com sucesso: {}", resposta);
-            return resposta;
-
-        } catch (Exception e) {
-            log.error("❌ Erro ao processar com Groq", e);
-            log.error("❌ Tipo do erro: {}", e.getClass().getName());
-            log.error("❌ Mensagem do erro: {}", e.getMessage());
-            if (e.getCause() != null) {
-                log.error("❌ Causa raiz: {}", e.getCause().getMessage());
-            }
-            return "Desculpe, não consegui processar sua mensagem no momento.";
-        }
-    }
 }

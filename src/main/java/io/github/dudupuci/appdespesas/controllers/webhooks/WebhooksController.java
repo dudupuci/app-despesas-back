@@ -28,23 +28,16 @@ public class WebhooksController {
 
     @PostMapping("/waha")
     public ResponseEntity<?> handleWahaPostWebhook(
-            @RequestHeader(value = "X-Webhook-Token", required = false) String token,
+            @RequestHeader(value = "X-Webhook-Token") String token,
             @RequestBody WahaMessageRequestDto dto
     ) {
-        /*
+
         if (token == null || !token.equals(webhookApiKey)) {
-            log.warn("⚠️ Token inválido");
+            System.out.println("Token de autenticação ausente ou inválido: " + token);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
-        */
-
-        log.info("📱 Webhook WAHA recebido:");
-        log.info("Chat ID: {}", dto.chatId());
-        log.info("Session: {}", dto.session());
 
         if (dto.text() != null && !dto.text().isBlank()) {
-            log.info("📩 Mensagem: {}", dto.text());
-
             try {
                 // Processar com IA MANTENDO CONTEXTO DA CONVERSA
                 String resposta = chatBotService.processarComContexto(
@@ -52,7 +45,7 @@ public class WebhooksController {
                         dto.session(),
                         dto.text()
                 );
-                log.info("🤖 Resposta gerada pela IA: {}", resposta);
+                System.out.println("Resposta gerada pela IA: " + resposta);
 
                 // Enviar resposta de volta para o WhatsApp via WAHA
                 boolean enviado = wahaService.enviarMensagem(
@@ -62,23 +55,23 @@ public class WebhooksController {
                 );
 
                 if (enviado) {
-                    log.info("✅ Resposta enviada com sucesso para o WhatsApp!");
-                    return ResponseEntity.ok().body("Message processed and replied successfully");
+                    System.out.println("Resposta enviada com sucesso para o WhatsApp");
+                    return ResponseEntity.ok().body("Mensagem processada e resposta enviada");
                 } else {
-                    log.error("❌ Falha ao enviar resposta para o WhatsApp");
+                    System.out.println("Falha ao enviar resposta para o WhatsApp");
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body("Message processed but failed to send reply");
+                            .body("Mensagem processada, mas falha ao enviar resposta para o WhatsApp");
                 }
 
             } catch (Exception e) {
-                log.error("❌ Erro ao processar mensagem", e);
+                System.out.println("Erro ao processar mensagem: " + e.getMessage());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("Error processing message: " + e.getMessage());
             }
 
         } else {
-            log.info("ℹ️ Nenhuma mensagem de texto recebida (pode ser imagem, áudio, etc)");
-            return ResponseEntity.ok().body("No text message to process");
+            System.out.println("Aguardando mensagem de texto para processar...");
+            return ResponseEntity.ok().body("Sem mensagem de texto para processar. Aguardando input do usuário...");
         }
     }
 }
