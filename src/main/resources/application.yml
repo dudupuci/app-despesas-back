@@ -12,3 +12,12 @@ app:
   url:
     frontend: http://localhost:3000
 
+tudin:
+  app:
+    super-adm-id: 839ca206-bc76-427d-b2f2-92a502c6b3b8
+    super-adm-name: Eduardo
+    super-adm-middleName: Pucinelli
+    super-adm-email: contato@tudinapp.com.br
+    super-adm-username: eduardo.pucinelli
+    super-adm-password: $2a$10$sbjfQBcevMHF80WwjaxBA.57jQsuZybpRcJ/Qq1FoDX.7D9mTwo4.
+

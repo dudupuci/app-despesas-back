@@ -36,4 +36,5 @@ build/
 .env
 ./CONVERSA-CONTINUA-IMPLEMENTADA.md
 ./DOCKER-GUIDE.md
+./cola
 

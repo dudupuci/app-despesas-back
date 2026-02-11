@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -54,19 +55,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UsuarioSistema user = usuariosRepository.buscarPorEmail(email);
+            Optional<UsuarioSistema> usuarioOptional = usuariosRepository.buscarPorEmail(email);
 
-            if (user != null) {
-                var authority = new SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().getNome()
-                );
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                user,
-                                null,
-                                List.of(authority)
-                        );
+            if (usuarioOptional.isPresent()) {
+                UsernamePasswordAuthenticationToken authentication = getUsernamePasswordAuthenticationToken(usuarioOptional);
 
                 authentication.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
@@ -78,5 +70,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private static UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(Optional<UsuarioSistema> usuarioOptional) {
+        assert usuarioOptional.isPresent() : "Usuário deve estar presente para criar AuthenticationToken";
+        UsuarioSistema usuarioSistema = usuarioOptional.get();
+
+        var authority = new SimpleGrantedAuthority(
+                "ROLE_" + usuarioSistema.getRole().getNome()
+        );
+
+        return new UsernamePasswordAuthenticationToken(
+                usuarioSistema,  // Passa o objeto UsuarioSistema, não Optional
+                null,
+                List.of(authority)
+        );
     }
 }

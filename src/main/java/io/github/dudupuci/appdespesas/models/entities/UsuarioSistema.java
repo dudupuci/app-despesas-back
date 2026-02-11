@@ -14,6 +14,12 @@ import java.util.List;
 @Setter
 public class UsuarioSistema extends Usuario {
 
+    /**
+     * ID fixo do Super Admin do sistema
+     * Este UUID é conhecido e usado para identificar dados padrão do sistema
+     */
+    public static final java.util.UUID SUPER_ADMIN_ID = java.util.UUID.fromString("839ca206-bc76-427d-b2f2-92a502c6b3b8");
+
     @Column(unique = true, name = "nome_usuario")
     private String nomeUsuario;
 

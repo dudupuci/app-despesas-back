@@ -28,7 +28,6 @@ public class MovimentacoesController {
 
     @PostMapping
     public ResponseEntity<MovimentacaoCriadaResponseDto> create(@RequestBody CriarMovimentacaoRequestDto dto) {
-        // Obtém o ID do usuário autenticado do token JWT
         UUID usuarioId = getUsuarioAutenticadoId();
 
         Movimentacao movimentacao = service.criarMovimentacao(dto, usuarioId);
@@ -66,6 +65,8 @@ public class MovimentacoesController {
         return ResponseEntity.noContent().build();
     }
 
+
+    // Obtém o ID do usuário autenticado do token JWT
     private UUID getUsuarioAutenticadoId() {
         return SecurityUtils.getUsuarioAutenticadoId();
     }

@@ -7,8 +7,12 @@ import io.github.dudupuci.appdespesas.models.enums.TipoPeriodo;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 public final class AppDespesasUtils {
+    public static final String ATIVO = "ATIVO";
+    public static final String INATIVO = "INATIVO";
+    public static final String DD_MM_YYYY = "dd/MM/yyyy";
 
     public static boolean isEntidadeNotNull(Entidade entidade) {
         return entidade != null && entidade.getId() != null;
@@ -19,7 +23,7 @@ public final class AppDespesasUtils {
     }
 
     public static boolean isCategoriaAtiva(Categoria categoria) {
-        return isEntidadeNotNull(categoria) && AppDespesasConstants.ATIVO.equalsIgnoreCase(categoria.getStatus().getNome());
+        return isEntidadeNotNull(categoria) && ATIVO.equalsIgnoreCase(categoria.getStatus().getNome());
     }
 
     public static Date converterDataFromStringDiaMesAno(String dataString) {
@@ -32,6 +36,13 @@ public final class AppDespesasUtils {
         calendar.set(ano, mes, dia, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
+    }
+
+    /**
+     * Alias para converterDataFromStringDiaMesAno para manter compatibilidade
+     */
+    public static Date converterStringParaDate(String dataString) {
+        return converterDataFromStringDiaMesAno(dataString);
     }
 
     /**

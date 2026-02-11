@@ -1,12 +1,12 @@
 package io.github.dudupuci.appdespesas.repositories;
 
-import io.github.dudupuci.appdespesas.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
-import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
-import io.github.dudupuci.appdespesas.models.entities.base.BaseRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
+import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,76 +14,43 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class CategoriasRepository implements BaseRepository<Categoria> {
+public interface CategoriasRepository extends JpaRepository<Categoria, UUID> {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    /**
+     * Busca categorias por busca textual (nome ou descrição)
+     */
+    @Query("SELECT c FROM Categoria c WHERE LOWER(c.nome) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(c.descricao) LIKE LOWER(CONCAT('%', :search, '%'))")
+    List<Categoria> listarCategoriasBySearch(@Param("search") String search);
 
-    public CategoriasRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+    /**
+     * Lista todas categorias de um usuário, opcionalmente filtradas por tipo
+     */
+    @Query("SELECT c FROM Categoria c WHERE 1=1 " +
+            "AND (c.usuarioSistema.id = :usuarioId OR c.administradorId = :administradorId) " +
+            "AND (:tipoMovimentacao IS NULL OR c.tipoMovimentacao = :tipoMovimentacao) " +
+            "ORDER BY c.dataCriacao DESC")
+    List<Categoria> listarTodasPorUsuarioId(
+            @Param("usuarioId") UUID usuarioId,
+            @Param("administradorId") UUID administradorId,
+            @Param("tipoMovimentacao") TipoMovimentacao tipoMovimentacao);
 
-    @Override
-    public void salvar(Categoria entidade) {
-        entityManager.merge(entidade);
-    }
+    /**
+     * Busca categoria por nome
+     */
+    @Query("SELECT c FROM Categoria c WHERE c.nome = :nome")
+    Optional<Categoria> buscarPorNome(@Param("nome") String nome);
 
-    public List<Categoria> listarCategoriasBySearch(String search) {
-        if (search == null || search.trim().isEmpty()) {
-            String jpqlAll = "SELECT c FROM Categoria c";
-            return entityManager.createQuery(jpqlAll, Categoria.class)
-                    .getResultList();
-        }
+    /**
+     * Busca uma categoria por nome e usuário
+     * Usado pelo DataInitializer para verificar se categoria padrão já existe
+     */
+    @Query("SELECT c FROM Categoria c WHERE c.nome = :nome AND c.usuarioSistema = :usuario")
+    Categoria buscarPorNomeEUsuario(@Param("nome") String nome, @Param("usuario") UsuarioSistema usuarioSistema);
 
-        String jpql = "SELECT c FROM Categoria c " +
-                "WHERE LOWER(c.nome) LIKE LOWER(:search) " +
-                "OR LOWER(c.descricao) LIKE LOWER(:search)";
-        return entityManager.createQuery(jpql, Categoria.class)
-                .setParameter("search", "%" + search + "%")
-                .getResultList();
-    }
-
-    public List<Categoria> listarTodasPorUsuarioId(UUID usuarioId, Object tipoMovimentacao) {
-        StringBuilder jpql = new StringBuilder("SELECT c FROM Categoria c WHERE c.usuarioSistema.id = :usuarioId");
-
-        // Adiciona filtro por tipo se fornecido
-        if (tipoMovimentacao != null) {
-            jpql.append(" AND c.tipoMovimentacao = :tipoMovimentacao");
-        }
-
-        jpql.append(" ORDER BY c.dataCriacao DESC");
-
-        TypedQuery<Categoria> query = entityManager.createQuery(jpql.toString(), Categoria.class);
-        query.setParameter("usuarioId", usuarioId);
-
-        if (tipoMovimentacao != null) {
-            query.setParameter("tipoMovimentacao", tipoMovimentacao);
-        }
-
-        return query.getResultList();
-    }
-
-    @Override
-    public Categoria buscarPorId(Object id) throws EntityNotFoundException {
-        Categoria categoria = entityManager.find(Categoria.class, id);
-        if (categoria == null) {
-            throwEntityNotFound("Categoria", id);
-        }
-        return categoria;
-    }
-
-    public Optional<Categoria> buscarPorNome(String nome) {
-        String jpql = "SELECT c FROM Categoria c WHERE c.nome = :nome";
-        Categoria categoria = entityManager.createQuery(jpql, Categoria.class)
-                .setParameter("nome", nome)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
-        return Optional.ofNullable(categoria);
-    }
-
-    @Override
-    public void deletar(Categoria categoria) {
-        entityManager.remove(categoria);
-    }
+    /**
+     * Busca uma categoria por nome e administrador (para dados do sistema)
+     */
+    @Query("SELECT c FROM Categoria c WHERE c.nome = :nome AND c.administradorId = :administradorId")
+    Categoria buscarPorNomeEAdministrador(@Param("nome") String nome, @Param("administradorId") UUID administradorId);
 }

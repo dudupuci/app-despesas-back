@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "categorias")
@@ -31,10 +32,15 @@ public class Categoria extends EntidadeUuid {
     @JsonIgnore
     private Set<Movimentacao> movimentacoes;
 
+    // Relacionamento OPCIONAL com UsuarioSistema (para categorias criadas por usuários)
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id")
     @JsonIgnore
     private UsuarioSistema usuarioSistema;
+
+    // ID OPCIONAL do Administrador (para categorias criadas pelo sistema)
+    @Column(name = "administrador_id")
+    private UUID administradorId;
 
     public Categoria() {}
 
@@ -44,5 +50,12 @@ public class Categoria extends EntidadeUuid {
         this.tipoMovimentacao = tipoMovimentacao;
         this.movimentacoes = new HashSet<>();
         this.status = Status.ATIVO;
+    }
+
+    /**
+     * Verifica se a categoria foi criada pelo sistema (administrador)
+     */
+    public boolean isCriadaPeloSistema() {
+        return administradorId != null;
     }
 }

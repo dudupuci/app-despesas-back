@@ -8,7 +8,7 @@ import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.RefreshToke
 import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.Role;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.repositories.RolesRepository;
+import io.github.dudupuci.appdespesas.repositories.RoleRepository;
 import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
 import io.github.dudupuci.appdespesas.services.generators.UsernameGenerator;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
@@ -17,19 +17,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class AuthService {
 
     private final UsuariosRepository usuariosRepository;
-    private final RolesRepository rolesRepository;
+    private final RoleRepository rolesRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
     private final UsernameGenerator usernameGenerator;
 
     public AuthService(
             UsuariosRepository usuariosRepository,
-            RolesRepository rolesRepository,
+            RoleRepository rolesRepository,
             PasswordEncoder passwordEncoder,
             JwtConfig jwtConfig,
             UsernameGenerator usernameGenerator
@@ -44,7 +45,7 @@ public class AuthService {
     @Transactional
     public AuthResponseDto registrar(RegistroRequestDto dto) {
         // Validar se email já existe
-        if (usuariosRepository.existePorEmail(dto.email())) {
+        if (usuariosRepository.existsByEmail(dto.email())) {
             throw new EmailJaExisteException(
                     AppDespesasMessages.getMessage(
                             "auth.email.ja.existe",
@@ -76,7 +77,7 @@ public class AuthService {
         String usernameGerado = usernameGenerator.gerarUsernameParaUsuarioSistema(novoUsuario);
         novoUsuario.setNomeUsuario(usernameGerado);
 
-        usuariosRepository.salvar(novoUsuario);
+        usuariosRepository.save(novoUsuario);
 
         // Gerar tokens
         String accessToken = jwtConfig.generateAccessToken(novoUsuario);
@@ -88,33 +89,33 @@ public class AuthService {
     @Transactional
     public AuthResponseDto login(AuthRequestDto dto) {
         // Buscar usuário por email
-        UsuarioSistema usuario = usuariosRepository.buscarPorEmail(dto.email());
+        Optional<UsuarioSistema> usuario = usuariosRepository.buscarPorEmail(dto.email());
 
-        if (usuario == null) {
+        if (usuario.isEmpty()) {
             throw new CredenciaisInvalidasException(
                     AppDespesasMessages.getMessage("auth.credenciais.invalidas")
             );
         }
 
         // Validar senha
-        if (!passwordEncoder.matches(dto.senha(), usuario.getSenha())) {
+        if (!passwordEncoder.matches(dto.senha(), usuario.get().getSenha())) {
             throw new CredenciaisInvalidasException(
                     AppDespesasMessages.getMessage("auth.credenciais.invalidas")
             );
         }
 
         // Validar se usuário está ativo
-        if (!usuario.getAtivo()) {
+        if (!usuario.get().getAtivo()) {
             throw new UsuarioInativoException(
                     AppDespesasMessages.getMessage("auth.usuario.inativo")
             );
         }
 
         // Gerar tokens
-        String accessToken = jwtConfig.generateAccessToken(usuario);
-        String refreshToken = jwtConfig.generateRefreshToken(usuario);
+        String accessToken = jwtConfig.generateAccessToken(usuario.get());
+        String refreshToken = jwtConfig.generateRefreshToken(usuario.get());
 
-        return AuthResponseDto.fromEntityLogin(usuario, accessToken, refreshToken);
+        return AuthResponseDto.fromEntityLogin(usuario.get(), accessToken, refreshToken);
     }
 
     private void validarSenha(RegistroRequestDto dto) {
@@ -134,23 +135,23 @@ public class AuthService {
             String email = jwtConfig.extractEmail(refreshToken);
 
             // Busca o usuário
-            UsuarioSistema usuario = usuariosRepository.buscarPorEmail(email);
+            Optional<UsuarioSistema> usuario = usuariosRepository.buscarPorEmail(email);
 
-            if (usuario == null) {
+            if (usuario.isEmpty()) {
                 throw new CredenciaisInvalidasException(
                         AppDespesasMessages.getMessage("auth.token.invalido")
                 );
             }
 
             // Valida se usuário está ativo
-            if (!usuario.getAtivo()) {
+            if (!usuario.get().getAtivo()) {
                 throw new UsuarioInativoException(
                         AppDespesasMessages.getMessage("auth.usuario.inativo")
                 );
             }
 
             // Gera novo access token
-            String newAccessToken = jwtConfig.generateAccessToken(usuario);
+            String newAccessToken = jwtConfig.generateAccessToken(usuario.get());
 
             return RefreshTokenResponseDto.of(newAccessToken);
 

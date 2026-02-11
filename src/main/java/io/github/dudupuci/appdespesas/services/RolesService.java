@@ -2,7 +2,7 @@ package io.github.dudupuci.appdespesas.services;
 
 import io.github.dudupuci.appdespesas.controllers.dtos.request.role.CriarRoleRequestDto;
 import io.github.dudupuci.appdespesas.models.entities.Role;
-import io.github.dudupuci.appdespesas.repositories.RolesRepository;
+import io.github.dudupuci.appdespesas.repositories.RoleRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +11,14 @@ import java.util.List;
 @Service
 public class RolesService {
 
-    private final RolesRepository rolesRepository;
+    private final RoleRepository rolesRepository;
 
-    public RolesService(RolesRepository rolesRepository) {
+    public RolesService(RoleRepository rolesRepository) {
         this.rolesRepository = rolesRepository;
     }
 
     public List<Role> buscarTodos() {
-        return rolesRepository.buscarTodos();
+        return rolesRepository.findAll();
     }
 
     @Transactional
@@ -30,7 +30,7 @@ public class RolesService {
                     dto.descricao(),
                     dto.poder()
             );
-            rolesRepository.salvar(role);
+            rolesRepository.save(role);
         }
         return role;
     }

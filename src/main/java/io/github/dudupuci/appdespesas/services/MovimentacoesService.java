@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,7 +36,8 @@ public class MovimentacoesService {
     }
 
     public Movimentacao buscarPorId(Long id) throws EntityNotFoundException {
-        return this.repository.buscarPorId(id);
+        return this.repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Movimentação com ID " + id + " não encontrada"));
     }
 
     public List<Movimentacao> listarTodasPorUsuarioId(
@@ -52,40 +54,45 @@ public class MovimentacoesService {
             Date[] periodo = AppDespesasUtils.calcularPeriodo(tipoPeriodo, dataReferencia);
             dataInicio = periodo[0];
             dataFim = periodo[1];
-
-            // ⚠️ LOG TEMPORÁRIO PARA DEBUG
-            System.out.println("========== DEBUG PERÍODO ==========");
-            System.out.println("Data Referência: " + dataReferencia);
-            System.out.println("Tipo Período: " + tipoPeriodo);
-            System.out.println("Data Início: " + dataInicio);
-            System.out.println("Data Fim: " + dataFim);
-            System.out.println("===================================");
         }
 
-        return this.repository.listarTodasPorUsuarioId(usuarioId, tipoMovimentacao, dataInicio, dataFim);
+        // Chama o método correto do repository baseado nos filtros
+        if (tipoMovimentacao != null && dataInicio != null && dataFim != null) {
+            // Filtro por tipo E período
+            return this.repository.listarPorUsuarioIdTipoEPeriodo(usuarioId, tipoMovimentacao, dataInicio, dataFim);
+        } else if (tipoMovimentacao != null) {
+            // Filtro apenas por tipo
+            return this.repository.listarPorUsuarioIdETipo(usuarioId, tipoMovimentacao);
+        } else if (dataInicio != null && dataFim != null) {
+            // Filtro apenas por período
+            return this.repository.listarPorUsuarioIdEPeriodo(usuarioId, dataInicio, dataFim);
+        } else {
+            // Sem filtros
+            return this.repository.listarTodasPorUsuarioId(usuarioId);
+        }
     }
 
     @Transacional
     public Movimentacao criarMovimentacao(CriarMovimentacaoRequestDto dto, UUID usuarioId) {
         Movimentacao movimentacao;
         Categoria tempCategoria;
-        UsuarioSistema usuario;
+        Optional<UsuarioSistema> usuario;
 
         try {
             // Buscar e validar categoria
             tempCategoria = this.categoriasService.validarCategoriaPorId(dto.categoriaId());
 
             // Buscar usuário
-            usuario = this.usuariosRepository.buscarPorId(usuarioId);
-            if (usuario == null) {
+            usuario = this.usuariosRepository.findById(usuarioId);
+            if (usuario.isEmpty()) {
                 throw new UsuarioNotFoundException("Usuário não encontrado");
             }
 
             // Criar movimentação
             movimentacao = dto.toMovimentacao();
             movimentacao.setCategoria(tempCategoria);
-            movimentacao.setUsuarioSistema(usuario);
-            repository.salvar(movimentacao);
+            movimentacao.setUsuarioSistema(usuario.get());
+            repository.save(movimentacao);
 
         } catch (EntityNotFoundException e) {
             throw new CategoriaNotFoundException(e.getMessage());
@@ -102,10 +109,11 @@ public class MovimentacoesService {
             Movimentacao movimentacao = buscarPorId(id);
 
             if (AppDespesasUtils.isEntidadeNotNull(movimentacao)) {
-                this.repository.deletar(movimentacao);
+                this.repository.delete(movimentacao);
             }
         } catch (EntityNotFoundException e) {
             throw new MovimentacaoNotFoundException(e.getMessage());
         }
     }
+
 }

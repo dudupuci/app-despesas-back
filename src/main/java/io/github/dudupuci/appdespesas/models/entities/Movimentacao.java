@@ -3,6 +3,7 @@ package io.github.dudupuci.appdespesas.models.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.dudupuci.appdespesas.models.entities.base.Entidade;
+import io.github.dudupuci.appdespesas.models.entities.base.EntidadeUuid;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Table(name = "movimentacoes")
 @Getter
 @Setter
-public class Movimentacao extends Entidade {
+public class Movimentacao extends EntidadeUuid {
 
     public Movimentacao(){}
 
@@ -44,6 +45,10 @@ public class Movimentacao extends Entidade {
     @JoinColumn(name = "usuario_id", nullable = false)
     @JsonIgnore
     private UsuarioSistema usuarioSistema;
+
+    @Column(name = "is_recorrente", nullable = false)
+    private Boolean isRecorrente = false;
+
 
     @JsonProperty("categoriaId")
     public UUID getCategoriaId() {

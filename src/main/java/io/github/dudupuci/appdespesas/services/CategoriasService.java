@@ -4,14 +4,13 @@ import io.github.dudupuci.appdespesas.config.persistence.Transacional;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.categoria.CriarCategoriaRequestDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
-import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
 import io.github.dudupuci.appdespesas.repositories.CategoriasRepository;
 import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
-import io.github.dudupuci.appdespesas.utils.AppDespesasConstants;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import io.github.dudupuci.appdespesas.utils.AppDespesasUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +23,9 @@ public class CategoriasService {
     private final CategoriasRepository repository;
     private final UsuariosRepository usuariosRepository;
 
+    @Value("${tudin.app.super-adm-id}")
+    private String superAdmId;
+
     public CategoriasService(CategoriasRepository repository, UsuariosRepository usuariosRepository) {
         this.repository = repository;
         this.usuariosRepository = usuariosRepository;
@@ -35,19 +37,19 @@ public class CategoriasService {
 
     @Transacional
     public Categoria createCategoria(CriarCategoriaRequestDto dto, UUID usuarioId) {
-        UsuarioSistema usuario;
+        Optional<UsuarioSistema> usuario;
 
         try {
             validarCriacao(dto);
             // Buscar usuário
-            usuario = this.usuariosRepository.buscarPorId(usuarioId);
-            if (usuario == null) {
+            usuario = this.usuariosRepository.findById(usuarioId);
+            if (usuario.isEmpty()) {
                 throw new UsuarioNotFoundException("Usuário não encontrado");
             }
 
             Categoria categoria = dto.toCategoria();
-            categoria.setUsuarioSistema(usuario);
-            this.repository.salvar(categoria);
+            categoria.setUsuarioSistema(usuario.get());
+            this.repository.save(categoria);
             return categoria;
         } catch (CategoriaJaExisteException err) {
             throw new CategoriaJaExisteException(AppDespesasMessages.getMessage(
@@ -58,11 +60,16 @@ public class CategoriasService {
     }
 
     public Categoria buscarPorId(UUID id) throws EntityNotFoundException {
-        return this.repository.buscarPorId(id);
+        return this.repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Categoria com ID " + id + " não encontrada"));
     }
 
-    public List<Categoria> listarTodasPorUsuarioId(UUID usuarioId, TipoMovimentacao tipoMovimentacao) {
-        return this.repository.listarTodasPorUsuarioId(usuarioId, tipoMovimentacao);
+    public List<Categoria> listarTodasPorUsuarioId(
+            UUID usuarioId,
+            TipoMovimentacao tipoMovimentacao
+    ) {
+
+        return this.repository.listarTodasPorUsuarioId(usuarioId, getSuperAdmId() ,tipoMovimentacao);
     }
 
     private void validarCriacao(CriarCategoriaRequestDto dto) {
@@ -93,10 +100,18 @@ public class CategoriasService {
             Categoria categoria = buscarPorId(id);
 
             if (AppDespesasUtils.isEntidadeNotNull(categoria)) {
-                this.repository.deletar(categoria);
+                this.repository.delete(categoria);
             }
         } catch (EntityNotFoundException e) {
             throw new CategoriaNotFoundException(e.getMessage());
+        }
+    }
+
+    private UUID getSuperAdmId() {
+        try {
+            return UUID.fromString(superAdmId);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("ID do super administrador configurado é inválido: " + superAdmId);
         }
     }
 }
