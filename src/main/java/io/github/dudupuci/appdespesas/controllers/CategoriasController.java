@@ -5,11 +5,9 @@ import io.github.dudupuci.appdespesas.controllers.dtos.response.categoria.Catego
 import io.github.dudupuci.appdespesas.controllers.dtos.response.categoria.ListCategoriaResponseDto;
 import io.github.dudupuci.appdespesas.exceptions.CategoriaJaExisteException;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
-import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
 import io.github.dudupuci.appdespesas.services.CategoriasService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +36,20 @@ public class CategoriasController {
             Categoria categoria = service.createCategoria(dto, usuarioId);
             return ResponseEntity.created(URI.create("/categorias/" + categoria.getId()))
                     .body(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
+        } catch (CategoriaJaExisteException err) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoriaCriadaResponseDto> update(
+            @PathVariable UUID id,
+            @RequestBody CriarCategoriaRequestDto dto
+    ) {
+        try {
+            UUID usuarioId = getUsuarioAutenticadoId();
+            Categoria categoria = service.updateCategoria(id, dto, usuarioId);
+            return ResponseEntity.ok(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
         } catch (CategoriaJaExisteException err) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }

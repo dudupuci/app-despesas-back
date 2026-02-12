@@ -6,6 +6,7 @@ import io.github.dudupuci.appdespesas.models.entities.Cor;
 import io.github.dudupuci.appdespesas.services.CorService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,17 +57,6 @@ public class CoresController {
         UUID usuarioId = getUsuarioAutenticadoId();
         Cor cor = corService.buscarPorId(id, usuarioId);
         return ResponseEntity.ok(cor);
-    }
-
-    /**
-     * Pesquisar cores por nome
-     * GET /cores/pesquisar?nome=vermelho
-     */
-    @GetMapping("/pesquisar")
-    public ResponseEntity<List<Cor>> pesquisar(@RequestParam String nome) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        List<Cor> cores = corService.pesquisarPorNome(nome, usuarioId);
-        return ResponseEntity.ok(cores);
     }
 
     /**

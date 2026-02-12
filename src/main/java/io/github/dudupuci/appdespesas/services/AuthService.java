@@ -6,40 +6,57 @@ import io.github.dudupuci.appdespesas.controllers.dtos.request.registro.Registro
 import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.AuthResponseDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.RefreshTokenResponseDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
+import io.github.dudupuci.appdespesas.models.entities.Categoria;
+import io.github.dudupuci.appdespesas.models.entities.Cor;
 import io.github.dudupuci.appdespesas.models.entities.Role;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
+import io.github.dudupuci.appdespesas.models.enums.Status;
+import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
+import io.github.dudupuci.appdespesas.repositories.CategoriasRepository;
+import io.github.dudupuci.appdespesas.repositories.CorRepository;
 import io.github.dudupuci.appdespesas.repositories.RoleRepository;
 import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
 import io.github.dudupuci.appdespesas.services.generators.UsernameGenerator;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UsuariosRepository usuariosRepository;
     private final RoleRepository rolesRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
     private final UsernameGenerator usernameGenerator;
+    private final CorRepository corRepository;
+    private final CategoriasRepository categoriasRepository;
 
     public AuthService(
             UsuariosRepository usuariosRepository,
             RoleRepository rolesRepository,
             PasswordEncoder passwordEncoder,
             JwtConfig jwtConfig,
-            UsernameGenerator usernameGenerator
+            UsernameGenerator usernameGenerator,
+            CorRepository corRepository,
+            CategoriasRepository categoriasRepository
     ) {
         this.usuariosRepository = usuariosRepository;
         this.rolesRepository = rolesRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtConfig = jwtConfig;
         this.usernameGenerator = usernameGenerator;
+        this.corRepository = corRepository;
+        this.categoriasRepository = categoriasRepository;
     }
 
     @Transactional
@@ -77,13 +94,17 @@ public class AuthService {
         String usernameGerado = usernameGenerator.gerarUsernameParaUsuarioSistema(novoUsuario);
         novoUsuario.setNomeUsuario(usernameGerado);
 
-        usuariosRepository.save(novoUsuario);
+        // Salvar usuário
+        UsuarioSistema usuarioSalvo = usuariosRepository.save(novoUsuario);
+
+        // Criar cores e categorias padrão para o novo usuário
+        criarCoresECategoriasDefault(usuarioSalvo);
 
         // Gerar tokens
-        String accessToken = jwtConfig.generateAccessToken(novoUsuario);
-        String refreshToken = jwtConfig.generateRefreshToken(novoUsuario);
+        String accessToken = jwtConfig.generateAccessToken(usuarioSalvo);
+        String refreshToken = jwtConfig.generateRefreshToken(usuarioSalvo);
 
-        return AuthResponseDto.fromEntityRegistro(novoUsuario, accessToken, refreshToken);
+        return AuthResponseDto.fromEntityRegistro(usuarioSalvo, accessToken, refreshToken);
     }
 
     @Transactional
@@ -161,5 +182,64 @@ public class AuthService {
             );
         }
     }
-}
 
+    /**
+     * Cria cores e categorias padrão para o novo usuário
+     */
+    private void criarCoresECategoriasDefault(UsuarioSistema usuario) {
+        log.info("🎨 Criando cores e categorias padrão para o usuário: {}", usuario.getEmail());
+
+        Date agora = new Date();
+
+        // Criar cores padrão
+        Cor verdeEscuro = criarCor(usuario, "Verde Escuro", "#006400", agora);
+        Cor verdeClaro = criarCor(usuario, "Verde Claro", "#90EE90", agora);
+        Cor azulEscuro = criarCor(usuario, "Azul Escuro", "#00008B", agora);
+        Cor amareloEscuro = criarCor(usuario, "Amarelo Escuro", "#FFD700", agora);
+        Cor laranjaClaro = criarCor(usuario, "Laranja Claro", "#FFA07A", agora);
+        Cor vermelho = criarCor(usuario, "Vermelho", "#FF0000", agora);
+
+        // Criar categorias padrão de RECEITAS
+        criarCategoria(usuario, "Salário", "Renda proveniente de trabalho fixo",
+                TipoMovimentacao.RECEITA, verdeEscuro, agora);
+        criarCategoria(usuario, "Freelancers", "Renda proveniente de trabalhos autônomos e projetos",
+                TipoMovimentacao.RECEITA, verdeClaro, agora);
+        criarCategoria(usuario, "Investimentos", "Renda proveniente de aplicações financeiras, dividendos, juros",
+                TipoMovimentacao.RECEITA, azulEscuro, agora);
+
+        // Criar categorias padrão de DESPESAS
+        criarCategoria(usuario, "Alimentação", "Despesas com supermercado, restaurantes, delivery",
+                TipoMovimentacao.DESPESA, amareloEscuro, agora);
+        criarCategoria(usuario, "Transporte", "Despesas com combustível, transporte público, aplicativos de mobilidade",
+                TipoMovimentacao.DESPESA, laranjaClaro, agora);
+        criarCategoria(usuario, "Lazer", "Despesas com entretenimento, viagens, hobbies",
+                TipoMovimentacao.DESPESA, vermelho, agora);
+
+        log.info("✅ Cores e categorias padrão criadas para o usuário: {}", usuario.getEmail());
+    }
+
+    private Cor criarCor(UsuarioSistema usuario, String nome, String codigoHex, Date data) {
+        Cor cor = new Cor();
+        cor.setNome(nome);
+        cor.setCodigoHexadecimal(codigoHex);
+        cor.setUsuarioSistema(usuario);
+        cor.setIsVisivel(true);
+        cor.setDataCriacao(data);
+        cor.setDataAtualizacao(data);
+        return corRepository.save(cor);
+    }
+
+    private void criarCategoria(UsuarioSistema usuario, String nome, String descricao,
+                                 TipoMovimentacao tipo, Cor cor, Date data) {
+        Categoria categoria = new Categoria();
+        categoria.setNome(nome);
+        categoria.setDescricao(descricao);
+        categoria.setTipoMovimentacao(tipo);
+        categoria.setUsuarioSistema(usuario);
+        categoria.setCor(cor);
+        categoria.setStatus(Status.ATIVO);
+        categoria.setDataCriacao(data);
+        categoria.setDataAtualizacao(data);
+        categoriasRepository.save(categoria);
+    }
+}

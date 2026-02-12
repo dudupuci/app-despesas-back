@@ -3,6 +3,8 @@ package io.github.dudupuci.appdespesas.repositories;
 import io.github.dudupuci.appdespesas.models.entities.Cor;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,9 +20,16 @@ public interface CorRepository extends JpaRepository<Cor, UUID> {
     List<Cor> findByUsuarioSistema(UsuarioSistema usuarioSistema);
 
     /**
-     * Busca todas as cores de um usuário ordenadas por nome
+     * Busca cor por nome
      */
-    List<Cor> findByUsuarioSistemaOrderByNomeAsc(UsuarioSistema usuarioSistema);
+    Optional<Cor> findByNome(String nome);
+
+    /**
+     * Lista todas as cores de um usuário
+     */
+    @Query("SELECT c FROM Cor c WHERE c.usuarioSistema.id = :usuarioId " +
+            "ORDER BY c.dataCriacao DESC")
+    List<Cor> listarTodasPorUsuarioId(@Param("usuarioId") UUID usuarioId);
 
     /**
      * Busca uma cor específica de um usuário pelo ID
@@ -36,16 +45,6 @@ public interface CorRepository extends JpaRepository<Cor, UUID> {
      * Verifica se já existe uma cor com o mesmo código hexadecimal para o usuário
      */
     boolean existsByCodigoHexadecimalAndUsuarioSistema(String codigoHexadecimal, UsuarioSistema usuarioSistema);
-
-    /**
-     * Verifica se já existe uma cor com o mesmo nome criada por administrador
-     */
-    boolean existsByNomeAndAdministradorId(String nome, UUID administradorId);
-
-    /**
-     * Verifica se já existe uma cor com o mesmo código hexadecimal criada por administrador
-     */
-    boolean existsByCodigoHexadecimalAndAdministradorId(String codigoHexadecimal, UUID administradorId);
 
     /**
      * Busca cores por nome (parcial) do usuário

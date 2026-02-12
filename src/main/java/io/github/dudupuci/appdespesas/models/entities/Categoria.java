@@ -33,14 +33,14 @@ public class Categoria extends EntidadeUuid {
     private Set<Movimentacao> movimentacoes;
 
     // Relacionamento OPCIONAL com UsuarioSistema (para categorias criadas por usuários)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     @JsonIgnore
     private UsuarioSistema usuarioSistema;
 
-    // ID OPCIONAL do Administrador (para categorias criadas pelo sistema)
-    @Column(name = "administrador_id")
-    private UUID administradorId;
+    @ManyToOne
+    @JoinColumn(name = "cor_id")
+    private Cor cor;
 
     public Categoria() {}
 
@@ -52,10 +52,4 @@ public class Categoria extends EntidadeUuid {
         this.status = Status.ATIVO;
     }
 
-    /**
-     * Verifica se a categoria foi criada pelo sistema (administrador)
-     */
-    public boolean isCriadaPeloSistema() {
-        return administradorId != null;
-    }
 }

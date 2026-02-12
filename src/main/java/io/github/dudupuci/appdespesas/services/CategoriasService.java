@@ -4,13 +4,14 @@ import io.github.dudupuci.appdespesas.config.persistence.Transacional;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.categoria.CriarCategoriaRequestDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
+import io.github.dudupuci.appdespesas.models.entities.Cor;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
 import io.github.dudupuci.appdespesas.repositories.CategoriasRepository;
+import io.github.dudupuci.appdespesas.repositories.CorRepository;
 import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import io.github.dudupuci.appdespesas.utils.AppDespesasUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,13 +23,16 @@ public class CategoriasService {
 
     private final CategoriasRepository repository;
     private final UsuariosRepository usuariosRepository;
+    private final CorRepository corRepository;
 
-    @Value("${tudin.app.super-adm-id}")
-    private String superAdmId;
-
-    public CategoriasService(CategoriasRepository repository, UsuariosRepository usuariosRepository) {
+    public CategoriasService(
+            CategoriasRepository repository,
+            UsuariosRepository usuariosRepository,
+            CorRepository corRepository
+    ) {
         this.repository = repository;
         this.usuariosRepository = usuariosRepository;
+        this.corRepository = corRepository;
     }
 
     public List<Categoria> listarCategoriasBySearch(String search) {
@@ -38,6 +42,7 @@ public class CategoriasService {
     @Transacional
     public Categoria createCategoria(CriarCategoriaRequestDto dto, UUID usuarioId) {
         Optional<UsuarioSistema> usuario;
+        Cor cor;
 
         try {
             validarCriacao(dto);
@@ -49,6 +54,20 @@ public class CategoriasService {
 
             Categoria categoria = dto.toCategoria();
             categoria.setUsuarioSistema(usuario.get());
+
+            // Associar cor se fornecida
+            // Se o ID da cor for fornecido, buscar a cor e associar
+            // Se o ID da cor não for fornecido, associar a cor padrão "Roxo"
+            if (dto.corId() != null) {
+                 cor = corRepository.findById(dto.corId())
+                        .orElseThrow(() -> new RuntimeException("Cor não encontrada com ID: " + dto.corId()));
+                categoria.setCor(cor);
+            } else {
+                cor = corRepository.findByNome("Roxo")
+                        .orElseThrow(() -> new EntityNotFoundException("Cor padrão 'Roxo' não encontrada"));
+                categoria.setCor(cor);
+            }
+
             this.repository.save(categoria);
             return categoria;
         } catch (CategoriaJaExisteException err) {
@@ -59,7 +78,51 @@ public class CategoriasService {
         }
     }
 
-    public Categoria buscarPorId(UUID id) throws EntityNotFoundException {
+    @Transacional
+    public Categoria updateCategoria(UUID id, CriarCategoriaRequestDto dto, UUID usuarioId) {
+        Optional<UsuarioSistema> usuario;
+        Cor cor;
+
+        try {
+            // Buscar categoria existente
+            Categoria categoria = buscarPorId(id);
+
+            // Verificar se o usuário é o dono da categoria
+            usuario = this.usuariosRepository.findById(usuarioId);
+            if (usuario.isEmpty()) {
+                throw new UsuarioNotFoundException("Usuário não encontrado");
+            }
+
+            if (!categoria.getUsuarioSistema().getId().equals(usuarioId)) {
+                throw new RuntimeException("Você não tem permissão para editar esta categoria");
+            }
+
+            // Atualizar campos
+            categoria.setNome(dto.nome());
+            categoria.setDescricao(dto.descricao());
+            categoria.setTipoMovimentacao(dto.tipoMovimentacao());
+
+            // Associar cor se fornecida
+            if (dto.corId() != null) {
+                cor = corRepository.findById(dto.corId())
+                        .orElseThrow(() -> new RuntimeException("Cor não encontrada com ID: " + dto.corId()));
+                categoria.setCor(cor);
+            } else {
+                // Se não forneceu cor, remove a associação
+                categoria.setCor(null);
+            }
+
+            this.repository.save(categoria);
+            return categoria;
+        } catch (CategoriaJaExisteException err) {
+            throw new CategoriaJaExisteException(AppDespesasMessages.getMessage(
+                    "categoria.ja.existente",
+                    new Object[]{dto.nome()})
+            );
+        }
+    }
+
+    public Categoria buscarPorId(UUID id) {
         return this.repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Categoria com ID " + id + " não encontrada"));
     }
@@ -68,8 +131,10 @@ public class CategoriasService {
             UUID usuarioId,
             TipoMovimentacao tipoMovimentacao
     ) {
+        UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
+                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado"));
 
-        return this.repository.listarTodasPorUsuarioId(usuarioId, getSuperAdmId() ,tipoMovimentacao);
+        return this.repository.listarTodasPorUsuarioId(usuario.getId(), tipoMovimentacao);
     }
 
     private void validarCriacao(CriarCategoriaRequestDto dto) {
@@ -104,14 +169,6 @@ public class CategoriasService {
             }
         } catch (EntityNotFoundException e) {
             throw new CategoriaNotFoundException(e.getMessage());
-        }
-    }
-
-    private UUID getSuperAdmId() {
-        try {
-            return UUID.fromString(superAdmId);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("ID do super administrador configurado é inválido: " + superAdmId);
         }
     }
 }

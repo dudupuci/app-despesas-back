@@ -23,6 +23,7 @@ public class CorService {
     private final CorRepository corRepository;
     private final UsuariosRepository usuariosRepository;
 
+
     public CorService(
             CorRepository corRepository,
             UsuariosRepository usuariosRepository
@@ -86,17 +87,7 @@ public class CorService {
         UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado"));
 
-        return corRepository.findByUsuarioSistemaOrderByNomeAsc(usuario);
-    }
-
-    /**
-     * Buscar cores por nome (pesquisa)
-     */
-    public List<Cor> pesquisarPorNome(String nome, UUID usuarioId) {
-        UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
-                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado"));
-
-        return corRepository.findByUsuarioSistemaAndNomeContainingIgnoreCase(usuario, nome);
+        return corRepository.listarTodasPorUsuarioId(usuario.getId());
     }
 
     /**
@@ -147,5 +138,6 @@ public class CorService {
 
         corRepository.delete(cor);
     }
+
 }
 

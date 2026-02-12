@@ -26,9 +26,6 @@ public class Cor extends EntidadeUuid {
     @JsonIgnore
     private UsuarioSistema usuarioSistema;
 
-    // ID OPCIONAL do Administrador (para cores criadas pelo sistema)
-    @Column(name = "administrador_id")
-    private UUID administradorId;
 
     @Column(name = "is_visivel")
     private Boolean isVisivel = true;
@@ -43,10 +40,4 @@ public class Cor extends EntidadeUuid {
         this.codigoHexadecimal = codigoHexadecimal;
     }
 
-    /**
-     * Verifica se a cor foi criada pelo sistema (administrador)
-     */
-    public boolean isCriadaPeloSistema() {
-        return administradorId != null;
-    }
 }
