@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public enum TipoEvento {
     COMPROMISSO("Compromisso"),
-    MOVIMENTACAO_PREVISTA("Movimentação Prevista"),
+    MOVIMENTACAO("Movimentação"),
     EVENTO_RECORRENTE("Evento Recorrente"),
     LEMBRETE("Lembrete");
 
