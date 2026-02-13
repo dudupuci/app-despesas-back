@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.controllers.dtos.calendario;
 
-import io.github.dudupuci.appdespesas.models.enums.PrioridadeEvento;
+import io.github.dudupuci.appdespesas.models.enums.Prioridade;
 import io.github.dudupuci.appdespesas.models.enums.TipoEvento;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
 
@@ -20,7 +20,7 @@ public record EventoCalendarioDto(
     Date dataInicio,
     Date dataFim,
     Boolean diaInteiro,
-    PrioridadeEvento prioridade,
+    Prioridade prioridade,
     String cor,
     Boolean concluido,
     String localizacao,
@@ -40,7 +40,7 @@ public record EventoCalendarioDto(
      */
     public static EventoCalendarioDto fromCompromisso(
             UUID id, String titulo, String descricao, Date dataInicio,
-            Date dataFim, Boolean diaInteiro, PrioridadeEvento prioridade,
+            Date dataFim, Boolean diaInteiro, Prioridade prioridade,
             String cor, Boolean concluido, String localizacao
     ) {
         return new EventoCalendarioDto(
@@ -60,7 +60,7 @@ public record EventoCalendarioDto(
     ) {
         return new EventoCalendarioDto(
             id, TipoEvento.MOVIMENTACAO_PREVISTA, titulo, descricao,
-            dataMovimentacao, null, true, PrioridadeEvento.MEDIA, cor,
+            dataMovimentacao, null, true, Prioridade.MEDIA, cor,
             null, null,
             valor, tipoMovimentacao, categoriaNome,
             isRecorrente, null
@@ -72,7 +72,7 @@ public record EventoCalendarioDto(
      */
     public static EventoCalendarioDto fromEventoRecorrente(
         UUID id, String titulo, String descricao, Date dataInicio,
-        Date dataFim, Boolean diaInteiro, PrioridadeEvento prioridade,
+        Date dataFim, Boolean diaInteiro, Prioridade prioridade,
         String cor, Boolean isRecorrente, String frequenciaRecorrencia
     ) {
         return new EventoCalendarioDto(

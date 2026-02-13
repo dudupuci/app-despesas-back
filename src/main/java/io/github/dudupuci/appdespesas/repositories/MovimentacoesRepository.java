@@ -59,18 +59,6 @@ public interface MovimentacoesRepository extends JpaRepository<Movimentacao, Lon
     );
 
     /**
-     * Busca movimentações de um usuário em um período
-     */
-    @Query("SELECT m FROM Movimentacao m WHERE m.usuarioSistema.id = :usuarioId " +
-           "AND m.dataDaMovimentacao BETWEEN :dataInicio AND :dataFim " +
-           "ORDER BY m.dataDaMovimentacao ASC")
-    List<Movimentacao> buscarMovimentacoesPrevistas(
-            @Param("usuarioId") UUID usuarioId,
-            @Param("dataInicio") Date dataInicio,
-            @Param("dataFim") Date dataFim
-    );
-
-    /**
      * Busca movimentações de um dia específico
      */
     @Query("SELECT m FROM Movimentacao m WHERE m.usuarioSistema.id = :usuarioId " +

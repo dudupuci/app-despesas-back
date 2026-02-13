@@ -2,8 +2,8 @@ package io.github.dudupuci.appdespesas.controllers;
 
 import io.github.dudupuci.appdespesas.controllers.dtos.calendario.EventoCalendarioDto;
 import io.github.dudupuci.appdespesas.services.CalendarioService;
-import io.github.dudupuci.appdespesas.utils.AppDespesasUtils;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,41 +32,19 @@ public class CalendarioController {
      * @return Lista unificada de eventos (Compromissos, Eventos, Movimentações)
      */
     @GetMapping
-    public ResponseEntity<List<EventoCalendarioDto>> listarEventos(
-            @RequestParam String dataInicio,
-            @RequestParam String dataFim
+    public ResponseEntity<List<EventoCalendarioDto>> listarItens(
+            @RequestParam(name = "dataInicio", required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date dataInicio,
+            @RequestParam(name = "dataFim", required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date dataFim
     ) {
         UUID usuarioId = getUsuarioAutenticadoId();
-
-        Date inicio = AppDespesasUtils.converterStringParaDate(dataInicio);
-        Date fim = AppDespesasUtils.converterStringParaDate(dataFim);
 
         List<EventoCalendarioDto> eventos = calendarioService.buscarEventosCalendario(
-                usuarioId, inicio, fim
+                usuarioId, dataInicio, dataFim
         );
 
         return ResponseEntity.ok(eventos);
     }
 
-    /**
-     * Busca eventos de um dia específico
-     *
-     * @param data Data no formato dd/MM/yyyy
-     * @return Lista de eventos do dia
-     */
-    @GetMapping("/dia")
-    public ResponseEntity<List<EventoCalendarioDto>> listarEventosDoDia(
-            @RequestParam String data
-    ) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        Date dataBusca = AppDespesasUtils.converterStringParaDate(data);
-
-        List<EventoCalendarioDto> eventos = calendarioService.buscarEventosDoDia(
-                usuarioId, dataBusca
-        );
-
-        return ResponseEntity.ok(eventos);
-    }
 
 
     private UUID getUsuarioAutenticadoId() {

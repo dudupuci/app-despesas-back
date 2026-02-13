@@ -1,9 +1,9 @@
 package io.github.dudupuci.appdespesas.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.github.dudupuci.appdespesas.models.entities.base.Entidade;
 import io.github.dudupuci.appdespesas.models.entities.base.EntidadeUuid;
-import io.github.dudupuci.appdespesas.models.enums.PrioridadeEvento;
+import io.github.dudupuci.appdespesas.models.entities.base.Evento;
+import io.github.dudupuci.appdespesas.models.enums.Prioridade;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,44 +18,14 @@ import java.util.Date;
 @Table(name = "compromissos")
 @Getter
 @Setter
-public class Compromisso extends EntidadeUuid {
-
-    @Column(nullable = false, length = 200)
-    private String titulo;
-
-    @Column(length = 1000)
-    private String descricao;
-
-    @Column(name = "data_inicio", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dataInicio;
-
-    @Column(name = "data_fim")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dataFim;
-
-    @Column(name = "dia_inteiro")
-    private Boolean diaInteiro = false;
-
-    @Enumerated(EnumType.STRING)
-    private PrioridadeEvento prioridade;
-
-    @Column(length = 500)
-    private String localizacao;
-
-    @Column(nullable = false)
-    private Boolean concluido = false;
-
-    @Column(name = "data_conclusao")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dataConclusao;
+public class Compromisso extends Evento {
 
     @Column(name = "lembrar_em")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lembrarEm;
 
     @Column(length = 50)
-    private String cor; // Cor hexadecimal para exibição no calendário (ex: #FF5733)
+    private String cor;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
@@ -67,10 +37,19 @@ public class Compromisso extends EntidadeUuid {
 
     public Compromisso() {}
 
-    public Compromisso(String titulo, Date dataInicio, UsuarioSistema usuarioSistema) {
+    public Compromisso(String titulo, String descricao, String localizacao, Date dataInicio, Date dataFim, Prioridade prioridade, Boolean diaInteiro, Date lembrarEm, String cor, UsuarioSistema usuarioSistema, String observacoes) {
         this.titulo = titulo;
+        this.descricao = descricao;
+        this.localizacao = localizacao;
         this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
+        this.prioridade = prioridade;
+        this.diaInteiro = diaInteiro;
+        this.lembrarEm = lembrarEm;
+        this.cor = cor;
         this.usuarioSistema = usuarioSistema;
+        this.observacoes = observacoes;
     }
+
 }
 

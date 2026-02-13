@@ -7,7 +7,6 @@ import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.models.enums.TipoPeriodo;
 import io.github.dudupuci.appdespesas.repositories.MovimentacoesRepository;
 import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
 import io.github.dudupuci.appdespesas.utils.AppDespesasUtils;
@@ -43,18 +42,9 @@ public class MovimentacoesService {
     public List<Movimentacao> listarTodasPorUsuarioId(
             UUID usuarioId,
             TipoMovimentacao tipoMovimentacao,
-            TipoPeriodo tipoPeriodo,
-            Date dataReferencia
+            Date dataInicio,
+            Date dataFim
     ) {
-        Date dataInicio = null;
-        Date dataFim = null;
-
-        // Calcula o período baseado no tipo e data de referência
-        if (tipoPeriodo != null && dataReferencia != null) {
-            Date[] periodo = AppDespesasUtils.calcularPeriodo(tipoPeriodo, dataReferencia);
-            dataInicio = periodo[0];
-            dataFim = periodo[1];
-        }
 
         // Chama o método correto do repository baseado nos filtros
         if (tipoMovimentacao != null && dataInicio != null && dataFim != null) {

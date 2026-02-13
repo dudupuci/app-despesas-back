@@ -1,7 +1,7 @@
 package io.github.dudupuci.appdespesas.controllers.dtos.request.compromisso;
 
 import io.github.dudupuci.appdespesas.models.entities.Compromisso;
-import io.github.dudupuci.appdespesas.models.enums.PrioridadeEvento;
+import io.github.dudupuci.appdespesas.models.enums.Prioridade;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -16,7 +16,7 @@ public record CriarCompromissoRequestDto(
         Date dataFim,
         @NotNull(message = "Campo 'dia inteiro' é obrigatório")
         Boolean diaInteiro,
-        PrioridadeEvento prioridade,
+        Prioridade prioridade,
         String localizacao,
         String cor,
         String observacoes

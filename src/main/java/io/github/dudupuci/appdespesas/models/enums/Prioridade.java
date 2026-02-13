@@ -6,7 +6,7 @@ import lombok.Getter;
  * Enum que define a prioridade de um evento/compromisso
  */
 @Getter
-public enum PrioridadeEvento {
+public enum Prioridade {
     NENHUMA("Nenhuma"),
     BAIXA("Baixa"),
     MEDIA("Média"),
@@ -15,7 +15,7 @@ public enum PrioridadeEvento {
 
     private final String descricao;
 
-    PrioridadeEvento(String descricao) {
+    Prioridade(String descricao) {
         this.descricao = descricao;
     }
 

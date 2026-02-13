@@ -2,7 +2,7 @@ package io.github.dudupuci.appdespesas.controllers.dtos.response.compromisso;
 
 import io.github.dudupuci.appdespesas.controllers.dtos.base.ResponseDto;
 import io.github.dudupuci.appdespesas.models.entities.Compromisso;
-import io.github.dudupuci.appdespesas.models.enums.PrioridadeEvento;
+import io.github.dudupuci.appdespesas.models.enums.Prioridade;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import lombok.Getter;
 
@@ -17,7 +17,7 @@ public class CompromissoCriadoResponseDto extends ResponseDto {
     private final Date dataInicio;
     private final Date dataFim;
     private final Boolean diaInteiro;
-    private final PrioridadeEvento prioridade;
+    private final Prioridade prioridade;
     private final String localizacao;
     private final String cor;
 
@@ -28,7 +28,7 @@ public class CompromissoCriadoResponseDto extends ResponseDto {
             Date dataInicio,
             Date dataFim,
             Boolean diaInteiro,
-            PrioridadeEvento prioridade,
+            Prioridade prioridade,
             String localizacao,
             String cor,
             String mensagemKey
