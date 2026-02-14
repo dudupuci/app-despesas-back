@@ -83,6 +83,7 @@ public class AuthService {
         // Criar novo usuário
         UsuarioSistema novoUsuario = new UsuarioSistema();
         novoUsuario.setNome(dto.nome());
+        novoUsuario.setCelular(dto.celular());
         novoUsuario.setSobrenome(dto.sobrenome());
         novoUsuario.setEmail(dto.email());
         novoUsuario.setSenha(passwordEncoder.encode(dto.senha()));

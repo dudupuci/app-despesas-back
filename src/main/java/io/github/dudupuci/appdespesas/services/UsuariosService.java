@@ -13,10 +13,6 @@ public class UsuariosService {
         this.usuariosRepository = usuariosRepository;
     }
 
-    public UsuarioSistema buscarPorNomeUsuario(String nomeUsuario) {
-        return this.usuariosRepository.buscarPorNomeUsuario(nomeUsuario).orElse(null);
-    }
-
     public boolean existePorNomeUsuario(String nomeUsuario) {
         return this.usuariosRepository.existsByNomeUsuario(nomeUsuario);
     }

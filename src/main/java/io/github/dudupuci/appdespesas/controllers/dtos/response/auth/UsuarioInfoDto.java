@@ -4,6 +4,8 @@ import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 
 public record UsuarioInfoDto(
         String nome,
+        String sobrenome,
+        String celular,
         String nomeUsuario,
         String email,
         String role
@@ -11,6 +13,8 @@ public record UsuarioInfoDto(
     public static UsuarioInfoDto fromEntity(UsuarioSistema usuario) {
         return new UsuarioInfoDto(
                 usuario.getNome(),
+                usuario.getSobrenome(),
+                usuario.getCelular(),
                 usuario.getNomeUsuario(),
                 usuario.getEmail(),
                 usuario.getRole().getNome()

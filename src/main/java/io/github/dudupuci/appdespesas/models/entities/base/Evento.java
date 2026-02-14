@@ -38,5 +38,5 @@ public abstract class Evento extends EntidadeUuid {
     protected Date dataConclusao;
 
     @Column(name = "dia_inteiro")
-    protected Boolean diaInteiro = false;
+    protected Boolean diaInteiro;
 }

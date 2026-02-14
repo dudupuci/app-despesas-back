@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.controllers.dtos.request.registro;
 
+import io.github.dudupuci.appdespesas.services.annotations.WhatsApp;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -14,6 +15,9 @@ public record RegistroRequestDto(
         @NotBlank(message = "E-mail é obrigatório")
         @Email(message = "E-mail inválido")
         String email,
+
+        @WhatsApp
+        String celular,
 
         @NotBlank(message = "Senha é obrigatória")
         @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
