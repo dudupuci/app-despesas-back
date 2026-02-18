@@ -18,5 +18,6 @@ import java.util.UUID;
 public class Assinatura extends Entidade {
     private String nomePlano;
     private BigDecimal valor;
+    private String descricao;
     private List<String> beneficios;
 }

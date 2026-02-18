@@ -6,10 +6,7 @@ import io.github.dudupuci.appdespesas.controllers.dtos.request.registro.Registro
 import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.AuthResponseDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.RefreshTokenResponseDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
-import io.github.dudupuci.appdespesas.models.entities.Categoria;
-import io.github.dudupuci.appdespesas.models.entities.Cor;
-import io.github.dudupuci.appdespesas.models.entities.Role;
-import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
+import io.github.dudupuci.appdespesas.models.entities.*;
 import io.github.dudupuci.appdespesas.models.enums.Status;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
 import io.github.dudupuci.appdespesas.repositories.CategoriasRepository;
@@ -62,7 +59,7 @@ public class AuthService {
     @Transactional
     public AuthResponseDto registrar(RegistroRequestDto dto) {
         // Validar se email já existe
-        if (usuariosRepository.existsByEmail(dto.email())) {
+        if (usuariosRepository.existsByContatoEmail(dto.email())) {
             throw new EmailJaExisteException(
                     AppDespesasMessages.getMessage(
                             "auth.email.ja.existe",
@@ -83,9 +80,11 @@ public class AuthService {
         // Criar novo usuário
         UsuarioSistema novoUsuario = new UsuarioSistema();
         novoUsuario.setNome(dto.nome());
-        novoUsuario.setCelular(dto.celular());
+        novoUsuario.setContato(new Contato());
+        novoUsuario.getContato().setCelular(dto.celular());
+        novoUsuario.getContato().setEmail(dto.email());
+        novoUsuario.getContato().setTelefoneFixo(dto.telefoneFixo());
         novoUsuario.setSobrenome(dto.sobrenome());
-        novoUsuario.setEmail(dto.email());
         novoUsuario.setSenha(passwordEncoder.encode(dto.senha()));
         novoUsuario.setRole(roleUser);
         novoUsuario.setAtivo(true);
@@ -188,7 +187,7 @@ public class AuthService {
      * Cria cores e categorias padrão para o novo usuário
      */
     private void criarCoresECategoriasDefault(UsuarioSistema usuario) {
-        log.info("🎨 Criando cores e categorias padrão para o usuário: {}", usuario.getEmail());
+        log.info("🎨 Criando cores e categorias padrão para o usuário: {}", usuario.getContato().getEmail());
 
         Date agora = new Date();
 
@@ -216,7 +215,7 @@ public class AuthService {
         criarCategoria(usuario, "Lazer", "Despesas com entretenimento, viagens, hobbies",
                 TipoMovimentacao.DESPESA, vermelho, agora);
 
-        log.info("✅ Cores e categorias padrão criadas para o usuário: {}", usuario.getEmail());
+        log.info("✅ Cores e categorias padrão criadas para o usuário: {}", usuario.getContato().getEmail());
     }
 
     private Cor criarCor(UsuarioSistema usuario, String nome, String codigoHex, Date data) {

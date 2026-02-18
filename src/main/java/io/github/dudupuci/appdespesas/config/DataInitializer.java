@@ -1,8 +1,10 @@
 package io.github.dudupuci.appdespesas.config;
 
 import io.github.dudupuci.appdespesas.models.entities.Administrador;
+import io.github.dudupuci.appdespesas.models.entities.Assinatura;
 import io.github.dudupuci.appdespesas.models.entities.Role;
 import io.github.dudupuci.appdespesas.repositories.AdministradorRepository;
+import io.github.dudupuci.appdespesas.repositories.AssinaturaRepository;
 import io.github.dudupuci.appdespesas.repositories.RoleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -22,12 +26,16 @@ import java.util.UUID;
 public class DataInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
+    private static final String GRATUITO = "Gratuito";
+    private static final String TUDIN_PRO = "Tudin Pro";
+    private static final List<String> ASSINATURAS = List.of(GRATUITO, TUDIN_PRO);
 
     @Bean
     @Transactional
     public CommandLineRunner initDatabase(
             AdministradorRepository administradorRepository,
             RoleRepository roleRepository,
+            AssinaturaRepository assinaturaRepository,
             ApplicationConfig applicationConfig
     ) {
         return args -> {
@@ -42,6 +50,9 @@ public class DataInitializer {
 
             // Criar roles padrão
             createDefaultRoles(roleRepository);
+
+            // Criar assinaturas padrão
+            createDefaultAssinaturas(assinaturaRepository);
 
             // Buscar ou criar administrador do sistema
             getOrCreateSuperAdmin(
@@ -66,6 +77,14 @@ public class DataInitializer {
         createRoleIfNotExists(roleRepository, "ADMIN", "Papel de Administrador", 2);
         createRoleIfNotExists(roleRepository, "MASTER_ADMIN", "Papel de Administrador Master", 3);
         log.info("✓ Roles padrão criadas!");
+    }
+
+    private void createDefaultAssinaturas(AssinaturaRepository assinaturaRepository) {
+        log.info("📄 Verificando assinaturas padrão...");
+        for (String plano : ASSINATURAS) {
+            createAssinaturaIfNotExists(assinaturaRepository, plano);
+        }
+        log.info("✓ Assinaturas padrão verificadas/criadas!");
     }
 
 
@@ -137,5 +156,53 @@ public class DataInitializer {
 
     }
 
-}
+    private static void createAssinaturaIfNotExists(
+            AssinaturaRepository assinaturaRepository,
+            String nomePlano
+    ) {
+        Assinatura existente = assinaturaRepository.buscarPorNomePlano(nomePlano);
 
+        if (existente != null) {
+            log.info("- Assinatura já existe: {}", nomePlano);
+            return;
+        }
+
+        log.info("📄 Criando assinatura: {}...", nomePlano);
+        Assinatura assinatura = new Assinatura();
+        assinatura.setNomePlano(nomePlano);
+
+        switch (nomePlano) {
+            case GRATUITO:
+                assinatura.setValor(BigDecimal.ZERO);
+                assinatura.setDescricao("Plano Gratuito com recursos básicos");
+                assinatura.setBeneficios(
+                        List.of(
+                                "Recursos básicos",
+                                "Sem custos",
+                                "Operação somente via dashboard",
+                                "Suporte via email com tempo de resposta de até 1 dia útil",
+                                "Limite de 3 categorias e 3 cores personalizadas"
+                        ));
+                break;
+            case TUDIN_PRO:
+                assinatura.setValor(new BigDecimal("14.90"));
+                assinatura.setDescricao("Plano Tudin Pro com funcionalidades avançadas");
+                assinatura.setBeneficios(
+                        List.of(
+                                "Recursos avançados",
+                                "ChatBot IA para automatização de tarefas",
+                                "Relatórios avançados e insights personalizados",
+                                "Suporte prioritário via Whatsapp",
+                                "Categorias e cores ilimitadas"
+                        ));
+                break;
+            default:
+                throw new IllegalArgumentException("Plano de assinatura não mapeado: " + nomePlano);
+        }
+
+        assinatura.setDataCriacao(new Date());
+        assinatura.setDataAtualizacao(new Date());
+        assinaturaRepository.save(assinatura);
+        log.info("✓ Assinatura criada: {}", nomePlano);
+    }
+}

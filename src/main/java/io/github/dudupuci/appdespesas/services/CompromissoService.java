@@ -41,7 +41,7 @@ public class CompromissoService {
         compromisso.setDataAtualizacao(new Date());
 
         log.info("✅ Compromisso criado: {} para o usuário: {}",
-                compromisso.getTitulo(), usuario.getEmail());
+                compromisso.getTitulo(), usuario.getContato().getEmail());
 
         return compromissoRepository.save(compromisso);
     }

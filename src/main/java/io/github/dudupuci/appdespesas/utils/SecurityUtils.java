@@ -45,7 +45,7 @@ public class SecurityUtils {
      */
     public static String getUsuarioAutenticadoEmail() {
         UsuarioSistema usuario = getUsuarioAutenticado();
-        return usuario != null ? usuario.getEmail() : null;
+        return usuario != null ? usuario.getContato().getEmail() : null;
     }
 }
 

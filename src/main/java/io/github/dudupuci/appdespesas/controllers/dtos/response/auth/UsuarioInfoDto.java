@@ -14,9 +14,9 @@ public record UsuarioInfoDto(
         return new UsuarioInfoDto(
                 usuario.getNome(),
                 usuario.getSobrenome(),
-                usuario.getCelular(),
+                usuario.getContato().getCelular(),
                 usuario.getNomeUsuario(),
-                usuario.getEmail(),
+                usuario.getContato().getEmail(),
                 usuario.getRole().getNome()
         );
     }

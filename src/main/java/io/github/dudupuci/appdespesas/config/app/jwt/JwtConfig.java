@@ -25,7 +25,7 @@ public class JwtConfig {
 
     public String generateAccessToken(UsuarioSistema user) {
         return Jwts.builder()
-                .subject(user.getEmail())
+                .subject(user.getContato().getEmail())
                 .claim("userId", user.getId())
                 .claim("role", user.getRole().getNome())
                 .issuedAt(new Date())
@@ -36,7 +36,7 @@ public class JwtConfig {
 
     public String generateRefreshToken(UsuarioSistema user) {
         return Jwts.builder()
-                .subject(user.getEmail())
+                .subject(user.getContato().getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
                 .signWith(key)

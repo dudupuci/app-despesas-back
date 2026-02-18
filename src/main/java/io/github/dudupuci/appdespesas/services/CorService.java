@@ -64,7 +64,7 @@ public class CorService {
         log.info("🎨 Cor criada: {} ({}) para o usuário: {}",
                 corCriada.getNome(),
                 corCriada.getCodigoHexadecimal(),
-                usuario.getEmail());
+                usuario.getContato().getEmail());
 
         return corCriada;
     }

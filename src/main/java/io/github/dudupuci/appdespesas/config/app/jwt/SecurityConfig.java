@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/chatbot/**",
                                 "/webhooks/**",
+                                "/assinaturas/**",
                                 "/roles/**",
                                 "/health",
                                 "/swagger-ui/**",
@@ -68,16 +69,26 @@ public class SecurityConfig {
         ));
 
         configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "PATCH",
+                "OPTIONS"
         ));
 
         configuration.setAllowedHeaders(Arrays.asList(
-                "Authorization", "Content-Type", "Accept", "Origin",
-                "Access-Control-Request-Method", "Access-Control-Request-Headers"
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
         ));
 
         configuration.setExposedHeaders(Arrays.asList(
-                "Authorization", "Access-Control-Allow-Origin",
+                "Authorization",
+                "Access-Control-Allow-Origin",
                 "Access-Control-Allow-Credentials"
         ));
 

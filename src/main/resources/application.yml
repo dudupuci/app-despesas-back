@@ -21,3 +21,9 @@ tudin:
     super-adm-username: eduardo.pucinelli
     super-adm-password: $2a$10$sbjfQBcevMHF80WwjaxBA.57jQsuZybpRcJ/Qq1FoDX.7D9mTwo4.
 
+integrations:
+  asaas:
+    sandbox:
+      apiKey: $aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmZiNzgxMWJjLThmZWYtNDY3Zi1hNjFhLTRlZWVkMzNjZWVmMjo6JGFhY2hfM2YwZmE5ZWEtYzEyMC00NzhmLThiOWItMjhhZjY0NDAzOGE3
+
+

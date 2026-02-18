@@ -15,7 +15,7 @@ public interface UsuariosRepository extends JpaRepository<UsuarioSistema, UUID> 
     /**
      * Busca usuário por email
      */
-    @Query("SELECT u FROM UsuarioSistema u WHERE u.email = :email")
+    @Query("SELECT u FROM UsuarioSistema u WHERE u.contato.email = :email")
     Optional<UsuarioSistema> buscarPorEmail(@Param("email") String email);
 
     /**
@@ -25,9 +25,9 @@ public interface UsuariosRepository extends JpaRepository<UsuarioSistema, UUID> 
     Optional<UsuarioSistema> buscarPorNomeUsuario(@Param("nomeUsuario") String nomeUsuario);
 
     /**
-     * Verifica se existe usuário com o email
+     * Verifica se existe usuário com o email (campo dentro de contato)
      */
-    boolean existsByEmail(String email);
+    boolean existsByContatoEmail(String email);
 
     /**
      * Verifica se existe usuário com o nome de usuário

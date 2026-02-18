@@ -17,12 +17,6 @@ public class UsuarioSistema extends Usuario {
     @Column(unique = true, name = "nome_usuario")
     private String nomeUsuario;
 
-    @Column(unique = true, nullable = false)
-    private String email;
-
-    @Column(unique = true, length = 11)
-    private String celular;
-
     @Column(nullable = false)
     private String senha;
 
@@ -36,6 +30,17 @@ public class UsuarioSistema extends Usuario {
 
     @OneToMany(mappedBy = "usuarioSistema", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Movimentacao> movimentacoes;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "contato_id", unique = true)
+    private Contato contato;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "endereco_id", unique = true)
+    private Endereco endereco;
+
+    @Column(name = "asaas_customer_id", unique = true)
+    private String asaasCustomerId;
 
     private Boolean ativo;
 
