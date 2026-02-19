@@ -131,10 +131,10 @@ public class DataInitializer {
         log.info("👤 Criando Super Admin...");
 
         // Buscar a role MASTER_ADMIN
-        Role masterAdminRole = roleRepository.buscarPorNome("MASTER_ADMIN");
+        Role masterAdminRole = roleRepository.buscarPorNome("ADMIN");
 
         if (masterAdminRole == null) {
-            throw new RuntimeException("Role MASTER_ADMIN não encontrada. Certifique-se de que as roles foram criadas antes.");
+            throw new RuntimeException("Role ADMIN não encontrada. Certifique-se de que as roles foram criadas antes.");
         }
 
         superAdmin = new Administrador();

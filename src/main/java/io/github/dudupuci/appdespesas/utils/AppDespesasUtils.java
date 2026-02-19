@@ -13,6 +13,7 @@ public final class AppDespesasUtils {
     public static final String ATIVO = "ATIVO";
     public static final String INATIVO = "INATIVO";
     public static final String DD_MM_YYYY = "dd/MM/yyyy";
+    public static final String DD_MM_YYYY_HH_MM_SS = "dd/MM/yyyy HH:mm:ss";
 
     public static boolean isEntidadeNotNull(Entidade entidade) {
         return entidade != null && entidade.getId() != null;

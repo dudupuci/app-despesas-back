@@ -1,6 +1,7 @@
 package io.github.dudupuci.appdespesas.models.entities;
 
 import io.github.dudupuci.appdespesas.models.entities.base.Usuario;
+import io.github.dudupuci.appdespesas.services.annotations.CpfOuCnpj;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,10 @@ public class UsuarioSistema extends Usuario {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "endereco_id", unique = true)
     private Endereco endereco;
+
+    @Column(name = "cpf_cnpj", unique = true)
+    @CpfOuCnpj
+    private String cpfCnpj;
 
     @Column(name = "asaas_customer_id", unique = true)
     private String asaasCustomerId;

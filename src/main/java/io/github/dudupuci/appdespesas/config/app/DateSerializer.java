@@ -11,10 +11,14 @@ import java.util.Date;
 
 public class DateSerializer extends JsonSerializer<Date> {
 
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(AppDespesasUtils.DD_MM_YYYY);
+    private static final SimpleDateFormat formatter = new SimpleDateFormat(AppDespesasUtils.DD_MM_YYYY_HH_MM_SS);
 
     @Override
     public void serialize(Date date, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        if (date == null) {
+            gen.writeNull();
+            return;
+        }
         gen.writeString(formatter.format(date));
     }
 }

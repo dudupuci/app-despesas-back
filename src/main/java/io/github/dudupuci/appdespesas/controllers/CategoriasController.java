@@ -42,7 +42,7 @@ public class CategoriasController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoriaCriadaResponseDto> update(
+    public ResponseEntity<CategoriaCriadaResponseDto> atualizar(
             @PathVariable UUID id,
             @RequestBody CriarCategoriaRequestDto dto
     ) {
