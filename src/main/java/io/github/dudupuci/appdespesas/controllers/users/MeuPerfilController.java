@@ -7,6 +7,8 @@ import io.github.dudupuci.appdespesas.models.entities.Assinatura;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.services.AssinaturaService;
 import io.github.dudupuci.appdespesas.services.UsuariosService;
+import io.github.dudupuci.appdespesas.services.annotations.Cep;
+import io.github.dudupuci.appdespesas.services.webservices.ViaCepService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,7 +28,10 @@ public class MeuPerfilController {
     private final UsuariosService usuariosService;
     private final AssinaturaService assinaturaService;
 
-    public MeuPerfilController(UsuariosService usuariosService, AssinaturaService assinaturaService) {
+    public MeuPerfilController(
+            UsuariosService usuariosService,
+            AssinaturaService assinaturaService
+    ) {
         this.usuariosService = usuariosService;
         this.assinaturaService = assinaturaService;
     }
