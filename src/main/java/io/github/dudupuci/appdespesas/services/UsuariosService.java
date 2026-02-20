@@ -2,6 +2,7 @@ package io.github.dudupuci.appdespesas.services;
 
 import io.github.dudupuci.appdespesas.controllers.admin.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.endereco.AtualizarEnderecoRequestDto;
+import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.usuario.AtualizarMeuPerfilRequestDto;
 import io.github.dudupuci.appdespesas.models.entities.Contato;
 import io.github.dudupuci.appdespesas.models.entities.Endereco;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
@@ -34,6 +35,7 @@ public class UsuariosService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
+    // Endpoint admin
     public UsuarioSistema atualizar(UUID usuarioIdLogado, AtualizarUsuarioSistemaRequestDto dto) {
         UsuarioSistema usuarioExistente = this.usuariosRepository.findById(usuarioIdLogado)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -41,8 +43,42 @@ public class UsuariosService {
         // Atualiza contato
         Contato contato = usuarioExistente.getContato();
         if (contato == null) contato = new Contato();
-        if (dto.celular() != null && !dto.celular().isBlank()) contato.setCelular(dto.celular());
-        if (dto.telefoneFixo() != null && !dto.telefoneFixo().isBlank()) contato.setTelefoneFixo(dto.telefoneFixo());
+        if (dto.contatoDto().celular() != null && !dto.contatoDto().celular().isBlank()) contato.setCelular(dto.contatoDto().celular());
+        if (dto.contatoDto().telefoneFixo() != null && !dto.contatoDto().telefoneFixo().isBlank()) contato.setTelefoneFixo(dto.contatoDto().telefoneFixo());
+        usuarioExistente.setContato(contato);
+
+        // Atualiza CPF/CNPJ
+        if (dto.cpfOuCnpj() != null && !dto.cpfOuCnpj().isBlank()) {
+            usuarioExistente.setCpfCnpj(dto.cpfOuCnpj());
+        }
+
+        // Atualiza endereco
+        AtualizarEnderecoRequestDto enderecoDto = dto.enderecoDto();
+        if (enderecoDto != null) {
+            Endereco endereco = usuarioExistente.getEndereco();
+            if (endereco == null) endereco = new Endereco();
+            if (enderecoDto.logradouro() != null) endereco.setLogradouro(enderecoDto.logradouro());
+            if (enderecoDto.numero() != null) endereco.setNumero(enderecoDto.numero());
+            if (enderecoDto.complemento() != null) endereco.setComplemento(enderecoDto.complemento());
+            if (enderecoDto.bairro() != null) endereco.setBairro(enderecoDto.bairro());
+            if (enderecoDto.cep() != null) endereco.setCep(enderecoDto.cep());
+            usuarioExistente.setEndereco(endereco);
+        }
+
+        usuarioExistente.setDataAtualizacao(new Date());
+        return this.usuariosRepository.save(usuarioExistente);
+    }
+
+    // Endpoint usuario
+    public UsuarioSistema atualizar(UUID usuarioIdLogado, AtualizarMeuPerfilRequestDto dto) {
+        UsuarioSistema usuarioExistente = this.usuariosRepository.findById(usuarioIdLogado)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Atualiza contato
+        Contato contato = usuarioExistente.getContato();
+        if (contato == null) contato = new Contato();
+        if (dto.contatoDto().celular() != null && !dto.contatoDto().celular().isBlank()) contato.setCelular(dto.contatoDto().celular());
+        if (dto.contatoDto().telefoneFixo() != null && !dto.contatoDto().telefoneFixo().isBlank()) contato.setTelefoneFixo(dto.contatoDto().telefoneFixo());
         usuarioExistente.setContato(contato);
 
         // Atualiza CPF/CNPJ

@@ -4,10 +4,11 @@ import io.github.dudupuci.appdespesas.controllers.dtos.request.contato.Atualizar
 import io.github.dudupuci.appdespesas.controllers.dtos.request.endereco.AtualizarEnderecoRequestDto;
 import io.github.dudupuci.appdespesas.services.annotations.CpfOuCnpj;
 
+import javax.validation.Valid;
+
 public record AtualizarMeuPerfilRequestDto(
         @CpfOuCnpj
         String cpfOuCnpj,
-
         AtualizarContatoRequestDto contatoDto,
         AtualizarEnderecoRequestDto enderecoDto
 ) {

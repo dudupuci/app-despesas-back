@@ -16,4 +16,7 @@ public interface AssinaturaRepository extends JpaRepository<Assinatura, Long> {
     @Query("SELECT a FROM Assinatura a WHERE a.nomePlano = :nomePlano")
     Assinatura buscarPorNomePlano(String nomePlano);
 
+    @Query("SELECT a FROM Assinatura a where a.valor <= 0")
+    Assinatura buscarAssinaturaGratuita();
+
 }

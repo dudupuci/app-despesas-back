@@ -9,10 +9,7 @@ import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.*;
 import io.github.dudupuci.appdespesas.models.enums.Status;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.repositories.CategoriasRepository;
-import io.github.dudupuci.appdespesas.repositories.CorRepository;
-import io.github.dudupuci.appdespesas.repositories.RoleRepository;
-import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
+import io.github.dudupuci.appdespesas.repositories.*;
 import io.github.dudupuci.appdespesas.services.generators.UsernameGenerator;
 import io.github.dudupuci.appdespesas.utils.AppDespesasMessages;
 import jakarta.transaction.Transactional;
@@ -37,6 +34,7 @@ public class AuthService {
     private final UsernameGenerator usernameGenerator;
     private final CorRepository corRepository;
     private final CategoriasRepository categoriasRepository;
+    private final AssinaturaRepository assinaturaRepository;
 
     public AuthService(
             UsuariosRepository usuariosRepository,
@@ -45,7 +43,8 @@ public class AuthService {
             JwtConfig jwtConfig,
             UsernameGenerator usernameGenerator,
             CorRepository corRepository,
-            CategoriasRepository categoriasRepository
+            CategoriasRepository categoriasRepository,
+            AssinaturaRepository assinaturaRepository
     ) {
         this.usuariosRepository = usuariosRepository;
         this.rolesRepository = rolesRepository;
@@ -54,6 +53,7 @@ public class AuthService {
         this.usernameGenerator = usernameGenerator;
         this.corRepository = corRepository;
         this.categoriasRepository = categoriasRepository;
+        this.assinaturaRepository = assinaturaRepository;
     }
 
     @Transactional
@@ -94,7 +94,11 @@ public class AuthService {
         String usernameGerado = usernameGenerator.gerarUsernameParaUsuarioSistema(novoUsuario);
         novoUsuario.setNomeUsuario(usernameGerado);
 
-        // Salvar usuário
+        // Atribuir assinatura gratuita padrão ao novo usuário
+        Assinatura assinaturaGratuita = assinaturaRepository.buscarAssinaturaGratuita();
+        novoUsuario.setAssinatura(assinaturaGratuita);
+
+        // Salvar usuário no banco de dados
         UsuarioSistema usuarioSalvo = usuariosRepository.save(novoUsuario);
 
         // Criar cores e categorias padrão para o novo usuário

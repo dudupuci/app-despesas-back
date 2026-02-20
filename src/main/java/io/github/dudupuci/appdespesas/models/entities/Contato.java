@@ -17,6 +17,6 @@ public class Contato extends EntidadeUuid {
     @Column(unique = true, length = 11)
     private String celular;
 
-    @Column(unique = true, length = 10)
+    @Column(name = "telefone_fixo", unique = true, length = 10)
     private String telefoneFixo;
 }

@@ -9,14 +9,14 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ListAssinaturaResponseDto {
+public class AssinaturaResponseDto {
     private String nomePlano;
     private BigDecimal valor;
     private String descricao;
     private List<String> beneficios;
 
-    public static ListAssinaturaResponseDto fromEntity(Assinatura assinatura) {
-        ListAssinaturaResponseDto dto = new ListAssinaturaResponseDto();
+    public static AssinaturaResponseDto fromEntity(Assinatura assinatura) {
+        AssinaturaResponseDto dto = new AssinaturaResponseDto();
         dto.setNomePlano(assinatura.getNomePlano());
         dto.setValor(assinatura.getValor());
         dto.setDescricao(assinatura.getDescricao());
