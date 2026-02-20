@@ -1,7 +1,7 @@
 package io.github.dudupuci.appdespesas.services;
 
 import io.github.dudupuci.appdespesas.config.persistence.Transacional;
-import io.github.dudupuci.appdespesas.controllers.dtos.request.categoria.CriarCategoriaRequestDto;
+import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.categoria.CriarCategoriaRequestDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.models.entities.Cor;

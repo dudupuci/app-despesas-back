@@ -1,10 +1,10 @@
 package io.github.dudupuci.appdespesas.services;
 
 import io.github.dudupuci.appdespesas.config.app.jwt.JwtConfig;
-import io.github.dudupuci.appdespesas.controllers.dtos.request.auth.AuthRequestDto;
-import io.github.dudupuci.appdespesas.controllers.dtos.request.registro.RegistroRequestDto;
-import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.AuthResponseDto;
-import io.github.dudupuci.appdespesas.controllers.dtos.response.auth.RefreshTokenResponseDto;
+import io.github.dudupuci.appdespesas.controllers.noauth.dtos.request.login.LoginRequestDto;
+import io.github.dudupuci.appdespesas.controllers.noauth.dtos.request.registro.RegistroRequestDto;
+import io.github.dudupuci.appdespesas.controllers.noauth.dtos.response.login.LoginResponseDto;
+import io.github.dudupuci.appdespesas.controllers.noauth.dtos.response.login.RefreshTokenResponseDto;
 import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.*;
 import io.github.dudupuci.appdespesas.models.enums.Status;
@@ -57,7 +57,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponseDto registrar(RegistroRequestDto dto) {
+    public LoginResponseDto registrar(RegistroRequestDto dto) {
         // Validar se email já existe
         if (usuariosRepository.existsByContatoEmail(dto.email())) {
             throw new EmailJaExisteException(
@@ -104,11 +104,11 @@ public class AuthService {
         String accessToken = jwtConfig.generateAccessToken(usuarioSalvo);
         String refreshToken = jwtConfig.generateRefreshToken(usuarioSalvo);
 
-        return AuthResponseDto.fromEntityRegistro(usuarioSalvo, accessToken, refreshToken);
+        return LoginResponseDto.fromEntityRegistro(usuarioSalvo, accessToken, refreshToken);
     }
 
     @Transactional
-    public AuthResponseDto login(AuthRequestDto dto) {
+    public LoginResponseDto login(LoginRequestDto dto) {
         // Buscar usuário por email
         Optional<UsuarioSistema> usuario = usuariosRepository.buscarPorEmail(dto.email());
 
@@ -136,7 +136,7 @@ public class AuthService {
         String accessToken = jwtConfig.generateAccessToken(usuario.get());
         String refreshToken = jwtConfig.generateRefreshToken(usuario.get());
 
-        return AuthResponseDto.fromEntityLogin(usuario.get(), accessToken, refreshToken);
+        return LoginResponseDto.fromEntityLogin(usuario.get(), accessToken, refreshToken);
     }
 
     private void validarSenha(RegistroRequestDto dto) {

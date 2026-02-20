@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.controllers.users;
 
-import io.github.dudupuci.appdespesas.controllers.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
+import io.github.dudupuci.appdespesas.controllers.admin.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.services.UsuariosService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;

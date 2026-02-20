@@ -1,7 +1,7 @@
 package io.github.dudupuci.appdespesas.services;
 
-import io.github.dudupuci.appdespesas.controllers.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
-import io.github.dudupuci.appdespesas.controllers.dtos.request.common.AtualizarEnderecoRequestDto;
+import io.github.dudupuci.appdespesas.controllers.admin.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
+import io.github.dudupuci.appdespesas.controllers.dtos.request.endereco.AtualizarEnderecoRequestDto;
 import io.github.dudupuci.appdespesas.models.entities.Contato;
 import io.github.dudupuci.appdespesas.models.entities.Endereco;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;

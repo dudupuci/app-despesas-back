@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.services;
 
-import io.github.dudupuci.appdespesas.controllers.dtos.request.role.CriarRoleRequestDto;
+import io.github.dudupuci.appdespesas.controllers.admin.dtos.request.role.CriarRoleRequestDto;
 import io.github.dudupuci.appdespesas.models.entities.Role;
 import io.github.dudupuci.appdespesas.repositories.RoleRepository;
 import jakarta.transaction.Transactional;

@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.controllers.webhooks;
 
-import io.github.dudupuci.appdespesas.controllers.dtos.request.waha.WahaWebhookDto;
+import io.github.dudupuci.appdespesas.controllers.webhooks.dtos.request.WahaWebhookDto;
 import io.github.dudupuci.appdespesas.services.ai.ChatBotService;
 import io.github.dudupuci.appdespesas.services.waha.WahaService;
 import lombok.extern.slf4j.Slf4j;
