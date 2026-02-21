@@ -22,11 +22,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/compromissos")
 @PreAuthorize("hasRole('USER')")
-public class CompromissosController {
+public class UserCompromissoController {
 
     private final CompromissoService compromissoService;
 
-    public CompromissosController(CompromissoService compromissoService) {
+    public UserCompromissoController(CompromissoService compromissoService) {
         this.compromissoService = compromissoService;
     }
 

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import io.github.dudupuci.appdespesas.models.entities.Cobranca;
 
 
 @Table(name = "usuarios")
@@ -49,6 +50,10 @@ public class UsuarioSistema extends Usuario {
 
     private Boolean ativo;
 
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    private List<Cobranca> cobrancas;
+
+    @Override
     public String getNomeCompleto() {
         return this.getNome() + " " + this.getSobrenome();
     }

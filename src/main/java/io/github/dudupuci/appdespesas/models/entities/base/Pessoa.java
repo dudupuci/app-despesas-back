@@ -10,4 +10,8 @@ import lombok.Setter;
 public abstract class Pessoa extends EntidadeUuid {
     protected String nome;
     protected String sobrenome;
+
+    protected String getNomeCompleto() {
+        return nome + " " + sobrenome;
+    }
 }

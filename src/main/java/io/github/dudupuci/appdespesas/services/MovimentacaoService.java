@@ -18,19 +18,19 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class MovimentacoesService {
+public class MovimentacaoService {
 
     private final MovimentacoesRepository repository;
-    private final CategoriasService categoriasService;
+    private final CategoriaService categoriaService;
     private final UsuariosRepository usuariosRepository;
 
-    public MovimentacoesService(
+    public MovimentacaoService(
             MovimentacoesRepository repository,
-            CategoriasService categoriasService,
+            CategoriaService categoriaService,
             UsuariosRepository usuariosRepository
     ) {
         this.repository = repository;
-        this.categoriasService = categoriasService;
+        this.categoriaService = categoriaService;
         this.usuariosRepository = usuariosRepository;
     }
 
@@ -70,7 +70,7 @@ public class MovimentacoesService {
 
         try {
             // Buscar e validar categoria
-            tempCategoria = this.categoriasService.validarCategoriaPorId(dto.categoriaId());
+            tempCategoria = this.categoriaService.validarCategoriaPorId(dto.categoriaId());
 
             // Buscar usuário
             usuario = this.usuariosRepository.findById(usuarioId);

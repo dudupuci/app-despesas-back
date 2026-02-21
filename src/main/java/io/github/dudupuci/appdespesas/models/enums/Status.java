@@ -6,7 +6,11 @@ import lombok.Getter;
 @Getter
 public enum Status {
     ATIVO("Ativo"),
-    INATIVO("Inativo");
+    INATIVO("Inativo"),
+    PAGO("Pago"),
+    AGUARDANDO_PAGAMENTO("Aguardando Pagamento"),
+    CANCELADO("Cancelado"),
+    FALHOU("Falhou");
 
     private final String nome;
 

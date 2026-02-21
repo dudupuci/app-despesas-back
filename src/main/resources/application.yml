@@ -25,5 +25,6 @@ integrations:
   asaas:
     sandbox:
       apiKey: $aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmZiNzgxMWJjLThmZWYtNDY3Zi1hNjFhLTRlZWVkMzNjZWVmMjo6JGFhY2hfM2YwZmE5ZWEtYzEyMC00NzhmLThiOWItMjhhZjY0NDAzOGE3
+      customers: https://api-sandbox.asaas.com/v3/customers
 
 

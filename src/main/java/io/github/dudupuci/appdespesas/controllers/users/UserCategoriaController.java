@@ -6,7 +6,7 @@ import io.github.dudupuci.appdespesas.controllers.users.dtos.responses.categoria
 import io.github.dudupuci.appdespesas.exceptions.CategoriaJaExisteException;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.services.CategoriasService;
+import io.github.dudupuci.appdespesas.services.CategoriaService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/categorias")
 @PreAuthorize("hasRole('USER')")
-public class CategoriasController {
+public class UserCategoriaController {
 
-    private final CategoriasService service;
+    private final CategoriaService service;
 
-    public CategoriasController(CategoriasService service) {
+    public UserCategoriaController(CategoriaService service) {
         this.service = service;
     }
 

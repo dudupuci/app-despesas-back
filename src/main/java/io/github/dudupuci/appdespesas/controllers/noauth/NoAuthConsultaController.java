@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/consultas")
-public class ConsultasController {
+public class NoAuthConsultaController {
 
     private final ViaCepService viaCepService;
 
-    public ConsultasController(ViaCepService viaCepService) {
+    public NoAuthConsultaController(ViaCepService viaCepService) {
         this.viaCepService = viaCepService;
     }
 

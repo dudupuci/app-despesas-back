@@ -15,11 +15,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/cores")
-public class CoresController {
+public class UserCorController {
 
     private final CorService corService;
 
-    public CoresController(CorService corService) {
+    public UserCorController(CorService corService) {
         this.corService = corService;
     }
 

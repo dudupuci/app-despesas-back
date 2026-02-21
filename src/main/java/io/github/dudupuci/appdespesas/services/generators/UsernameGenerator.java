@@ -1,16 +1,16 @@
 package io.github.dudupuci.appdespesas.services.generators;
 
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.services.UsuariosService;
+import io.github.dudupuci.appdespesas.services.UsuarioService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UsernameGenerator {
 
-    private final UsuariosService usuariosService;
+    private final UsuarioService usuarioService;
 
-    public UsernameGenerator(UsuariosService usuariosService) {
-        this.usuariosService = usuariosService;
+    public UsernameGenerator(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
     public String gerarUsernameParaUsuarioSistema(UsuarioSistema usuarioSistema) {
@@ -18,7 +18,7 @@ public class UsernameGenerator {
         String nomeUsuarioBase = gerarUsernameBase(nomeCompleto);
 
         // Se não existe, retorna o username gerado
-        if (!this.usuariosService.existePorNomeUsuario(nomeUsuarioBase)) {
+        if (!this.usuarioService.existePorNomeUsuario(nomeUsuarioBase)) {
             return nomeUsuarioBase;
         }
 
@@ -28,7 +28,7 @@ public class UsernameGenerator {
         do {
             novoUsername = nomeUsuarioBase + sufixo;
             sufixo++;
-        } while (this.usuariosService.existePorNomeUsuario(novoUsername));
+        } while (this.usuarioService.existePorNomeUsuario(novoUsername));
 
         return novoUsername;
     }

@@ -4,7 +4,7 @@ import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.movimentac
 import io.github.dudupuci.appdespesas.controllers.users.dtos.responses.movimentacao.MovimentacaoCriadaResponseDto;
 import io.github.dudupuci.appdespesas.models.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.services.MovimentacoesService;
+import io.github.dudupuci.appdespesas.services.MovimentacaoService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +19,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/movimentacoes")
 @PreAuthorize("hasRole('USER')")
-public class MovimentacoesController {
+public class UserMovimentacaoController {
 
-    private final MovimentacoesService service;
+    private final MovimentacaoService service;
 
-    public MovimentacoesController(MovimentacoesService service) {
+    public UserMovimentacaoController(MovimentacaoService service) {
         this.service = service;
     }
 

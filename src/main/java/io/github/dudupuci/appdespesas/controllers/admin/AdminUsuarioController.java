@@ -2,7 +2,7 @@ package io.github.dudupuci.appdespesas.controllers.admin;
 
 import io.github.dudupuci.appdespesas.controllers.admin.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.services.UsuariosService;
+import io.github.dudupuci.appdespesas.services.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +19,14 @@ import java.util.UUID;
  * - Somente usuários com ROLE 'ADMIN' podem acessar os endpoints deste controller
  */
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/admin/usuarios")
 @PreAuthorize("hasRole('ADMIN')")
-public class UsuariosController {
+public class AdminUsuarioController {
 
-    private final UsuariosService usuariosService;
+    private final UsuarioService usuarioService;
 
-    public UsuariosController(UsuariosService usuariosService) {
-        this.usuariosService = usuariosService;
+    public AdminUsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
     @PutMapping("/{id}")
@@ -35,8 +35,8 @@ public class UsuariosController {
             @Valid @RequestBody AtualizarUsuarioSistemaRequestDto dto
     ) {
         try {
-            UsuarioSistema usuarioAtual = usuariosService.buscarPorId(id);
-            UsuarioSistema usuarioAtualizado = usuariosService.atualizar(usuarioAtual.getId(), dto);
+            UsuarioSistema usuarioAtual = usuarioService.buscarPorId(id);
+            UsuarioSistema usuarioAtualizado = usuarioService.atualizar(usuarioAtual.getId(), dto);
             return ResponseEntity.ok(usuarioAtualizado);
         } catch (AccessDeniedException err) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -48,7 +48,7 @@ public class UsuariosController {
 
     @GetMapping
     public ResponseEntity<List<UsuarioSistema>> listarUsuarios() {
-        return ResponseEntity.ok(usuariosService.listarUsuarios());
+        return ResponseEntity.ok(usuarioService.listarUsuarios());
     }
 }
 

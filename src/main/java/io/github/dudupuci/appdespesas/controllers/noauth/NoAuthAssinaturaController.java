@@ -13,11 +13,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/assinaturas")
-public class AssinaturasController {
+public class NoAuthAssinaturaController {
 
     private final AssinaturaService service;
 
-    public AssinaturasController(AssinaturaService service) {
+    public NoAuthAssinaturaController(AssinaturaService service) {
         this.service = service;
     }
 
@@ -34,7 +34,7 @@ public class AssinaturasController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AssinaturaResponseDto> listarAssinatura(@PathVariable Long id) {
-        Assinatura assinatura = service.listarAssinatura(id);
+        Assinatura assinatura = service.buscarAssinaturaPorId(id);
         return ResponseEntity.ok(AssinaturaResponseDto.fromEntity(assinatura));
     }
 

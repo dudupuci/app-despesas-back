@@ -19,13 +19,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class CategoriasService {
+public class CategoriaService {
 
     private final CategoriasRepository repository;
     private final UsuariosRepository usuariosRepository;
     private final CorRepository corRepository;
 
-    public CategoriasService(
+    public CategoriaService(
             CategoriasRepository repository,
             UsuariosRepository usuariosRepository,
             CorRepository corRepository

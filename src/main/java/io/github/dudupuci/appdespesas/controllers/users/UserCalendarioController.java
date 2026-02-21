@@ -15,12 +15,12 @@ import java.util.UUID;
  * Controller responsável pelos endpoints do calendário unificado
  */
 @RestController
-@RequestMapping("/calendario")
-public class CalendarioController {
+@RequestMapping("/calendarios")
+public class UserCalendarioController {
 
     private final CalendarioService calendarioService;
 
-    public CalendarioController(CalendarioService calendarioService) {
+    public UserCalendarioController(CalendarioService calendarioService) {
         this.calendarioService = calendarioService;
     }
 

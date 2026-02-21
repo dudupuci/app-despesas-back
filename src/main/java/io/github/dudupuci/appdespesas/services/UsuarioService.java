@@ -3,10 +3,17 @@ package io.github.dudupuci.appdespesas.services;
 import io.github.dudupuci.appdespesas.controllers.admin.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.endereco.AtualizarEnderecoRequestDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.usuario.AtualizarMeuPerfilRequestDto;
+import io.github.dudupuci.appdespesas.models.entities.Assinatura;
 import io.github.dudupuci.appdespesas.models.entities.Contato;
 import io.github.dudupuci.appdespesas.models.entities.Endereco;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
+import io.github.dudupuci.appdespesas.services.webservices.AsaasService;
+import io.github.dudupuci.appdespesas.services.webservices.dtos.request.CriarCustomerAsaasRequestDto;
+import io.github.dudupuci.appdespesas.services.webservices.dtos.response.CustomerCriadoAsaasResponseDto;
+import io.github.dudupuci.appdespesas.utils.AppDespesasUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -14,11 +21,17 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class UsuariosService {
+public class UsuarioService {
 
     private final UsuariosRepository usuariosRepository;
 
-    public UsuariosService(UsuariosRepository usuariosRepository) {
+    @Autowired
+    private AsaasService asaasService;
+
+    @Autowired
+    private AssinaturaService assinaturaService;
+
+    public UsuarioService(UsuariosRepository usuariosRepository) {
         this.usuariosRepository = usuariosRepository;
     }
 
@@ -33,6 +46,38 @@ public class UsuariosService {
     public UsuarioSistema buscarPorId(UUID id) {
         return this.usuariosRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
+    public void assinar(UUID usuarioIdLogado, Long assinaturaId) {
+        UsuarioSistema usuario = this.usuariosRepository.findById(usuarioIdLogado)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (AppDespesasUtils.isEntidadeNotNull(usuario.getAssinatura())
+                && usuario.getAssinatura().getId().equals(assinaturaId)) {
+            throw new RuntimeException("Você já possui essa assinatura");
+        }
+
+        Assinatura assinatura = assinaturaService.buscarAssinaturaPorId(assinaturaId);
+
+        if (StringUtils.isEmpty(usuario.getAsaasCustomerId())) {
+
+            if (StringUtils.isEmpty(usuario.getCpfCnpj())) {
+                throw new RuntimeException("Para assinar um plano, é necessário informar o CPF/CNPJ no seu perfil.");
+            }
+
+           CustomerCriadoAsaasResponseDto customerCriadoDto = asaasService.criarCustomerAsaas(
+                   CriarCustomerAsaasRequestDto.fromUsuarioSistema(usuario)
+           );
+
+            usuario.setAsaasCustomerId(customerCriadoDto.id());
+            this.usuariosRepository.save(usuario);
+
+        }
+
+
+
+
+
     }
 
     // Endpoint admin
@@ -102,4 +147,6 @@ public class UsuariosService {
         usuarioExistente.setDataAtualizacao(new Date());
         return this.usuariosRepository.save(usuarioExistente);
     }
+
+
 }
