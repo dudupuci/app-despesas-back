@@ -7,6 +7,7 @@ import io.github.dudupuci.appdespesas.services.CorService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/cores")
+@PreAuthorize("hasRole('USER')")
 public class UserCorController {
 
     private final CorService corService;

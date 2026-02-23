@@ -6,7 +6,7 @@ import io.github.dudupuci.appdespesas.services.annotations.CpfOuCnpj;
 
 public record AtualizarUsuarioSistemaRequestDto(
         @CpfOuCnpj
-        String cpfOuCnpj,
+        String cpfCnpj,
 
         AtualizarContatoRequestDto contatoDto,
         AtualizarEnderecoRequestDto enderecoDto

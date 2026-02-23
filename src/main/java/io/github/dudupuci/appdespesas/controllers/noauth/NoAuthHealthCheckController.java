@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/health")
-public class HealthCheckController {
+@RequestMapping("/public/health")
+public class NoAuthHealthCheckController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> healthCheck() {

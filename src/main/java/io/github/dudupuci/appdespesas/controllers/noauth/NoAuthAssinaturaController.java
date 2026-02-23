@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/assinaturas")
+@RequestMapping("/public/assinaturas")
 public class NoAuthAssinaturaController {
 
     private final AssinaturaService service;

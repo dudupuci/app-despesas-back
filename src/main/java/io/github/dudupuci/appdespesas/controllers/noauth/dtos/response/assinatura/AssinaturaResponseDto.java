@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class AssinaturaResponseDto {
+    private Long id;
     private String nomePlano;
     private BigDecimal valor;
     private String descricao;
@@ -17,6 +18,7 @@ public class AssinaturaResponseDto {
 
     public static AssinaturaResponseDto fromEntity(Assinatura assinatura) {
         AssinaturaResponseDto dto = new AssinaturaResponseDto();
+        dto.setId(assinatura.getId());
         dto.setNomePlano(assinatura.getNomePlano());
         dto.setValor(assinatura.getValor());
         dto.setDescricao(assinatura.getDescricao());

@@ -5,6 +5,7 @@ import io.github.dudupuci.appdespesas.models.entities.Assinatura;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.services.AssinaturaService;
 import io.github.dudupuci.appdespesas.services.UsuarioService;
+import io.github.dudupuci.appdespesas.services.webservices.dtos.response.ObterQrCodePixResponseDto;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,12 +27,24 @@ public class UserAssinaturaController {
         this.assinaturaService = assinaturaService;
     }
 
+    /**
+     * Endpoint para assinar um plano de assinatura
+     * <br/>
+     * - O usuário deve fornecer o ID da assinatura que deseja assinar
+     * - O sistema irá gerar um QR Code Pix para pagamento da assinatura
+     * - O usuário deve realizar o pagamento utilizando o QR Code Pix gerado
+     * - Após a confirmação do pagamento, o sistema irá ativar a assinatura para o usuário
+     */
     @PostMapping("/assinar/{id}")
-    public ResponseEntity<?> assinar(@PathVariable Long id) {
-        UUID usuarioIdLogado = getUsuarioAutenticadoId();
+    public ResponseEntity<ObterQrCodePixResponseDto> assinar(@PathVariable Long id) {
+        try {
+            UUID usuarioIdLogado = getUsuarioAutenticadoId();
 
-        usuarioService.assinar(usuarioIdLogado, id);
-        return ResponseEntity.ok().body("Em breve esta funcionalidade estará disponível!");
+            ObterQrCodePixResponseDto obterQrCodePixResponse = usuarioService.assinar(usuarioIdLogado, id);
+            return ResponseEntity.ok().body(obterQrCodePixResponse);
+        } catch (Exception err) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 

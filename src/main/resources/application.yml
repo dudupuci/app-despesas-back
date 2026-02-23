@@ -22,9 +22,14 @@ tudin:
     super-adm-password: $2a$10$sbjfQBcevMHF80WwjaxBA.57jQsuZybpRcJ/Qq1FoDX.7D9mTwo4.
 
 integrations:
+  viacep:
+    baseUrl: https://viacep.com.br/ws
   asaas:
     sandbox:
       apiKey: $aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmZiNzgxMWJjLThmZWYtNDY3Zi1hNjFhLTRlZWVkMzNjZWVmMjo6JGFhY2hfM2YwZmE5ZWEtYzEyMC00NzhmLThiOWItMjhhZjY0NDAzOGE3
-      customers: https://api-sandbox.asaas.com/v3/customers
+      baseUrl: https://api-sandbox.asaas.com/v3
+      customers: /customers
+      cobrancas: /lean/payments
+      obterQrCodePix: /payments
 
 

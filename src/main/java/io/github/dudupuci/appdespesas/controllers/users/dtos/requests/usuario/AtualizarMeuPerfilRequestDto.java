@@ -8,7 +8,7 @@ import javax.validation.Valid;
 
 public record AtualizarMeuPerfilRequestDto(
         @CpfOuCnpj
-        String cpfOuCnpj,
+        String cpfCnpj,
         AtualizarContatoRequestDto contatoDto,
         AtualizarEnderecoRequestDto enderecoDto
 ) {

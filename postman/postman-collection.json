@@ -1,0 +1,786 @@
+{
+  "info": {
+    "_postman_id": "cbd5734f-4834-47da-94e5-9ca3a29162d4",
+    "name": "AppDespesas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "20045524"
+  },
+  "item": [
+    {
+      "name": "API's Públicas",
+      "item": [
+        {
+          "name": "Onboarding",
+          "item": [
+            {
+              "name": "Registrar-se",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nome\": \"Eduardo\",\r\n    \"sobrenome\": \"Pucinelli\",\r\n    \"email\": \"dudupucinelli@gmail.com\",\r\n    \"celular\": \"44999543420\",\r\n    \"telefonefixo\": \"4430251813\",\r\n    \"senha\": \"123456\",\r\n    \"confirmacaoSenha\": \"123456\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/public/auth/registro",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "public",
+                    "auth",
+                    "registro"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Fazer Login",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"dudupucinelli@gmail.com\",\r\n    \"senha\": \"123456\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/public/auth/login",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "public",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Health",
+          "item": [
+            {
+              "name": "API Status",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/public/health",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "public",
+                    "health"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Consultas",
+          "item": [
+            {
+              "name": "Buscar endereço por CEP",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/public/consultas/buscar/endereco-por-cep?cep=87060590",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "public",
+                    "consultas",
+                    "buscar",
+                    "endereco-por-cep"
+                  ],
+                  "query": [
+                    {
+                      "key": "cep",
+                      "value": "87060590"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Assinaturas",
+          "item": [
+            {
+              "name": "Listar Assinaturas",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/public/assinaturas",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "public",
+                    "assinaturas"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "API's Admins",
+      "item": [
+        {
+          "name": "Roles do Sistema",
+          "item": [
+            {
+              "name": "Criar Role",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nome\": \"ROLE\",\r\n    \"descricao\": \"Descricao da Role\",\r\n    \"poder\": 1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/admin/roles",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "roles"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Usuários",
+          "item": [
+            {
+              "name": "Ver usuários",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/admin/usuarios",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "usuarios"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Atualizar um usuário",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"cpfCnpj\": \"xxxxx\",\r\n    \"contatoDto\": {\r\n        \"telefoneFixo\": \"xxxxx\",\r\n        \"celular\": \"xxxxx\"\r\n    },\r\n    \"enderecoDto\": {\r\n        \"logradouro\": \"xxxxx\",\r\n        \"numero\": \"xxxxx\",\r\n        \"complemento\": \"xxxx\",\r\n        \"bairro\": \"xxxx\",\r\n        \"cep\": \"xxxx\"\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/admin/usuarios/{{$randomUUID}}",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "usuarios",
+                    "{{$randomUUID}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "API's Usuários",
+      "item": [
+        {
+          "name": "Assinaturas",
+          "item": [
+            {
+              "name": "Assinar Plano",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/assinaturas/assinar/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "assinaturas",
+                    "assinar",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Minha Assinatura",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/assinaturas/minha-assinatura",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "assinaturas",
+                    "minha-assinatura"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Outras Assinaturas Disponíveis",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/assinaturas/outras-assinaturas",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "assinaturas",
+                    "outras-assinaturas"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Calendários",
+          "item": [
+            {
+              "name": "Ver Calendário",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/calendarios/meu-calendario",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "calendarios",
+                    "meu-calendario"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Categorias",
+          "item": [
+            {
+              "name": "Criar Categoria",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nome\": \"Lazer\",\r\n    \"descricao\": \"Gastos com Lazer\",\r\n    \"tipoMovimentacao\":\"DESPESA\",\r\n    \"corId\": \"xxxx\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/categorias",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "categorias"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Atualizar Categoria",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nome\": \"Lazer\",\r\n    \"descricao\": \"Gastos com Lazer\",\r\n    \"tipoMovimentacao\":\"DESPESA\",\r\n    \"corId\": \"xxxx\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/categorias/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "categorias",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buscar por Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/categorias/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "categorias",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Deletar",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/categorias/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "categorias",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Ver todas",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/categorias",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "categorias"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Pesquisar",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/categorias?search=Lazer",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "categorias"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "Lazer"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Compromissos",
+          "item": [
+            {
+              "name": "Ver todos",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/compromissos",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "compromissos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Criar Compromisso",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"titulo\": \"Consulta Médica\",\r\n    \"descricao\": \"Consulta Dr Rafael\",\r\n    \"dataInicio\": \"02/02/2026 15:30\",\r\n    \"dataFim\": \"02/02/2026 16:00\",\r\n    \"diaInteiro\": false,\r\n    \"prioridade\": \"BAIXA\",\r\n    \"localizacao\": \"Cliniprev\",\r\n    \"cor\": \"xxx\",\r\n    \"observacoes\": \"Levar RG\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/compromissos",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "compromissos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buscar por id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/compromissos/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "compromissos",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Cores",
+          "item": [
+            {
+              "name": "Buscar por id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/cores/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "cores",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Ver minhas Cores",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/cores",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "cores"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Criar Cor",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nome\": \"Laranja\",\r\n    \"codigoHexadecimal\": \"#F11111\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/cores",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "cores"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Atualizar Cor",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"nome\": \"Laranja\",\r\n    \"codigoHexadecimal\": \"#F11111\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/cores/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "cores",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Atualizar Cor Copy",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/cores/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "cores",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Meu Perfil",
+          "item": [
+            {
+              "name": "Meu Perfil",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/meu-perfil",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "meu-perfil"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Atualizar meu Perfil",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"cpfCnpj\": \"xxxxx\",\r\n    \"contatoDto\": {\r\n        \"telefoneFixo\": \"xxxxx\",\r\n        \"celular\": \"xxxxx\"\r\n    },\r\n    \"enderecoDto\": {\r\n        \"logradouro\": \"xxxxx\",\r\n        \"numero\": \"xxxxx\",\r\n        \"complemento\": \"xxxx\",\r\n        \"bairro\": \"xxxx\",\r\n        \"cep\": \"xxxx\"\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/meu-perfil",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "meu-perfil"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Movimentações",
+          "item": [
+            {
+              "name": "Ver movimentações",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/movimentacoes?dataInicio=10/02/2026&dataFim=12/02/2026&tipo=DESPESA",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "movimentacoes"
+                  ],
+                  "query": [
+                    {
+                      "key": "dataInicio",
+                      "value": "10/02/2026"
+                    },
+                    {
+                      "key": "dataFim",
+                      "value": "12/02/2026"
+                    },
+                    {
+                      "key": "tipo",
+                      "value": "DESPESA"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buscar por Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/movimentacoes/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "movimentacoes",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Deletar",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/movimentacoes/1",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "movimentacoes",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Criar Movimentação",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"titulo\": \"Almoço Shopping\",\r\n    \"descricao\": \"Almoçei no JinJin\",\r\n    \"valor\": 60.50,\r\n    \"dataDaMovimentacao\": null,// Se não informada, igual new Date()\r\n    \"tipoMovimentacao\": \"DESPESA\",\r\n    \"categoriaId\": \"xxxx\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{DEFAULT_PATH}}/movimentacoes",
+                  "host": [
+                    "{{DEFAULT_PATH}}"
+                  ],
+                  "path": [
+                    "movimentacoes"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

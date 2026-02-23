@@ -5,6 +5,7 @@ import io.github.dudupuci.appdespesas.services.CalendarioService;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -16,6 +17,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/calendarios")
+@PreAuthorize("hasRole('USER')")
 public class UserCalendarioController {
 
     private final CalendarioService calendarioService;
@@ -31,7 +33,7 @@ public class UserCalendarioController {
      * @param dataFim Data final no formato dd/MM/yyyy
      * @return Lista unificada de eventos (Compromissos, Eventos, Movimentações)
      */
-    @GetMapping
+    @GetMapping("/meu-calendario")
     public ResponseEntity<List<EventoCalendarioResponseDto>> listarItens(
             @RequestParam(name = "dataInicio", required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date dataInicio,
             @RequestParam(name = "dataFim", required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date dataFim

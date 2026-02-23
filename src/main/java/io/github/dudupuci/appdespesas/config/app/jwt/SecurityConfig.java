@@ -42,7 +42,7 @@ public class SecurityConfig {
                                 "/chatbot/**",
                                 "/webhooks/**",
                                 "/assinaturas/**",
-                                "/consultas/**",
+                                "/public/**",
                                 "/roles/**",
                                 "/health",
                                 "/swagger-ui/**",

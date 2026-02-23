@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/consultas")
+@RequestMapping("/public/consultas")
 public class NoAuthConsultaController {
 
     private final ViaCepService viaCepService;
