@@ -2,6 +2,7 @@ package io.github.dudupuci.appdespesas.controllers.users;
 
 import io.github.dudupuci.appdespesas.controllers.noauth.dtos.response.assinatura.AssinaturaResponseDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatura.AssinarAssinaturaRequestDto;
+import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatura.CheckoutAssinaturaResponseDto;
 import io.github.dudupuci.appdespesas.models.entities.Assinatura;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.services.AssinaturaService;
@@ -29,6 +30,18 @@ public class UserAssinaturaController {
         this.assinaturaService = assinaturaService;
     }
 
+    @GetMapping("/checkout/{assinaturaId}")
+    public ResponseEntity<CheckoutAssinaturaResponseDto> carregarCheckout(
+            @PathVariable Long assinaturaId
+    ) {
+
+        UUID usuarioIdLogado = getUsuarioAutenticadoId();
+
+        CheckoutAssinaturaResponseDto response =
+                usuarioService.prepararCheckout(usuarioIdLogado, assinaturaId);
+
+        return ResponseEntity.ok(response);
+    }
     /**
      * Endpoint para assinar um plano de assinatura
      * <br/>
@@ -37,18 +50,18 @@ public class UserAssinaturaController {
      * - O usuário deve realizar o pagamento utilizando o QR Code Pix gerado
      * - Após a confirmação do pagamento, o sistema irá ativar a assinatura para o usuário
      */
-    @PostMapping("/assinar/{id}")
+    @PostMapping("/checkout/{assinaturaId}/confirmar")
     public ResponseEntity<ObterQrCodePixResponseDto> assinar(
             @Valid @RequestBody AssinarAssinaturaRequestDto assinaturaRequestDto,
-            @PathVariable Long id
+            @PathVariable Long assinaturaId
     ) {
         try {
             UUID usuarioIdLogado = getUsuarioAutenticadoId();
 
-            ObterQrCodePixResponseDto obterQrCodePixResponse = usuarioService.assinar(
+            ObterQrCodePixResponseDto obterQrCodePixResponse = usuarioService.seguirParaPagamento(
                     assinaturaRequestDto,
                     usuarioIdLogado,
-                    id
+                    assinaturaId
             );
             return ResponseEntity.ok().body(obterQrCodePixResponse);
         } catch (Exception err) {

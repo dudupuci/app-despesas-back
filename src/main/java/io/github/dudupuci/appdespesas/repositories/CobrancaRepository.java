@@ -1,0 +1,11 @@
+package io.github.dudupuci.appdespesas.repositories;
+
+import io.github.dudupuci.appdespesas.models.entities.Cobranca;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+public interface CobrancaRepository extends JpaRepository<Cobranca, UUID> {
+}

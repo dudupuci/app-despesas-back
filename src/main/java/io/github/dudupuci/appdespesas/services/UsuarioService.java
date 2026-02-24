@@ -3,12 +3,13 @@ package io.github.dudupuci.appdespesas.services;
 import io.github.dudupuci.appdespesas.controllers.admin.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.endereco.AtualizarEnderecoRequestDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatura.AssinarAssinaturaRequestDto;
+import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatura.CheckoutAssinaturaResponseDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.usuario.AtualizarMeuPerfilRequestDto;
 import io.github.dudupuci.appdespesas.exceptions.CpfCnpjObrigatorioException;
-import io.github.dudupuci.appdespesas.models.entities.Assinatura;
-import io.github.dudupuci.appdespesas.models.entities.Contato;
-import io.github.dudupuci.appdespesas.models.entities.Endereco;
-import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
+import io.github.dudupuci.appdespesas.models.entities.*;
+import io.github.dudupuci.appdespesas.models.enums.Status;
+import io.github.dudupuci.appdespesas.models.enums.TipoPagamento;
+import io.github.dudupuci.appdespesas.models.enums.TipoRecursoPago;
 import io.github.dudupuci.appdespesas.repositories.UsuariosRepository;
 import io.github.dudupuci.appdespesas.services.webservices.AsaasService;
 import io.github.dudupuci.appdespesas.services.webservices.dtos.request.CriarCobrancaAsaasRequestDto;
@@ -37,6 +38,10 @@ public class UsuarioService {
     @Autowired
     private AssinaturaService assinaturaService;
 
+    @Autowired
+    private CobrancaService cobrancaService;
+
+
     public UsuarioService(UsuariosRepository usuariosRepository) {
         this.usuariosRepository = usuariosRepository;
     }
@@ -54,7 +59,34 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
-    public ObterQrCodePixResponseDto assinar(
+
+    public CheckoutAssinaturaResponseDto prepararCheckout(
+            UUID usuarioIdLogado,
+            Long assinaturaId
+    ) {
+
+        UsuarioSistema usuario = usuariosRepository.findById(usuarioIdLogado)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        Assinatura assinatura = assinaturaService.buscarAssinaturaPorId(assinaturaId);
+
+        if (assinatura == null) {
+            throw new RuntimeException("Assinatura não encontrada");
+        }
+
+        if (usuario.getAssinatura() != null
+                && usuario.getAssinatura().getId().equals(assinaturaId)) {
+            throw new RuntimeException("Você já possui esta assinatura.");
+        }
+
+        return new CheckoutAssinaturaResponseDto(
+                assinatura.getId(),
+                assinatura.getNomePlano(),
+                assinatura.getValor()
+        );
+    }
+
+    public ObterQrCodePixResponseDto seguirParaPagamento(
             AssinarAssinaturaRequestDto dto,
             UUID usuarioIdLogado,
             Long assinaturaId
@@ -134,6 +166,17 @@ public class UsuarioService {
 
         BillingType formaPagamento = BillingType.PIX;
 
+        Cobranca cobranca = new Cobranca();
+        cobranca.setUsuario(usuarioLogado);
+        cobranca.setValor(assinatura.getValor());
+        cobranca.setStatus(Status.AGUARDANDO_PAGAMENTO);
+        cobranca.setMetodo(TipoPagamento.PIX);
+        cobranca.setTipoRecursoPago(TipoRecursoPago.ASSINATURA);
+        cobranca.setIdRecursoPago(assinatura.getId().toString());
+        cobranca.setDataPagamento(null);
+
+        cobrancaService.createCobranca(cobranca);
+
         CobrancaCriadaAsaasResponseDto cobrancaCriadaDto =
                 asaasService.criarCobrancaAsaas(
                         CriarCobrancaAsaasRequestDto.fromObjects(
@@ -148,16 +191,6 @@ public class UsuarioService {
         if (!qrCodePix.success()) {
             throw new RuntimeException("Erro ao gerar QR Code PIX.");
         }
-
-    /*
-        🔥 AQUI É ESSENCIAL:
-        Salvar entidade AssinaturaPendente com:
-            - paymentId
-            - usuarioPagadorId
-            - usuarioBeneficiarioId
-            - assinaturaId
-            - status = PENDENTE
-     */
 
         return new ObterQrCodePixResponseDto(
                 true,
