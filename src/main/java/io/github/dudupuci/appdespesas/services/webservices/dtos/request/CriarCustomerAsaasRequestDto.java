@@ -29,11 +29,11 @@ public record CriarCustomerAsaasRequestDto(
         boolean isEnderecoNotNull = AppDespesasUtils.isEntidadeNotNull(usuarioSistema.getEndereco());
 
         if (StringUtils.isEmpty(usuarioSistema.getNomeCompleto())) {
-            throw new IllegalArgumentException("O nome completo do usuário é obrigatório para criar um cliente no Asaas.");
+            throw new IllegalArgumentException("Nome completo não informado no perfil do usuário. Será necessário preencher esse campo para dar continuidade ao processo.");
         }
 
         if (StringUtils.isEmpty(usuarioSistema.getCpfCnpj())) {
-            throw new IllegalArgumentException("O CPF/CNPJ do usuário é obrigatório para criar um cliente no Asaas.");
+            throw new IllegalArgumentException("CPF/CNPJ não informados no perfil do usuário. Será necessário preencher esse campo para dar continuidade ao processo.");
         }
 
         return new CriarCustomerAsaasRequestDto(

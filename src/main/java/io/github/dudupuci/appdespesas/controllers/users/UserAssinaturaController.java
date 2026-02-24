@@ -1,12 +1,14 @@
 package io.github.dudupuci.appdespesas.controllers.users;
 
 import io.github.dudupuci.appdespesas.controllers.noauth.dtos.response.assinatura.AssinaturaResponseDto;
+import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatura.AssinarAssinaturaRequestDto;
 import io.github.dudupuci.appdespesas.models.entities.Assinatura;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.services.AssinaturaService;
 import io.github.dudupuci.appdespesas.services.UsuarioService;
 import io.github.dudupuci.appdespesas.services.webservices.dtos.response.ObterQrCodePixResponseDto;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,11 +38,18 @@ public class UserAssinaturaController {
      * - Após a confirmação do pagamento, o sistema irá ativar a assinatura para o usuário
      */
     @PostMapping("/assinar/{id}")
-    public ResponseEntity<ObterQrCodePixResponseDto> assinar(@PathVariable Long id) {
+    public ResponseEntity<ObterQrCodePixResponseDto> assinar(
+            @Valid @RequestBody AssinarAssinaturaRequestDto assinaturaRequestDto,
+            @PathVariable Long id
+    ) {
         try {
             UUID usuarioIdLogado = getUsuarioAutenticadoId();
 
-            ObterQrCodePixResponseDto obterQrCodePixResponse = usuarioService.assinar(usuarioIdLogado, id);
+            ObterQrCodePixResponseDto obterQrCodePixResponse = usuarioService.assinar(
+                    assinaturaRequestDto,
+                    usuarioIdLogado,
+                    id
+            );
             return ResponseEntity.ok().body(obterQrCodePixResponse);
         } catch (Exception err) {
             return ResponseEntity.badRequest().build();

@@ -2,6 +2,7 @@ package io.github.dudupuci.appdespesas.services;
 
 import io.github.dudupuci.appdespesas.controllers.admin.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
 import io.github.dudupuci.appdespesas.controllers.dtos.request.endereco.AtualizarEnderecoRequestDto;
+import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatura.AssinarAssinaturaRequestDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.usuario.AtualizarMeuPerfilRequestDto;
 import io.github.dudupuci.appdespesas.exceptions.CpfCnpjObrigatorioException;
 import io.github.dudupuci.appdespesas.models.entities.Assinatura;
@@ -53,13 +54,45 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
-    public ObterQrCodePixResponseDto assinar(UUID usuarioIdLogado, Long assinaturaId) {
-        UsuarioSistema usuario = this.usuariosRepository.findById(usuarioIdLogado)
+    public ObterQrCodePixResponseDto assinar(
+            AssinarAssinaturaRequestDto dto,
+            UUID usuarioIdLogado,
+            Long assinaturaId
+    ) {
+
+        if (dto == null) {
+            throw new RuntimeException("Dados da assinatura são obrigatórios");
+        }
+
+        UsuarioSistema usuarioLogado = usuariosRepository.findById(usuarioIdLogado)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        if (AppDespesasUtils.isEntidadeNotNull(usuario.getAssinatura())
-                && usuario.getAssinatura().getId().equals(assinaturaId)) {
-            throw new RuntimeException("Você já possui essa assinatura");
+        UsuarioSistema usuarioBeneficiario;
+
+    /*
+        🔎 DEFINE BENEFICIÁRIO
+     */
+        if (dto.assinaturaParaOutraPessoa()) {
+
+            usuarioBeneficiario = usuariosRepository.buscarPorEmail(dto.email())
+                    .orElseThrow(() -> new RuntimeException("Usuário presenteado não encontrado."));
+
+            if (usuarioBeneficiario.getId().equals(usuarioLogado.getId())) {
+                throw new RuntimeException("Desmarque a opção 'Assinar para outra pessoa' ou escolha outro usuário.");
+            }
+
+        } else {
+
+            dto.validarParaAssinaturaPropria();
+            usuarioBeneficiario = usuarioLogado;
+        }
+
+    /*
+        🔎 VALIDA SE BENEFICIÁRIO JÁ POSSUI ASSINATURA
+     */
+        if (AppDespesasUtils.isEntidadeNotNull(usuarioBeneficiario.getAssinatura())
+                && usuarioBeneficiario.getAssinatura().getId().equals(assinaturaId)) {
+            throw new RuntimeException("Este usuário já possui essa assinatura ativa.");
         }
 
         Assinatura assinatura = assinaturaService.buscarAssinaturaPorId(assinaturaId);
@@ -68,41 +101,72 @@ public class UsuarioService {
             throw new RuntimeException("Assinatura não encontrada!");
         }
 
-        // Valida se usuário já possui customerId no Asaas
-        // caso contrário, cria um novo customer no Asaas e salva o id retornado no cadastro do usuário
-        if (StringUtils.isEmpty(usuario.getAsaasCustomerId())) {
+    /*
+        💳 PAGADOR É SEMPRE O USUÁRIO LOGADO
+     */
 
-            if (StringUtils.isEmpty(usuario.getCpfCnpj())) {
-                throw new CpfCnpjObrigatorioException();
+        if (StringUtils.isEmpty(usuarioLogado.getAsaasCustomerId())) {
+
+            if (!dto.assinaturaParaOutraPessoa()) {
+
+                // Assinatura própria exige CPF válido
+                if (StringUtils.isEmpty(dto.cpfCnpj())) {
+                    throw new RuntimeException("CPF/CNPJ obrigatório para criar cobrança.");
+                }
+
+            } else {
+
+                // Presente: usar dados já cadastrados do usuário logado
+                if (StringUtils.isEmpty(usuarioLogado.getCpfCnpj())) {
+                    throw new RuntimeException("Usuário logado precisa ter CPF/CNPJ cadastrado para realizar pagamento.");
+                }
+
             }
 
-            CustomerCriadoAsaasResponseDto customerCriadoDto = asaasService.criarCustomerAsaas(
-                    CriarCustomerAsaasRequestDto.fromUsuarioSistema(usuario)
-            );
+            CustomerCriadoAsaasResponseDto customerCriadoDto =
+                    asaasService.criarCustomerAsaas(
+                            CriarCustomerAsaasRequestDto.fromUsuarioSistema(usuarioLogado)
+                    );
 
-            usuario.setAsaasCustomerId(customerCriadoDto.id());
-            usuario.setDataAtualizacao(new Date());
-            this.usuariosRepository.save(usuario);
-
+            usuarioLogado.setAsaasCustomerId(customerCriadoDto.id());
+            usuariosRepository.save(usuarioLogado);
         }
 
         BillingType formaPagamento = BillingType.PIX;
 
-        CobrancaCriadaAsaasResponseDto cobrancaCriadaDto = asaasService.criarCobrancaAsaas(
-                CriarCobrancaAsaasRequestDto.fromObjects(usuario, assinatura, formaPagamento)
-        );
+        CobrancaCriadaAsaasResponseDto cobrancaCriadaDto =
+                asaasService.criarCobrancaAsaas(
+                        CriarCobrancaAsaasRequestDto.fromObjects(
+                                usuarioLogado,
+                                assinatura,
+                                formaPagamento
+                        )
+                );
 
-        ObterQrCodePixResponseDto qrCodePixResponseDto = asaasService.obterQrCodePix(
-                cobrancaCriadaDto.id()
-        );
+        ObterQrCodePixResponseDto qrCodePix = asaasService.obterQrCodePix(cobrancaCriadaDto.id());
 
-
-        if (qrCodePixResponseDto.success()) {
-            return qrCodePixResponseDto;
+        if (!qrCodePix.success()) {
+            throw new RuntimeException("Erro ao gerar QR Code PIX.");
         }
 
-        return null;
+    /*
+        🔥 AQUI É ESSENCIAL:
+        Salvar entidade AssinaturaPendente com:
+            - paymentId
+            - usuarioPagadorId
+            - usuarioBeneficiarioId
+            - assinaturaId
+            - status = PENDENTE
+     */
 
+        return new ObterQrCodePixResponseDto(
+                true,
+                qrCodePix.encodedImage(),
+                qrCodePix.payload(),
+                qrCodePix.expirationDate(),
+                qrCodePix.description(),
+                usuarioBeneficiario.getId()
+        );
     }
 
     // Endpoint admin

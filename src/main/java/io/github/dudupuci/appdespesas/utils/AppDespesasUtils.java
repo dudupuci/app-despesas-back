@@ -142,4 +142,8 @@ public final class AppDespesasUtils {
         return str.trim();
     }
 
+    public static UUID getUsuarioAutenticado() {
+        return SecurityUtils.getUsuarioAutenticadoId();
+    }
+
 }

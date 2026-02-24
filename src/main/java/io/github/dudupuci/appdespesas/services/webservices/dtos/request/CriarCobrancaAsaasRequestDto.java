@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public record CriarCobrancaAsaasRequestDto(
-            String customer,
-            BillingType billingType,
-            BigDecimal value,
-            String dueDate,
-            String description,
-            String externalReference
+        String customer,
+        BillingType billingType,
+        BigDecimal value,
+        String dueDate,
+        String description,
+        String externalReference
 ) {
 
     public static CriarCobrancaAsaasRequestDto fromObjects(
@@ -27,7 +27,8 @@ public record CriarCobrancaAsaasRequestDto(
                 formaPagamento,
                 assinaturaCobranca.getValor(),
                 calculaDataVencimento(formaPagamento),
-                "Assinatura: " + assinaturaCobranca.getNomePlano() + " para: " + usuarioSistema.getNomeCompleto(),
+                "Assinatura: " + assinaturaCobranca.getNomePlano() +
+                        " para: " + usuarioSistema.getNomeCompleto(),
                 String.valueOf(usuarioSistema.getId())
         );
     }
@@ -37,11 +38,10 @@ public record CriarCobrancaAsaasRequestDto(
         Date dataVencimento;
 
         switch (formaPagamento) {
-            // Para boleto, o vencimento é em 3 dias
-            case BOLETO -> dataVencimento = new Date(dataAtual.getTime() + (3 * 24 * 60 * 60 * 1000L));
-            // Para PIX, o vencimento é em 1 hora
-            case PIX -> dataVencimento = new Date(dataAtual.getTime() + (60 * 60 * 1000L));
-
+            // Para PIX, o vencimento é em 15 minutos
+            case PIX -> dataVencimento = new Date(dataAtual.getTime() + 15 * 60 * 1000);
+            // Para BOLETO, o vencimento é em 3 dias
+            case BOLETO -> dataVencimento = new Date(dataAtual.getTime() + 3 * 24 * 60 * 60 * 1000);
             default -> throw new IllegalArgumentException("Forma de pagamento não suportada: " + formaPagamento);
         }
 
