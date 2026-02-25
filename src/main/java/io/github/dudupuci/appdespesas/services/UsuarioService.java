@@ -5,7 +5,7 @@ import io.github.dudupuci.appdespesas.controllers.dtos.request.endereco.Atualiza
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatura.AssinarAssinaturaRequestDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatura.CheckoutAssinaturaResponseDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.usuario.AtualizarMeuPerfilRequestDto;
-import io.github.dudupuci.appdespesas.exceptions.CpfCnpjObrigatorioException;
+import io.github.dudupuci.appdespesas.exceptions.*;
 import io.github.dudupuci.appdespesas.models.entities.*;
 import io.github.dudupuci.appdespesas.models.enums.Status;
 import io.github.dudupuci.appdespesas.models.enums.TipoPagamento;
@@ -56,34 +56,26 @@ public class UsuarioService {
 
     public UsuarioSistema buscarPorId(UUID id) {
         return this.usuariosRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+    }
+
+    public UsuarioSistema buscarPorEmail(String email) {
+        return this.usuariosRepository.buscarPorEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário de email " + email + " não encontrado."));
     }
 
 
-    public CheckoutAssinaturaResponseDto prepararCheckout(
+    public CheckoutAssinaturaResponseDto prepararAssinatura(
             UUID usuarioIdLogado,
             Long assinaturaId
     ) {
 
-        UsuarioSistema usuario = usuariosRepository.findById(usuarioIdLogado)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        UsuarioSistema usuario = buscarPorId(usuarioIdLogado);
 
         Assinatura assinatura = assinaturaService.buscarAssinaturaPorId(assinaturaId);
+        validarAssinatura(assinatura, usuario);
 
-        if (assinatura == null) {
-            throw new RuntimeException("Assinatura não encontrada");
-        }
-
-        if (usuario.getAssinatura() != null
-                && usuario.getAssinatura().getId().equals(assinaturaId)) {
-            throw new RuntimeException("Você já possui esta assinatura.");
-        }
-
-        return new CheckoutAssinaturaResponseDto(
-                assinatura.getId(),
-                assinatura.getNomePlano(),
-                assinatura.getValor()
-        );
+        return CheckoutAssinaturaResponseDto.fromAssinatura(assinatura);
     }
 
     public ObterQrCodePixResponseDto seguirParaPagamento(
@@ -93,68 +85,68 @@ public class UsuarioService {
     ) {
 
         if (dto == null) {
-            throw new RuntimeException("Dados da assinatura são obrigatórios");
+            throw new FormularioNaoPreenchidoException("Dados não preenchidos para realizar assinatura. Preencha o formulário corretamente e tente novamente.");
         }
 
-        UsuarioSistema usuarioLogado = usuariosRepository.findById(usuarioIdLogado)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
+        UsuarioSistema usuarioLogado = buscarPorId(usuarioIdLogado);
         UsuarioSistema usuarioBeneficiario;
 
-    /*
-        🔎 DEFINE BENEFICIÁRIO
-     */
-        if (dto.assinaturaParaOutraPessoa()) {
+        // O pagador é sempre o usuário logado, pois é ele quem irá realizar o pagamento da assinatura,
+        // ou seja, para si mesmo ou para outra pessoa.
 
-            usuarioBeneficiario = usuariosRepository.buscarPorEmail(dto.email())
-                    .orElseThrow(() -> new RuntimeException("Usuário presenteado não encontrado."));
+        // Se for assinatura para outra pessoa, o beneficiário é o usuário presenteado
+        // Se for assinatura para si mesmo, o beneficiário é o próprio usuário logado
+        // Valida se o usuário presenteado existe e não é o mesmo que está assinando
+
+        // Isso evita que um usuário assine para si mesmo usando a opção de "assinar para outra pessoa",
+        // o que não faria sentido e poderia causar confusão no sistema
+        if (dto.assinaturaParaOutraPessoa()) {
+            usuarioBeneficiario = buscarPorEmail(dto.email());
 
             if (usuarioBeneficiario.getId().equals(usuarioLogado.getId())) {
-                throw new RuntimeException("Desmarque a opção 'Assinar para outra pessoa' ou escolha outro usuário.");
+                throw new UsuarioBeneficiarioEqualsUsuarioLogadoException("Desmarque a opção 'Assinar para outra pessoa' ou escolha outro usuário.");
             }
 
         } else {
-
             dto.validarParaAssinaturaPropria();
             usuarioBeneficiario = usuarioLogado;
         }
 
-    /*
-        🔎 VALIDA SE BENEFICIÁRIO JÁ POSSUI ASSINATURA
-     */
+
+        // 🔎 VALIDA SE BENEFICIÁRIO JÁ POSSUI ASSINATURA
         if (AppDespesasUtils.isEntidadeNotNull(usuarioBeneficiario.getAssinatura())
                 && usuarioBeneficiario.getAssinatura().getId().equals(assinaturaId)) {
-            throw new RuntimeException("Este usuário já possui essa assinatura ativa.");
+            throw new UsuarioJaTemEssaAssinaturaException("Este usuário já possui essa assinatura ativa.");
         }
 
         Assinatura assinatura = assinaturaService.buscarAssinaturaPorId(assinaturaId);
 
-        if (assinatura == null) {
-            throw new RuntimeException("Assinatura não encontrada!");
-        }
+        // 💳 PAGADOR É SEMPRE O USUÁRIO LOGADO
 
-    /*
-        💳 PAGADOR É SEMPRE O USUÁRIO LOGADO
-     */
+        // Se o usuário logado não tiver Asaas Customer ID, cria um novo customer no Asaas usando os dados do usuário logado
+        // Isso é necessário para que o usuário logado possa ser o pagador da cobrança, mesmo que a assinatura seja para outra pessoa
 
+        // Se o usuário logado já tiver Asaas Customer ID, reutiliza esse ID para criar a cobrança
+        // mesmo que a assinatura seja para outra pessoa
         if (StringUtils.isEmpty(usuarioLogado.getAsaasCustomerId())) {
 
             if (!dto.assinaturaParaOutraPessoa()) {
 
                 // Assinatura própria exige CPF válido
                 if (StringUtils.isEmpty(dto.cpfCnpj())) {
-                    throw new RuntimeException("CPF/CNPJ obrigatório para criar cobrança.");
+                    throw new CampoObrigatorioException("CPF/CNPJ obrigatório para criar cobrança.");
                 }
 
             } else {
 
                 // Presente: usar dados já cadastrados do usuário logado
                 if (StringUtils.isEmpty(usuarioLogado.getCpfCnpj())) {
-                    throw new RuntimeException("Usuário logado precisa ter CPF/CNPJ cadastrado para realizar pagamento.");
+                    throw new CampoObrigatorioException("Usuário logado precisa ter CPF/CNPJ cadastrado para realizar pagamento.");
                 }
 
             }
 
+            // Criar customer no Asaas para o usuário logado
             CustomerCriadoAsaasResponseDto customerCriadoDto =
                     asaasService.criarCustomerAsaas(
                             CriarCustomerAsaasRequestDto.fromUsuarioSistema(usuarioLogado)
@@ -166,17 +158,9 @@ public class UsuarioService {
 
         BillingType formaPagamento = BillingType.PIX;
 
-        Cobranca cobranca = new Cobranca();
-        cobranca.setUsuario(usuarioLogado);
-        cobranca.setValor(assinatura.getValor());
-        cobranca.setStatus(Status.AGUARDANDO_PAGAMENTO);
-        cobranca.setMetodo(TipoPagamento.PIX);
-        cobranca.setTipoRecursoPago(TipoRecursoPago.ASSINATURA);
-        cobranca.setIdRecursoPago(assinatura.getId().toString());
-        cobranca.setDataPagamento(null);
 
-        cobrancaService.createCobranca(cobranca);
 
+        // Criar cobrança no Asaas e obter QR Code Pix
         CobrancaCriadaAsaasResponseDto cobrancaCriadaDto =
                 asaasService.criarCobrancaAsaas(
                         CriarCobrancaAsaasRequestDto.fromObjects(
@@ -186,10 +170,24 @@ public class UsuarioService {
                         )
                 );
 
+
+        // Criar cobrança no sistema local
+        Cobranca cobranca = new Cobranca();
+        cobranca.setUsuario(usuarioLogado);
+        cobranca.setValor(assinatura.getValor());
+        cobranca.setStatus(Status.AGUARDANDO_PAGAMENTO);
+        cobranca.setMetodo(TipoPagamento.PIX);
+        cobranca.setTipoRecursoPago(TipoRecursoPago.ASSINATURA);
+        cobranca.setIdRecursoPago(assinatura.getId().toString());
+        cobranca.setIdExterno(cobrancaCriadaDto.id());
+        cobranca.setDataPagamento(null);
+
+        cobrancaService.createCobranca(cobranca);
+
         ObterQrCodePixResponseDto qrCodePix = asaasService.obterQrCodePix(cobrancaCriadaDto.id());
 
         if (!qrCodePix.success()) {
-            throw new RuntimeException("Erro ao gerar QR Code PIX.");
+            throw new ErroAoObterQrCodePixException("Erro ao gerar QR Code PIX.");
         }
 
         return new ObterQrCodePixResponseDto(
@@ -198,14 +196,14 @@ public class UsuarioService {
                 qrCodePix.payload(),
                 qrCodePix.expirationDate(),
                 qrCodePix.description(),
-                usuarioBeneficiario.getId()
+                usuarioBeneficiario.getId(),
+                usuarioBeneficiario.getContato().getEmail()
         );
     }
 
     // Endpoint admin
     public UsuarioSistema atualizar(UUID usuarioIdLogado, AtualizarUsuarioSistemaRequestDto dto) {
-        UsuarioSistema usuarioExistente = this.usuariosRepository.findById(usuarioIdLogado)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        UsuarioSistema usuarioExistente = buscarPorId(usuarioIdLogado);
 
         // Atualiza contato
         Contato contato = usuarioExistente.getContato();
@@ -240,8 +238,7 @@ public class UsuarioService {
 
     // Endpoint usuario
     public UsuarioSistema atualizar(UUID usuarioIdLogado, AtualizarMeuPerfilRequestDto dto) {
-        UsuarioSistema usuarioExistente = this.usuariosRepository.findById(usuarioIdLogado)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        UsuarioSistema usuarioExistente = buscarPorId(usuarioIdLogado);
 
         // Atualiza contato
         Contato contato = usuarioExistente.getContato();
@@ -274,5 +271,10 @@ public class UsuarioService {
         return this.usuariosRepository.save(usuarioExistente);
     }
 
+    private void validarAssinatura(Assinatura assinatura, UsuarioSistema usuario) {
+        if (usuario.getAssinatura() != null && usuario.getAssinatura().getId().equals(assinatura.getId())) {
+            throw new UsuarioJaTemEssaAssinaturaException("Você já possui esta assinatura.");
+        }
+    }
 
 }

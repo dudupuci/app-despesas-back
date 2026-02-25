@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.services;
 
+import io.github.dudupuci.appdespesas.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.exceptions.UsuarioNotFoundException;
 import io.github.dudupuci.appdespesas.models.entities.Cor;
 import io.github.dudupuci.appdespesas.models.entities.UsuarioSistema;
@@ -22,14 +23,16 @@ public class CorService {
 
     private final CorRepository corRepository;
     private final UsuariosRepository usuariosRepository;
+    private final UsuarioService usuarioService;
 
 
     public CorService(
             CorRepository corRepository,
-            UsuariosRepository usuariosRepository
-    ) {
+            UsuariosRepository usuariosRepository,
+            UsuarioService usuarioService) {
         this.corRepository = corRepository;
         this.usuariosRepository = usuariosRepository;
+        this.usuarioService = usuarioService;
     }
 
     /**
@@ -73,11 +76,9 @@ public class CorService {
      * Buscar cor por ID (apenas do usuário logado)
      */
     public Cor buscarPorId(UUID id, UUID usuarioId) {
-        UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
-                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado"));
-
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
         return corRepository.findByIdAndUsuarioSistema(id, usuario)
-                .orElseThrow(() -> new RuntimeException("Cor não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Cor não encontrada"));
     }
 
     /**

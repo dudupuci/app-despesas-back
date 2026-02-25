@@ -1,10 +1,11 @@
 package io.github.dudupuci.appdespesas.exceptions;
 
+
 import org.springframework.http.HttpStatus;
 
-public class SenhasNaoCoincidemException extends AppDespesasException {
+public class CampoObrigatorioException extends AppDespesasException {
 
-    public SenhasNaoCoincidemException(String message) {
+    public CampoObrigatorioException(String message) {
         super(message, HttpStatus.BAD_REQUEST);
     }
 }

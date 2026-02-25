@@ -3,7 +3,6 @@ package io.github.dudupuci.appdespesas.controllers.users;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.requests.categoria.CriarCategoriaRequestDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.responses.categoria.CategoriaCriadaResponseDto;
 import io.github.dudupuci.appdespesas.controllers.users.dtos.responses.categoria.ListCategoriaResponseDto;
-import io.github.dudupuci.appdespesas.exceptions.CategoriaJaExisteException;
 import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.models.enums.TipoMovimentacao;
 import io.github.dudupuci.appdespesas.services.CategoriaService;
@@ -29,24 +28,21 @@ import java.util.stream.Collectors;
 @PreAuthorize("hasRole('USER')")
 public class UserCategoriaController {
 
-    private final CategoriaService service;
+    private final CategoriaService categoriaService;
 
-    public UserCategoriaController(CategoriaService service) {
-        this.service = service;
+    public UserCategoriaController(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
     }
 
     @PostMapping
     public ResponseEntity<CategoriaCriadaResponseDto> create(@RequestBody CriarCategoriaRequestDto dto) {
-        try {
-            // Obtém o ID do usuário autenticado do token JWT
-            UUID usuarioId = getUsuarioAutenticadoId();
+        // Obtém o ID do usuário autenticado do token JWT
+        UUID usuarioId = getUsuarioAutenticadoId();
 
-            Categoria categoria = service.createCategoria(dto, usuarioId);
-            return ResponseEntity.created(URI.create("/categorias/" + categoria.getId()))
-                    .body(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
-        } catch (CategoriaJaExisteException err) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        Categoria categoria = categoriaService.createCategoria(dto, usuarioId);
+        return ResponseEntity.created(URI.create("/categorias/" + categoria.getId()))
+                .body(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
+
     }
 
     @PutMapping("/{id}")
@@ -54,18 +50,15 @@ public class UserCategoriaController {
             @PathVariable UUID id,
             @RequestBody CriarCategoriaRequestDto dto
     ) {
-        try {
-            UUID usuarioId = getUsuarioAutenticadoId();
-            Categoria categoria = service.updateCategoria(id, dto, usuarioId);
-            return ResponseEntity.ok(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
-        } catch (CategoriaJaExisteException err) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        UUID usuarioId = getUsuarioAutenticadoId();
+        Categoria categoria = categoriaService.updateCategoria(id, dto, usuarioId);
+        return ResponseEntity.ok(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
+
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable UUID id) {
-        Categoria categoria = service.buscarPorId(id);
+        Categoria categoria = categoriaService.buscarPorId(id);
         return ResponseEntity.ok(categoria);
     }
 
@@ -74,7 +67,7 @@ public class UserCategoriaController {
             @RequestParam(required = false) TipoMovimentacao tipo
     ) {
         UUID usuarioId = getUsuarioAutenticadoId();
-        List<Categoria> categorias = service.listarTodasPorUsuarioId(usuarioId, tipo);
+        List<Categoria> categorias = categoriaService.listarTodasPorUsuarioId(usuarioId, tipo);
         return ResponseEntity.ok(categorias);
     }
 
@@ -82,14 +75,14 @@ public class UserCategoriaController {
     public ResponseEntity<List<ListCategoriaResponseDto>> listarBySearch(
             @RequestParam(name = "search", required = false) String search
     ) {
-        var categorias = service.listarCategoriasBySearch(search);
+        var categorias = categoriaService.listarCategoriasBySearch(search);
         var dto = categorias.stream().map(ListCategoriaResponseDto::toDto).collect(Collectors.toList());
         return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
-        this.service.deletar(id);
+        this.categoriaService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 

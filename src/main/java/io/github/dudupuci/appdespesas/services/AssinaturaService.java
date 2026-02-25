@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.services;
 
+import io.github.dudupuci.appdespesas.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.models.entities.Assinatura;
 import io.github.dudupuci.appdespesas.repositories.AssinaturaRepository;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class AssinaturaService {
 
     public Assinatura buscarAssinaturaPorId(Long id) {
         return this.assinaturaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Assinatura não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Assinatura não encontrada"));
     }
 
 

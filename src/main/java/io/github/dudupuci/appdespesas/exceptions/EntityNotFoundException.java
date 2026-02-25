@@ -1,7 +1,10 @@
 package io.github.dudupuci.appdespesas.exceptions;
 
-public class EntityNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class EntityNotFoundException extends AppDespesasException {
+
     public EntityNotFoundException(String message) {
-        super(message);
+        super(message, HttpStatus.NOT_FOUND);
     }
 }

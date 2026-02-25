@@ -1,8 +1,10 @@
 package io.github.dudupuci.appdespesas.exceptions;
 
-public class UsuarioNotFoundException extends EntityNotFoundException {
+import org.springframework.http.HttpStatus;
+
+public class UsuarioNotFoundException extends AppDespesasException {
 
     public UsuarioNotFoundException(String message) {
-        super(message);
+        super(message, HttpStatus.NOT_FOUND);
     }
 }

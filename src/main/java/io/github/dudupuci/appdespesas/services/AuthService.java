@@ -74,7 +74,7 @@ public class AuthService {
         // Buscar role padrão (USER)
         Role roleUser = rolesRepository.buscarPorNome("USER");
         if (roleUser == null) {
-            throw new AppDespesasException("Role USER não encontrada no sistema");
+            throw new EntityNotFoundException("Role USER não encontrada no sistema");
         }
 
         // Criar novo usuário

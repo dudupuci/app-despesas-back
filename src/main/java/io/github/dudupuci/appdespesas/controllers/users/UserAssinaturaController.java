@@ -10,6 +10,7 @@ import io.github.dudupuci.appdespesas.services.UsuarioService;
 import io.github.dudupuci.appdespesas.services.webservices.dtos.response.ObterQrCodePixResponseDto;
 import io.github.dudupuci.appdespesas.utils.SecurityUtils;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,43 +31,50 @@ public class UserAssinaturaController {
         this.assinaturaService = assinaturaService;
     }
 
-    @GetMapping("/checkout/{assinaturaId}")
-    public ResponseEntity<CheckoutAssinaturaResponseDto> carregarCheckout(
+    /**
+     * Endpoint para preparar a assinatura de um plano
+     * <BR/>
+     * - O usuário deve fornecer o ID da assinatura que deseja assinar
+     * - O sistema irá retornar os detalhes da assinatura selecionada, incluindo o valor e a descrição do plano
+     * - O usuário pode revisar os detalhes da assinatura antes de prosseguir para o pagamento
+     *
+     * @param assinaturaId
+     * @return
+     */
+    @GetMapping("/{assinaturaId}/preparar-assinatura")
+    public ResponseEntity<CheckoutAssinaturaResponseDto> prepararAssinatura(
             @PathVariable Long assinaturaId
     ) {
-
         UUID usuarioIdLogado = getUsuarioAutenticadoId();
-
-        CheckoutAssinaturaResponseDto response =
-                usuarioService.prepararCheckout(usuarioIdLogado, assinaturaId);
-
+        CheckoutAssinaturaResponseDto response = usuarioService.prepararAssinatura(usuarioIdLogado, assinaturaId);
         return ResponseEntity.ok(response);
     }
+
     /**
-     * Endpoint para assinar um plano de assinatura
-     * <br/>
-     * - O usuário deve fornecer o ID da assinatura que deseja assinar
-     * - O sistema irá gerar um QR Code Pix para pagamento da assinatura
-     * - O usuário deve realizar o pagamento utilizando o QR Code Pix gerado
-     * - Após a confirmação do pagamento, o sistema irá ativar a assinatura para o usuário
+     * Endpoint para seguir para pagamento da assinatura
+     * <BR/>
+     * - O usuário deve fornecer o ID da assinatura que deseja assinar e os detalhes necessários para o pagamento (como forma de pagamento, etc.)
+     * - O sistema irá processar a solicitação, criar a assinatura para o usuário e retornar um QR Code Pix para que o usuário possa realizar o pagamento
+     * - A assinatura só será ativada após a confirmação do pagamento, que pode ser feita através do QR Code Pix fornecido
+     *
+     * @param assinaturaRequestDto
+     * @param assinaturaId
+     * @return
      */
-    @PostMapping("/checkout/{assinaturaId}/confirmar")
-    public ResponseEntity<ObterQrCodePixResponseDto> assinar(
+    @PostMapping("/{assinaturaId}/seguir-para-pagamento")
+    public ResponseEntity<ObterQrCodePixResponseDto> confirmarAssinatura(
             @Valid @RequestBody AssinarAssinaturaRequestDto assinaturaRequestDto,
             @PathVariable Long assinaturaId
     ) {
-        try {
-            UUID usuarioIdLogado = getUsuarioAutenticadoId();
+        UUID usuarioIdLogado = getUsuarioAutenticadoId();
 
-            ObterQrCodePixResponseDto obterQrCodePixResponse = usuarioService.seguirParaPagamento(
-                    assinaturaRequestDto,
-                    usuarioIdLogado,
-                    assinaturaId
-            );
-            return ResponseEntity.ok().body(obterQrCodePixResponse);
-        } catch (Exception err) {
-            return ResponseEntity.badRequest().build();
-        }
+        ObterQrCodePixResponseDto obterQrCodePixResponse = usuarioService.seguirParaPagamento(
+                assinaturaRequestDto,
+                usuarioIdLogado,
+                assinaturaId
+        );
+
+        return ResponseEntity.ok().body(obterQrCodePixResponse);
     }
 
 

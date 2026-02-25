@@ -85,7 +85,7 @@ public class MovimentacaoService {
             repository.save(movimentacao);
 
         } catch (EntityNotFoundException e) {
-            throw new CategoriaNotFoundException(e.getMessage());
+            throw new EntityNotFoundException(e.getMessage());
         } catch (CategoriaInativaException e) {
             throw new CategoriaInativaException(e.getMessage());
         }
@@ -102,7 +102,7 @@ public class MovimentacaoService {
                 this.repository.delete(movimentacao);
             }
         } catch (EntityNotFoundException e) {
-            throw new MovimentacaoNotFoundException(e.getMessage());
+            throw new EntityNotFoundException(e.getMessage());
         }
     }
 

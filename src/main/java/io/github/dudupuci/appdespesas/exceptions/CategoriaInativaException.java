@@ -1,8 +1,10 @@
 package io.github.dudupuci.appdespesas.exceptions;
 
-public class CategoriaInativaException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class CategoriaInativaException extends AppDespesasException {
 
     public CategoriaInativaException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }

@@ -11,6 +11,7 @@ public record ObterQrCodePixResponseDto(
         String payload,
         String expirationDate,
         String description,
-        UUID usuarioBeneficiarioId
+        UUID usuarioBeneficiarioId,
+        String emailUsuarioBeneficiario
 ) {
 }
