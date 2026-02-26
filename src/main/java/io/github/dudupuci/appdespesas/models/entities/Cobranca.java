@@ -34,8 +34,8 @@ public class Cobranca extends EntidadeUuid {
     private Status status;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private TipoPagamento metodo;
+    @Column(name = "tipo_pagamento", nullable = false, length = 20)
+    private TipoPagamento tipoPagamento;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_recurso_pago", nullable = false)
@@ -44,10 +44,15 @@ public class Cobranca extends EntidadeUuid {
     @Column(name = "id_recurso_pago")
     private String idRecursoPago;
 
-    @Column(name = "id_externo")
-    private String idExterno;
+    @Column(name = "asaas_cobranca_id", unique = true)
+    private String asaasCobrancaId;
 
-    @Column(length = 255)
+    @Column
     private String observacao;
+
+    public void confirmarCobranca(Date dataPagamento) {
+        this.status = Status.CONFIRMADO;
+        this.dataPagamento = dataPagamento;
+    }
 }
 

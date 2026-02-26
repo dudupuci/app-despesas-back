@@ -57,4 +57,9 @@ public class UsuarioSistema extends Usuario {
     public String getNomeCompleto() {
         return this.getNome() + " " + this.getSobrenome();
     }
+
+    public void adicionaCobranca(Cobranca cobranca) {
+        this.cobrancas.add(cobranca);
+    }
+
 }

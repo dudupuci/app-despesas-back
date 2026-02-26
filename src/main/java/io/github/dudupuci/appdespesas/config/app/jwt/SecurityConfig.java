@@ -40,7 +40,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/**",
                                 "/chatbot/**",
-                                "/webhooks/**",
+                                "/asaas/**",
+                                "/waha/**",
                                 "/assinaturas/**",
                                 "/public/**",
                                 "/roles/**",

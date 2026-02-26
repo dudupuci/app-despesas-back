@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/webhooks")
+@RequestMapping("/waha")
 @Slf4j
-public class WebhooksController {
+public class WahaWebhookController {
 
     private final ChatBotService chatBotService;
     private final WahaService wahaService;
@@ -21,24 +21,24 @@ public class WebhooksController {
     @Value("${app.webhook.api-key}")
     private String webhookApiKey;
 
-    public WebhooksController(ChatBotService chatBotService, WahaService wahaService) {
+    public WahaWebhookController(ChatBotService chatBotService, WahaService wahaService) {
         this.chatBotService = chatBotService;
         this.wahaService = wahaService;
     }
 
 
-    @PostMapping("/waha")
+    @PostMapping("/webhook")
     public ResponseEntity<?> handleWahaPostWebhook(
             @RequestHeader(value = "X-Webhook-Token") String token,
             @RequestBody WahaWebhookDto dto
     ) {
-        System.out.println("=== DEBUG WEBHOOK ===");
+        System.out.println("=== DEBUG WAHA WEBHOOK ===");
         System.out.println("Event: " + dto.event());
         System.out.println("From: " + dto.payload().from());
         System.out.println("To: " + dto.payload().to());
         System.out.println("Body: " + dto.payload().body());
         System.out.println("FromMe: " + dto.payload().fromMe());
-        System.out.println("=== FIM DEBUG ===");
+        System.out.println("=== FIM DEBUG WAHA WEBHOOK ===");
 
         if (token == null || !token.equals(webhookApiKey)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");

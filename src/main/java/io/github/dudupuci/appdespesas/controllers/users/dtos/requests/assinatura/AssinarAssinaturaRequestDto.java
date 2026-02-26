@@ -2,8 +2,10 @@ package io.github.dudupuci.appdespesas.controllers.users.dtos.requests.assinatur
 
 
 import io.github.dudupuci.appdespesas.services.annotations.CpfOuCnpj;
+import io.github.dudupuci.appdespesas.services.webservices.enums.BillingType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 
 public record AssinarAssinaturaRequestDto(
@@ -16,7 +18,10 @@ public record AssinarAssinaturaRequestDto(
         @CpfOuCnpj
         String cpfCnpj,
 
-        boolean assinaturaParaOutraPessoa
+        boolean assinaturaParaOutraPessoa,
+
+        @NotNull(message = "Selecione uma forma de pagamento.")
+        BillingType formaPagamento
 ) {
 
     public void validarParaAssinaturaPropria() {

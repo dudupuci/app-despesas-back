@@ -34,15 +34,8 @@ public class AdminUsuarioController {
             @PathVariable UUID id,
             @Valid @RequestBody AtualizarUsuarioSistemaRequestDto dto
     ) {
-        try {
-            UsuarioSistema usuarioAtual = usuarioService.buscarPorId(id);
-            UsuarioSistema usuarioAtualizado = usuarioService.atualizar(usuarioAtual.getId(), dto);
-            return ResponseEntity.ok(usuarioAtualizado);
-        } catch (AccessDeniedException err) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (Exception err) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        UsuarioSistema usuarioAtualizado = usuarioService.atualizar(id, dto);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 
 

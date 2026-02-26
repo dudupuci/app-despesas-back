@@ -23,11 +23,9 @@ import java.util.UUID;
 @PreAuthorize("hasAnyRole('USER')")
 public class UserAssinaturaController {
 
-    private final UsuarioService usuarioService;
     private final AssinaturaService assinaturaService;
 
-    public UserAssinaturaController(UsuarioService usuarioService, AssinaturaService assinaturaService) {
-        this.usuarioService = usuarioService;
+    public UserAssinaturaController(AssinaturaService assinaturaService) {
         this.assinaturaService = assinaturaService;
     }
 
@@ -46,7 +44,7 @@ public class UserAssinaturaController {
             @PathVariable Long assinaturaId
     ) {
         UUID usuarioIdLogado = getUsuarioAutenticadoId();
-        CheckoutAssinaturaResponseDto response = usuarioService.prepararAssinatura(usuarioIdLogado, assinaturaId);
+        CheckoutAssinaturaResponseDto response = assinaturaService.prepararAssinatura(usuarioIdLogado, assinaturaId);
         return ResponseEntity.ok(response);
     }
 
@@ -68,7 +66,7 @@ public class UserAssinaturaController {
     ) {
         UUID usuarioIdLogado = getUsuarioAutenticadoId();
 
-        ObterQrCodePixResponseDto obterQrCodePixResponse = usuarioService.seguirParaPagamento(
+        ObterQrCodePixResponseDto obterQrCodePixResponse = assinaturaService.seguirParaPagamento(
                 assinaturaRequestDto,
                 usuarioIdLogado,
                 assinaturaId
@@ -81,9 +79,8 @@ public class UserAssinaturaController {
     @GetMapping("/minha-assinatura")
     public ResponseEntity<AssinaturaResponseDto> listarMinhaAssinatura() {
         UUID usuarioIdLogado = getUsuarioAutenticadoId();
-        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioIdLogado);
 
-        Assinatura assinatura = assinaturaService.buscarAssinaturaPorId(usuario.getAssinatura().getId());
+        Assinatura assinatura = assinaturaService.buscarAssinaturaByUsuarioId(usuarioIdLogado);
         return ResponseEntity.ok(AssinaturaResponseDto.fromEntity(assinatura));
     }
 
@@ -91,12 +88,10 @@ public class UserAssinaturaController {
     @GetMapping("/outras-assinaturas")
     public ResponseEntity<List<AssinaturaResponseDto>> listarOutrasAssinaturas() {
         UUID usuarioIdLogado = getUsuarioAutenticadoId();
-        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioIdLogado);
+        List<Assinatura> outrasAssinaturas = assinaturaService.buscarOutrasAssinaturasByUsuarioId(usuarioIdLogado);
 
-        List<Assinatura> assinaturas = assinaturaService.listarAssinaturas();
-        List<AssinaturaResponseDto> responseDtos = assinaturas
+        List<AssinaturaResponseDto> responseDtos = outrasAssinaturas
                 .stream()
-                .filter(a -> !a.getId().equals(usuario.getAssinatura().getId()))
                 .map(AssinaturaResponseDto::fromEntity)
                 .toList();
 

@@ -4,10 +4,15 @@ import io.github.dudupuci.appdespesas.models.entities.Categoria;
 import io.github.dudupuci.appdespesas.models.entities.base.Entidade;
 import io.github.dudupuci.appdespesas.models.entities.base.EntidadeUuid;
 import io.github.dudupuci.appdespesas.models.enums.TipoPeriodo;
+import io.github.dudupuci.appdespesas.models.enums.TipoRecursoPago;
+import io.github.dudupuci.appdespesas.services.webservices.enums.BillingType;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+
+import static io.github.dudupuci.appdespesas.services.webservices.enums.BillingType.BOLETO;
+import static io.github.dudupuci.appdespesas.services.webservices.enums.BillingType.PIX;
 
 public final class AppDespesasUtils {
     public static final String ATIVO = "ATIVO";
@@ -39,6 +44,18 @@ public final class AppDespesasUtils {
         return calendar.getTime();
     }
 
+    public static Date converterDataFromStringAnoMesDia(String dataString) {
+        String[] partes = dataString.split("-");
+        int ano = Integer.parseInt(partes[0]);
+        int mes = Integer.parseInt(partes[1]) - 1; // Meses em Calendar começam do zero (Janeiro = 0)
+        int dia = Integer.parseInt(partes[2]);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(ano, mes, dia, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
     /**
      * Alias para converterDataFromStringDiaMesAno para manter compatibilidade
      */
@@ -48,7 +65,8 @@ public final class AppDespesasUtils {
 
     /**
      * Calcula o período (dataInicio e dataFim) baseado no tipo de período e data de referência
-     * @param tipoPeriodo Tipo do período (DIA, SEMANA, MES)
+     *
+     * @param tipoPeriodo    Tipo do período (DIA, SEMANA, MES)
      * @param dataReferencia Data de referência para o cálculo
      * @return Array com [dataInicio, dataFim]
      */
@@ -142,8 +160,37 @@ public final class AppDespesasUtils {
         return str.trim();
     }
 
-    public static UUID getUsuarioAutenticado() {
-        return SecurityUtils.getUsuarioAutenticadoId();
+    public static String calculaDataVencimentoPorFormaPagamentoAndTipoCobranca(
+            BillingType tipoPagamento,
+            TipoRecursoPago tipoRecursoPago
+    ) {
+
+        if (tipoPagamento == null || tipoRecursoPago == null) {
+            throw new IllegalArgumentException("Tipo de pagamento/Tipo de recurso pago não podem ser nulos");
+        }
+
+        long agora = System.currentTimeMillis();
+        long dataVencimentoEmMilissegundos;
+
+        // Retorna a data de vencimento baseada no tipo de recurso e forma de pagamento
+        if (tipoRecursoPago == TipoRecursoPago.ASSINATURA) {
+            dataVencimentoEmMilissegundos = switch (tipoPagamento) {
+                case PIX -> agora + (15L * 60 * 1000); // 15 minutes
+                case BOLETO -> agora + (3L * 24 * 60 * 60 * 1000); // 3 days
+                default -> throw new IllegalArgumentException(
+                        "Tipo de pagamento não suportado: " + tipoPagamento
+                );
+            };
+
+        } else {
+            throw new IllegalArgumentException(
+                    "Recurso pago não encontrado: " + tipoRecursoPago
+            );
+        }
+
+        Date dataVencimento = new Date(dataVencimentoEmMilissegundos);
+        return String.format("%tF", dataVencimento);
     }
+
 
 }

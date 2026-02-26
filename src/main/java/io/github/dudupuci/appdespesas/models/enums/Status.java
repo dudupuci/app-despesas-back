@@ -8,6 +8,7 @@ public enum Status {
     ATIVO("Ativo"),
     INATIVO("Inativo"),
     PAGO("Pago"),
+    CONFIRMADO("Confirmado"),
     AGUARDANDO_PAGAMENTO("Aguardando Pagamento"),
     CANCELADO("Cancelado"),
     FALHOU("Falhou");
