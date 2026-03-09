@@ -4,7 +4,7 @@ import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requ
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.cor.CorCriadaResponseDto;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.application.services.CorService;
-import io.github.dudupuci.appdespesas.domain.utils.SecurityUtils;
+import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,8 +32,7 @@ public class UserCorController {
     @PostMapping
     public ResponseEntity<CorCriadaResponseDto> criar(@Valid @RequestBody CriarCorRequestDto dto) {
         UUID usuarioId = getUsuarioAutenticadoId();
-        Cor cor = dto.toCor();
-        Cor criada = corService.criar(cor, usuarioId);
+        Cor criada = corService.criar(dto.toCommand(), usuarioId);
         return ResponseEntity.created(URI.create("/cores/" + criada.getId()))
                 .body(CorCriadaResponseDto.fromEntityCriada(criada));
     }
@@ -45,8 +44,7 @@ public class UserCorController {
     @GetMapping
     public ResponseEntity<List<Cor>> listarTodas() {
         UUID usuarioId = getUsuarioAutenticadoId();
-        List<Cor> cores = corService.listarTodas(usuarioId);
-        return ResponseEntity.ok(cores);
+        return ResponseEntity.ok(corService.listarTodas(usuarioId));
     }
 
     /**
@@ -56,8 +54,7 @@ public class UserCorController {
     @GetMapping("/{id}")
     public ResponseEntity<Cor> buscarPorId(@PathVariable UUID id) {
         UUID usuarioId = getUsuarioAutenticadoId();
-        Cor cor = corService.buscarPorId(id, usuarioId);
-        return ResponseEntity.ok(cor);
+        return ResponseEntity.ok(corService.buscarPorId(id, usuarioId));
     }
 
     /**
@@ -65,13 +62,9 @@ public class UserCorController {
      * PUT /cores/{id}
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Cor> atualizar(
-            @PathVariable UUID id,
-            @Valid @RequestBody CriarCorRequestDto dto
-    ) {
+    public ResponseEntity<Cor> atualizar(@PathVariable UUID id, @Valid @RequestBody CriarCorRequestDto dto) {
         UUID usuarioId = getUsuarioAutenticadoId();
-        Cor corAtualizada = dto.toCor();
-        Cor cor = corService.atualizar(id, corAtualizada, usuarioId);
+        Cor cor = corService.atualizar(id, dto.toCommand(), usuarioId);
         return ResponseEntity.ok(cor);
     }
 
@@ -90,4 +83,3 @@ public class UserCorController {
         return SecurityUtils.getUsuarioAutenticadoId();
     }
 }
-

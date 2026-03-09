@@ -2,6 +2,7 @@ package io.github.dudupuci.appdespesas.application.ports.repositories;
 
 import io.github.dudupuci.appdespesas.domain.entities.Role;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,5 +17,7 @@ public interface RoleRepositoryPort {
     Role buscarPorNome(String nome);
 
     boolean existsByNome(String nome);
+
+    List<Role> findAll();
 }
 

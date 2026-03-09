@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.application.services.webservices.feignclients;
 
-import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.cep.ViaCepResponseDto;
+import io.github.dudupuci.appdespesas.application.responses.cep.ViaCepResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +12,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface ViaCepFeignClient {
 
     @GetMapping("/{cep}/json/")
-    ViaCepResponseDto buscarEnderecoPorCep(@PathVariable String cep);
-
+    ViaCepResponse buscarEnderecoPorCep(@PathVariable String cep);
 }

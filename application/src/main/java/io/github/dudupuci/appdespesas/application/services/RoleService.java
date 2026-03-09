@@ -1,10 +1,12 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.commands.role.CriarRoleCommand;
 import io.github.dudupuci.appdespesas.application.ports.repositories.RoleRepositoryPort;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.admin.dtos.request.role.CriarRoleRequestDto;
 import io.github.dudupuci.appdespesas.domain.entities.Role;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class RoleService {
@@ -16,16 +18,16 @@ public class RoleService {
     }
 
     @Transactional
-    public Role criarRoleIfNaoExistir(CriarRoleRequestDto dto) {
-        Role role = rolesRepository.buscarPorNome(dto.nome());
+    public Role criarRoleIfNaoExistir(CriarRoleCommand cmd) {
+        Role role = rolesRepository.buscarPorNome(cmd.nome());
         if (role == null) {
-            role = new Role(
-                    dto.nome(),
-                    dto.descricao(),
-                    dto.poder()
-            );
+            role = new Role(cmd.nome(), cmd.descricao(), cmd.poder());
             rolesRepository.save(role);
         }
         return role;
+    }
+
+    public List<Role> buscarTodos() {
+        return rolesRepository.findAll();
     }
 }

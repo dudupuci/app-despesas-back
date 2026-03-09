@@ -1,22 +1,18 @@
 package io.github.dudupuci.appdespesas.application.services;
 
-import io.github.dudupuci.appdespesas.infrastructure.config.app.jwt.JwtConfig;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.request.login.LoginRequestDto;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.request.registro.RegistroRequestDto;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.login.LoginResponseDto;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.login.RefreshTokenResponseDto;
+import io.github.dudupuci.appdespesas.application.commands.auth.LoginCommand;
+import io.github.dudupuci.appdespesas.application.commands.auth.RegistroCommand;
+import io.github.dudupuci.appdespesas.application.ports.repositories.*;
+import io.github.dudupuci.appdespesas.application.ports.services.JwtPort;
+import io.github.dudupuci.appdespesas.application.ports.services.PasswordEncoderPort;
+import io.github.dudupuci.appdespesas.application.responses.auth.AuthResult;
+import io.github.dudupuci.appdespesas.application.responses.auth.RefreshTokenResult;
+import io.github.dudupuci.appdespesas.application.services.generators.UsernameGenerator;
 import io.github.dudupuci.appdespesas.domain.entities.*;
-import io.github.dudupuci.appdespesas.domain.exceptions.*;
 import io.github.dudupuci.appdespesas.domain.enums.Status;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.application.ports.repositories.AssinaturaRepositoryPort;
-import io.github.dudupuci.appdespesas.application.ports.repositories.CategoriaRepositoryPort;
-import io.github.dudupuci.appdespesas.application.ports.repositories.CorRepositoryPort;
-import io.github.dudupuci.appdespesas.application.ports.repositories.RoleRepositoryPort;
-import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
-import io.github.dudupuci.appdespesas.application.services.generators.UsernameGenerator;
+import io.github.dudupuci.appdespesas.domain.exceptions.*;
 import io.github.dudupuci.appdespesas.domain.utils.AppDespesasMessages;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,8 +29,8 @@ public class AuthService {
 
     private final UsuarioRepositoryPort usuariosRepository;
     private final RoleRepositoryPort rolesRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtConfig jwtConfig;
+    private final PasswordEncoderPort passwordEncoderPort;
+    private final JwtPort jwtPort;
     private final UsernameGenerator usernameGenerator;
     private final CorRepositoryPort corRepository;
     private final CategoriaRepositoryPort categoriasRepository;
@@ -43,8 +39,8 @@ public class AuthService {
     public AuthService(
             UsuarioRepositoryPort usuariosRepository,
             RoleRepositoryPort rolesRepository,
-            PasswordEncoder passwordEncoder,
-            JwtConfig jwtConfig,
+            PasswordEncoderPort passwordEncoderPort,
+            JwtPort jwtPort,
             UsernameGenerator usernameGenerator,
             CorRepositoryPort corRepository,
             CategoriaRepositoryPort categoriasRepository,
@@ -52,28 +48,24 @@ public class AuthService {
     ) {
         this.usuariosRepository = usuariosRepository;
         this.rolesRepository = rolesRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtConfig = jwtConfig;
+        this.passwordEncoderPort = passwordEncoderPort;
+        this.jwtPort = jwtPort;
         this.usernameGenerator = usernameGenerator;
         this.corRepository = corRepository;
         this.categoriasRepository = categoriasRepository;
         this.assinaturaRepository = assinaturaRepository;
     }
 
-    @Transactional
-    public LoginResponseDto registrar(RegistroRequestDto dto) {
+    public AuthResult registrar(RegistroCommand cmd) {
         // Validar se email já existe
-        if (usuariosRepository.existsByContatoEmail(dto.email())) {
+        if (usuariosRepository.existsByContatoEmail(cmd.email())) {
             throw new EmailJaExisteException(
-                    AppDespesasMessages.getMessage(
-                            "auth.email.ja.existe",
-                            new Object[]{dto.email()}
-                    )
+                    AppDespesasMessages.getMessage("auth.email.ja.existe", new Object[]{cmd.email()})
             );
         }
 
         // Validar senha e confirmação de senha
-        validarSenha(dto);
+        validarSenha(cmd.senha(), cmd.confirmacaoSenha());
 
         // Buscar role padrão (USER)
         Role roleUser = rolesRepository.buscarPorNome("USER");
@@ -83,13 +75,13 @@ public class AuthService {
 
         // Criar novo usuário
         UsuarioSistema novoUsuario = new UsuarioSistema();
-        novoUsuario.setNome(dto.nome());
+        novoUsuario.setNome(cmd.nome());
+        novoUsuario.setSobrenome(cmd.sobrenome());
         novoUsuario.setContato(new Contato());
-        novoUsuario.getContato().setCelular(dto.celular());
-        novoUsuario.getContato().setEmail(dto.email());
-        novoUsuario.getContato().setTelefoneFixo(dto.telefoneFixo());
-        novoUsuario.setSobrenome(dto.sobrenome());
-        novoUsuario.setSenha(passwordEncoder.encode(dto.senha()));
+        novoUsuario.getContato().setCelular(cmd.celular());
+        novoUsuario.getContato().setEmail(cmd.email());
+        novoUsuario.getContato().setTelefoneFixo(cmd.telefoneFixo());
+        novoUsuario.setSenha(passwordEncoderPort.encode(cmd.senha()));
         novoUsuario.setRole(roleUser);
         novoUsuario.setAtivo(true);
         novoUsuario.setMovimentacoes(new ArrayList<>());
@@ -112,47 +104,66 @@ public class AuthService {
         criarCoresECategoriasDefault(usuarioSalvo);
 
         // Gerar tokens
-        String accessToken = jwtConfig.generateAccessToken(usuarioSalvo);
-        String refreshToken = jwtConfig.generateRefreshToken(usuarioSalvo);
+        String accessToken = jwtPort.generateAccessToken(usuarioSalvo);
+        String refreshToken = jwtPort.generateRefreshToken(usuarioSalvo);
 
-        return LoginResponseDto.fromEntityRegistro(usuarioSalvo, accessToken, refreshToken);
+        return new AuthResult(accessToken, refreshToken, usuarioSalvo);
     }
 
-    @Transactional
-    public LoginResponseDto login(LoginRequestDto dto) {
+    public AuthResult login(LoginCommand cmd) {
         // Buscar usuário por email
-        Optional<UsuarioSistema> usuario = usuariosRepository.buscarPorEmail(dto.email());
+        Optional<UsuarioSistema> usuario = usuariosRepository.buscarPorEmail(cmd.email());
 
         if (usuario.isEmpty()) {
-            throw new CredenciaisInvalidasException(
-                    AppDespesasMessages.getMessage("auth.credenciais.invalidas")
-            );
+            throw new CredenciaisInvalidasException(AppDespesasMessages.getMessage("auth.credenciais.invalidas"));
         }
 
         // Validar senha
-        if (!passwordEncoder.matches(dto.senha(), usuario.get().getSenha())) {
-            throw new CredenciaisInvalidasException(
-                    AppDespesasMessages.getMessage("auth.credenciais.invalidas")
-            );
+        if (!passwordEncoderPort.matches(cmd.senha(), usuario.get().getSenha())) {
+            throw new CredenciaisInvalidasException(AppDespesasMessages.getMessage("auth.credenciais.invalidas"));
         }
 
         // Validar se usuário está ativo
         if (!usuario.get().getAtivo()) {
-            throw new UsuarioInativoException(
-                    AppDespesasMessages.getMessage("auth.usuario.inativo")
-            );
+            throw new UsuarioInativoException(AppDespesasMessages.getMessage("auth.usuario.inativo"));
         }
 
         // Gerar tokens
-        String accessToken = jwtConfig.generateAccessToken(usuario.get());
-        String refreshToken = jwtConfig.generateRefreshToken(usuario.get());
+        String accessToken = jwtPort.generateAccessToken(usuario.get());
+        String refreshToken = jwtPort.generateRefreshToken(usuario.get());
 
-        return LoginResponseDto.fromEntityLogin(usuario.get(), accessToken, refreshToken);
+        return new AuthResult(accessToken, refreshToken, usuario.get());
     }
 
-    private void validarSenha(RegistroRequestDto dto) {
-        if (dto.senha() != null && !dto.senha().isBlank() && dto.confirmacaoSenha() != null && !dto.confirmacaoSenha().isBlank()) {
-            if (!dto.senha().equals(dto.confirmacaoSenha())) {
+    public RefreshTokenResult refreshToken(String refreshToken) {
+        try {
+            // Extrai o email do refresh token
+            String email = jwtPort.extractEmail(refreshToken);
+
+            // Busca o usuário
+            Optional<UsuarioSistema> usuario = usuariosRepository.buscarPorEmail(email);
+
+            if (usuario.isEmpty()) {
+                throw new CredenciaisInvalidasException(AppDespesasMessages.getMessage("auth.token.invalido"));
+            }
+            if (!usuario.get().getAtivo()) {
+                throw new UsuarioInativoException(AppDespesasMessages.getMessage("auth.usuario.inativo"));
+            }
+
+            // Gera novo access token
+            String newAccessToken = jwtPort.generateAccessToken(usuario.get());
+            return new RefreshTokenResult(newAccessToken);
+
+        } catch (CredenciaisInvalidasException | UsuarioInativoException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CredenciaisInvalidasException(AppDespesasMessages.getMessage("auth.token.invalido"));
+        }
+    }
+
+    private void validarSenha(String senha, String confirmacaoSenha) {
+        if (senha != null && !senha.isBlank() && confirmacaoSenha != null && !confirmacaoSenha.isBlank()) {
+            if (!senha.equals(confirmacaoSenha)) {
                 throw new SenhasNaoCoincidemException(
                         AppDespesasMessages.getMessage("auth.senha.confirmacaoSenha.diferentes")
                 );
@@ -160,73 +171,32 @@ public class AuthService {
         }
     }
 
-    @Transactional
-    public RefreshTokenResponseDto refreshToken(String refreshToken) {
-        try {
-            // Extrai o email do refresh token
-            String email = jwtConfig.extractEmail(refreshToken);
-
-            // Busca o usuário
-            Optional<UsuarioSistema> usuario = usuariosRepository.buscarPorEmail(email);
-
-            if (usuario.isEmpty()) {
-                throw new CredenciaisInvalidasException(
-                        AppDespesasMessages.getMessage("auth.token.invalido")
-                );
-            }
-
-            // Valida se usuário está ativo
-            if (!usuario.get().getAtivo()) {
-                throw new UsuarioInativoException(
-                        AppDespesasMessages.getMessage("auth.usuario.inativo")
-                );
-            }
-
-            // Gera novo access token
-            String newAccessToken = jwtConfig.generateAccessToken(usuario.get());
-
-            return RefreshTokenResponseDto.of(newAccessToken);
-
-        } catch (Exception e) {
-            throw new CredenciaisInvalidasException(
-                    AppDespesasMessages.getMessage("auth.token.invalido")
-            );
-        }
-    }
-
     /**
      * Cria cores e categorias padrão para o novo usuário
      */
     private void criarCoresECategoriasDefault(UsuarioSistema usuario) {
-        log.info("🎨 Criando cores e categorias padrão para o usuário: {}", usuario.getContato().getEmail());
-
+        log.info("🎨 Criando cores e categorias padrão para: {}", usuario.getContato().getEmail());
         Date agora = new Date();
 
         // Criar cores padrão
-        Cor verdeEscuro = criarCor(usuario, "Verde Escuro", "#006400", agora);
-        Cor verdeClaro = criarCor(usuario, "Verde Claro", "#90EE90", agora);
-        Cor azulEscuro = criarCor(usuario, "Azul Escuro", "#00008B", agora);
-        Cor amareloEscuro = criarCor(usuario, "Amarelo Escuro", "#FFD700", agora);
-        Cor laranjaClaro = criarCor(usuario, "Laranja Claro", "#FFA07A", agora);
-        Cor vermelho = criarCor(usuario, "Vermelho", "#FF0000", agora);
+        Cor verdeEscuro   = criarCor(usuario, "Verde Escuro",    "#006400", agora);
+        Cor verdeClaro    = criarCor(usuario, "Verde Claro",     "#90EE90", agora);
+        Cor azulEscuro    = criarCor(usuario, "Azul Escuro",     "#00008B", agora);
+        Cor amareloEscuro = criarCor(usuario, "Amarelo Escuro",  "#FFD700", agora);
+        Cor laranjaClaro  = criarCor(usuario, "Laranja Claro",   "#FFA07A", agora);
+        Cor vermelho      = criarCor(usuario, "Vermelho",        "#FF0000", agora);
 
         // Criar categorias padrão de RECEITAS
-        criarCategoria(usuario, "Salário", "Renda proveniente de trabalho fixo",
-                TipoMovimentacao.RECEITA, verdeEscuro, agora);
-        criarCategoria(usuario, "Freelancers", "Renda proveniente de trabalhos autônomos e projetos",
-                TipoMovimentacao.RECEITA, verdeClaro, agora);
-        criarCategoria(usuario, "Investimentos", "Renda proveniente de aplicações financeiras, dividendos, juros",
-                TipoMovimentacao.RECEITA, azulEscuro, agora);
+        criarCategoria(usuario, "Salário",       "Renda proveniente de trabalho fixo",                              TipoMovimentacao.RECEITA, verdeEscuro,   agora);
+        criarCategoria(usuario, "Freelancers",   "Renda proveniente de trabalhos autônomos e projetos",             TipoMovimentacao.RECEITA, verdeClaro,    agora);
+        criarCategoria(usuario, "Investimentos", "Renda proveniente de aplicações financeiras, dividendos, juros",  TipoMovimentacao.RECEITA, azulEscuro,    agora);
 
         // Criar categorias padrão de DESPESAS
-        criarCategoria(usuario, "Alimentação", "Despesas com supermercado, restaurantes, delivery",
-                TipoMovimentacao.DESPESA, amareloEscuro, agora);
-        criarCategoria(usuario, "Transporte", "Despesas com combustível, transporte público, aplicativos de mobilidade",
-                TipoMovimentacao.DESPESA, laranjaClaro, agora);
-        criarCategoria(usuario, "Lazer", "Despesas com entretenimento, viagens, hobbies",
-                TipoMovimentacao.DESPESA, vermelho, agora);
+        criarCategoria(usuario, "Alimentação",   "Despesas com supermercado, restaurantes, delivery",               TipoMovimentacao.DESPESA, amareloEscuro, agora);
+        criarCategoria(usuario, "Transporte",    "Despesas com combustível, transporte público, mobilidade",        TipoMovimentacao.DESPESA, laranjaClaro,  agora);
+        criarCategoria(usuario, "Lazer",         "Despesas com entretenimento, viagens, hobbies",                   TipoMovimentacao.DESPESA, vermelho,      agora);
 
-        log.info("✅ Cores e categorias padrão criadas para o usuário: {}", usuario.getContato().getEmail());
+        log.info("✅ Cores e categorias padrão criadas para: {}", usuario.getContato().getEmail());
     }
 
     private Cor criarCor(UsuarioSistema usuario, String nome, String codigoHex, Date data) {
@@ -241,7 +211,7 @@ public class AuthService {
     }
 
     private void criarCategoria(UsuarioSistema usuario, String nome, String descricao,
-                                 TipoMovimentacao tipo, Cor cor, Date data) {
+                                TipoMovimentacao tipo, Cor cor, Date data) {
         Categoria categoria = new Categoria();
         categoria.setNome(nome);
         categoria.setDescricao(descricao);

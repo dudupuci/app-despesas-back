@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
+import io.github.dudupuci.appdespesas.application.responses.assinatura.CheckoutAssinaturaResult;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.assinatura.AssinaturaResponseDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.assinatura.AssinarAssinaturaRequestDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.assinatura.CheckoutAssinaturaResponseDto;
@@ -9,7 +10,7 @@ import io.github.dudupuci.appdespesas.application.usecases.BuscarAssinaturaUsuar
 import io.github.dudupuci.appdespesas.application.usecases.BuscarOutrasAssinaturasUsuarioUseCase;
 import io.github.dudupuci.appdespesas.application.usecases.PrepararAssinaturaPlanoUseCase;
 import io.github.dudupuci.appdespesas.application.services.webservices.dtos.response.ObterQrCodePixResponseDto;
-import io.github.dudupuci.appdespesas.domain.utils.SecurityUtils;
+import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,7 +57,8 @@ public class UserAssinaturaController {
             @PathVariable Long assinaturaId
     ) {
         UUID usuarioIdLogado = getUsuarioAutenticadoId();
-        CheckoutAssinaturaResponseDto response = prepararAssinaturaUseCase.executar(usuarioIdLogado, assinaturaId);
+        CheckoutAssinaturaResult result = prepararAssinaturaUseCase.executar(usuarioIdLogado, assinaturaId);
+        CheckoutAssinaturaResponseDto response = CheckoutAssinaturaResponseDto.fromResult(result);
         return ResponseEntity.ok(response);
     }
 
@@ -79,7 +81,7 @@ public class UserAssinaturaController {
         UUID usuarioIdLogado = getUsuarioAutenticadoId();
 
         ObterQrCodePixResponseDto obterQrCodePixResponse = assinarPlanoUseCase.executar(
-                assinaturaRequestDto,
+                assinaturaRequestDto.toCommand(),
                 usuarioIdLogado,
                 assinaturaId
         );

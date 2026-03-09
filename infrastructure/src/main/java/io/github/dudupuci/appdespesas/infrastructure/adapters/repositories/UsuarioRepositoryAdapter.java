@@ -7,8 +7,10 @@ import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuariosReposi
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Adapter que implementa o Port de UsuarioRepository
@@ -64,6 +66,13 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
     @Override
     public boolean existsByNomeUsuario(String nomeUsuario) {
         return jpaRepository.existsByNomeUsuario(nomeUsuario);
+    }
+
+    @Override
+    public List<UsuarioSistema> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(JpaUsuarioSistema::toEntity)
+                .collect(Collectors.toList());
     }
 
     @Override

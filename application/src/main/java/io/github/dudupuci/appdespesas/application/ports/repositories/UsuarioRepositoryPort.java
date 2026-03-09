@@ -2,12 +2,12 @@ package io.github.dudupuci.appdespesas.application.ports.repositories;
 
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Port (interface) para o repositório de Usuários
- * Define os métodos que o Application precisa, sem depender do Infrastructure
  */
 public interface UsuarioRepositoryPort {
 
@@ -22,6 +22,8 @@ public interface UsuarioRepositoryPort {
     boolean existsByContatoEmail(String email);
 
     boolean existsByNomeUsuario(String nomeUsuario);
+
+    List<UsuarioSistema> findAll();
 
     void delete(UsuarioSistema usuario);
 

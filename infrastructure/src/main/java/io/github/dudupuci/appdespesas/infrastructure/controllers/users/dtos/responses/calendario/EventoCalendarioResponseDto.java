@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.calendario;
 
+import io.github.dudupuci.appdespesas.application.responses.calendario.EventoCalendarioResult;
 import io.github.dudupuci.appdespesas.domain.enums.Prioridade;
 import io.github.dudupuci.appdespesas.domain.enums.TipoEvento;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
@@ -66,28 +67,13 @@ public record EventoCalendarioResponseDto(
     /**
      * Construtor para Movimentações Previstas
      */
-    public static EventoCalendarioResponseDto fromMovimentacaoPrevista(
-            UUID id, String titulo, String descricao, Date dataMovimentacao,
-            BigDecimal valor, TipoMovimentacao tipoMovimentacao, String categoriaNome,
-            String cor, Boolean isRecorrente
-    ) {
+    public static EventoCalendarioResponseDto fromResult(EventoCalendarioResult result) {
         return new EventoCalendarioResponseDto(
-                id,
-                TipoEvento.MOVIMENTACAO,
-                titulo,
-                descricao,
-                dataMovimentacao,
-                null,
-                true,
-                null,
-                cor,
-                null,
-                null,
-                valor,
-                tipoMovimentacao,
-                categoriaNome,
-                isRecorrente,
-                null
+                result.id(), result.tipoEvento(), result.titulo(), result.descricao(),
+                result.dataInicio(), result.dataFim(), result.diaInteiro(), result.prioridade(),
+                result.cor(), result.concluido(), result.localizacao(), result.valor(),
+                result.tipoMovimentacao(), result.categoriaNome(), result.isRecorrente(),
+                result.frequenciaRecorrencia()
         );
     }
 

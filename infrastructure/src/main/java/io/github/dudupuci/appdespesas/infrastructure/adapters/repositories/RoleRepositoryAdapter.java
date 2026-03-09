@@ -7,7 +7,9 @@ import io.github.dudupuci.appdespesas.infrastructure.repositories.RoleRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Adapter para RoleRepository
@@ -50,6 +52,13 @@ public class RoleRepositoryAdapter implements RoleRepositoryPort {
     @Override
     public boolean existsByNome(String nome) {
         return jpaRepository.buscarPorNome(nome) != null;
+    }
+
+    @Override
+    public List<Role> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(JpaRole::toEntity)
+                .collect(Collectors.toList());
     }
 }
 

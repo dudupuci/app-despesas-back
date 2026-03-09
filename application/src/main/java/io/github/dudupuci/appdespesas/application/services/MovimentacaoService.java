@@ -1,9 +1,9 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.commands.movimentacao.MovimentacaoCommand;
 import io.github.dudupuci.appdespesas.application.ports.repositories.MovimentacaoRepositoryPort;
 import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
-import io.github.dudupuci.appdespesas.infrastructure.config.persistence.Transacional;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.movimentacao.CriarMovimentacaoRequestDto;
+import jakarta.transaction.Transactional;
 import io.github.dudupuci.appdespesas.domain.exceptions.CategoriaInativaException;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.exceptions.UsuarioNotFoundException;
@@ -58,43 +58,39 @@ public class MovimentacaoService {
         }
     }
 
-    @Transacional
-    public Movimentacao criarMovimentacao(CriarMovimentacaoRequestDto dto, UUID usuarioId) {
-        Movimentacao movimentacao;
-        Categoria tempCategoria;
-        Optional<UsuarioSistema> usuario;
-
+    @Transactional
+    public Movimentacao criarMovimentacao(MovimentacaoCommand cmd, UUID usuarioId) {
         try {
-            tempCategoria = this.categoriaService.validarCategoriaPorId(dto.categoriaId());
+            Categoria tempCategoria = this.categoriaService.validarCategoriaPorId(cmd.categoriaId());
 
-            usuario = this.usuariosRepository.findById(usuarioId);
+            Optional<UsuarioSistema> usuario = this.usuariosRepository.findById(usuarioId);
             if (usuario.isEmpty()) {
                 throw new UsuarioNotFoundException("Usuário não encontrado");
             }
 
-            movimentacao = dto.toMovimentacao();
+            Movimentacao movimentacao = new Movimentacao();
+            movimentacao.setTitulo(cmd.titulo());
+            movimentacao.setDescricao(cmd.descricao());
+            movimentacao.setValor(cmd.valor());
+            movimentacao.setDataDaMovimentacao(cmd.dataDaMovimentacao());
+            movimentacao.setTipoMovimentacao(cmd.tipoMovimentacao());
             movimentacao.setCategoria(tempCategoria);
             movimentacao.setUsuarioSistema(usuario.get());
-            repository.save(movimentacao);
+
+            return repository.save(movimentacao);
 
         } catch (EntityNotFoundException e) {
             throw new EntityNotFoundException(e.getMessage());
         } catch (CategoriaInativaException e) {
             throw new CategoriaInativaException(e.getMessage());
         }
-
-        return movimentacao;
     }
 
-    @Transacional
+    @Transactional
     public void deletar(Long id) {
-        try {
-            Movimentacao movimentacao = buscarPorId(id);
-            if (AppDespesasUtils.isEntidadeNotNull(movimentacao)) {
-                this.repository.delete(movimentacao);
-            }
-        } catch (EntityNotFoundException e) {
-            throw new EntityNotFoundException(e.getMessage());
+        Movimentacao movimentacao = buscarPorId(id);
+        if (AppDespesasUtils.isEntidadeNotNull(movimentacao)) {
+            this.repository.delete(movimentacao);
         }
     }
 }

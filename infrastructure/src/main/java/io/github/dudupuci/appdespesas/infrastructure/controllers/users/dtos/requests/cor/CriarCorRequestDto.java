@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.cor;
 
+import io.github.dudupuci.appdespesas.application.commands.cor.CorCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -14,7 +15,11 @@ public record CriarCorRequestDto(
         @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "Código hexadecimal inválido. Use o formato #RRGGBB")
         String codigoHexadecimal
 ) {
+    public CorCommand toCommand() {
+        return new CorCommand(nome, codigoHexadecimal.toUpperCase());
+    }
 
+    /** @deprecated use toCommand() */
     public Cor toCor() {
         Cor cor = new Cor();
         cor.setNome(nome);

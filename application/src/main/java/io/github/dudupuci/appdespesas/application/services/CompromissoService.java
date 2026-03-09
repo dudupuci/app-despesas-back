@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.commands.compromisso.CompromissoCommand;
 import io.github.dudupuci.appdespesas.application.ports.repositories.CompromissoRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
@@ -27,8 +28,18 @@ public class CompromissoService {
     }
 
     @Transactional
-    public Compromisso criar(Compromisso compromisso, UUID usuarioId) {
+    public Compromisso criar(CompromissoCommand cmd, UUID usuarioId) {
         UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
+        Compromisso compromisso = new Compromisso();
+        compromisso.setTitulo(cmd.titulo());
+        compromisso.setDescricao(cmd.descricao());
+        compromisso.setDataInicio(cmd.dataInicio());
+        compromisso.setDataFim(cmd.dataFim());
+        compromisso.setDiaInteiro(cmd.diaInteiro());
+        compromisso.setPrioridade(cmd.prioridade());
+        compromisso.setLocalizacao(cmd.localizacao());
+        compromisso.setCor(cmd.cor());
+        compromisso.setObservacoes(cmd.observacoes());
         compromisso.setUsuarioSistema(usuario);
         compromisso.setDataCriacao(new Date());
         compromisso.setDataAtualizacao(new Date());
@@ -62,21 +73,20 @@ public class CompromissoService {
     }
 
     @Transactional
-    public Compromisso atualizar(UUID id, Compromisso compromissoAtualizado, UUID usuarioId) {
+    public Compromisso atualizar(UUID id, CompromissoCommand cmd, UUID usuarioId) {
         Compromisso compromisso = buscarPorId(id);
         if (!compromisso.getUsuarioSistema().getId().equals(usuarioId)) {
             throw new RuntimeException("Sem permissão para editar este compromisso");
         }
-        compromisso.setTitulo(compromissoAtualizado.getTitulo());
-        compromisso.setDescricao(compromissoAtualizado.getDescricao());
-        compromisso.setLocalizacao(compromissoAtualizado.getLocalizacao());
-        compromisso.setDataInicio(compromissoAtualizado.getDataInicio());
-        compromisso.setDataFim(compromissoAtualizado.getDataFim());
-        compromisso.setPrioridade(compromissoAtualizado.getPrioridade());
-        compromisso.setDiaInteiro(compromissoAtualizado.getDiaInteiro());
-        compromisso.setLembrarEm(compromissoAtualizado.getLembrarEm());
-        compromisso.setCor(compromissoAtualizado.getCor());
-        compromisso.setObservacoes(compromissoAtualizado.getObservacoes());
+        compromisso.setTitulo(cmd.titulo());
+        compromisso.setDescricao(cmd.descricao());
+        compromisso.setLocalizacao(cmd.localizacao());
+        compromisso.setDataInicio(cmd.dataInicio());
+        compromisso.setDataFim(cmd.dataFim());
+        compromisso.setPrioridade(cmd.prioridade());
+        compromisso.setDiaInteiro(cmd.diaInteiro());
+        compromisso.setCor(cmd.cor());
+        compromisso.setObservacoes(cmd.observacoes());
         compromisso.setDataAtualizacao(new Date());
         return compromissoRepository.save(compromisso);
     }

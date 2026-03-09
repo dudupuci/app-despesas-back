@@ -1,10 +1,10 @@
 package io.github.dudupuci.appdespesas.domain.exceptions;
 
-import org.springframework.http.HttpStatus;
+import io.github.dudupuci.appdespesas.domain.exceptions.enums.DomainHttpStatus;
 
 public class UsuarioNotFoundException extends AppDespesasException {
 
     public UsuarioNotFoundException(String message) {
-        super(message, HttpStatus.NOT_FOUND);
+        super(message, DomainHttpStatus.NOT_FOUND);
     }
 }

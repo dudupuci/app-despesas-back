@@ -2,7 +2,7 @@ package io.github.dudupuci.appdespesas.application.services;
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.CompromissoRepositoryPort;
 import io.github.dudupuci.appdespesas.application.ports.repositories.MovimentacaoRepositoryPort;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.calendario.EventoCalendarioResponseDto;
+import io.github.dudupuci.appdespesas.application.responses.calendario.EventoCalendarioResult;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.domain.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
@@ -35,14 +35,13 @@ public class CalendarioService {
      * Busca todos os eventos do calendário de um usuário em um período
      * @return Lista unificada de todos os tipos de eventos
      */
-    public List<EventoCalendarioResponseDto> buscarEventosCalendario(
+    public List<EventoCalendarioResult> buscarEventosCalendario(
             UUID usuarioId,
             Date dataInicio,
             Date dataFim
     ) {
         UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
-
-        List<EventoCalendarioResponseDto> eventos = new ArrayList<>();
+        List<EventoCalendarioResult> eventos = new ArrayList<>();
 
         // 1. Buscar Compromissos
         List<Compromisso> compromissos = compromissoRepository.findByUsuarioAndPeriodo(
@@ -51,7 +50,7 @@ public class CalendarioService {
                 dataFim
         );
         compromissos.forEach(c -> eventos.add(
-                EventoCalendarioResponseDto.fromCompromisso(
+                EventoCalendarioResult.fromCompromisso(
                         c.getId(),
                         c.getTitulo(),
                         c.getDescricao(),
@@ -72,7 +71,7 @@ public class CalendarioService {
         movimentacoesPrevistas.forEach(m -> {
             String cor = m.getTipoMovimentacao().name().equals("DESPESA") ? "#FF5733" : "#28A745";
             eventos.add(
-                    EventoCalendarioResponseDto.fromMovimentacaoPrevista(
+                    EventoCalendarioResult.fromMovimentacaoPrevista(
                             m.getId(), m.getTitulo(), m.getDescricao(),
                             m.getDataDaMovimentacao(), m.getValor(),
                             m.getTipoMovimentacao(), m.getCategoriaNome(),
@@ -82,7 +81,7 @@ public class CalendarioService {
         });
 
         // Ordenar todos os eventos por data
-        eventos.sort(Comparator.comparing(EventoCalendarioResponseDto::dataInicio));
+        eventos.sort(Comparator.comparing(EventoCalendarioResult::dataInicio));
         return eventos;
     }
 

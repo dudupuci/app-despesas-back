@@ -15,7 +15,6 @@ import java.util.Map;
  * Exemplo de uso: notificações enviadas, metadados, configurações dinâmicas, etc.
  */
 @Converter
-@Slf4j
 public class MapStringStringConverter implements AttributeConverter<Map<String, String>, String> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -29,7 +28,6 @@ public class MapStringStringConverter implements AttributeConverter<Map<String, 
         try {
             return objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
-            log.error("❌ Erro ao converter Map para JSON: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -43,7 +41,6 @@ public class MapStringStringConverter implements AttributeConverter<Map<String, 
         try {
             return objectMapper.readValue(dbData, new TypeReference<Map<String, String>>() {});
         } catch (JsonProcessingException e) {
-            log.error("❌ Erro ao converter JSON para Map: {}", e.getMessage(), e);
             return new HashMap<>();
         }
     }

@@ -1,8 +1,8 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.commands.cor.CorCommand;
 import io.github.dudupuci.appdespesas.application.ports.repositories.CorRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
-import io.github.dudupuci.appdespesas.domain.exceptions.UsuarioNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import org.slf4j.Logger;
@@ -32,35 +32,29 @@ public class CorService {
      * Criar nova cor para o usuário
      */
     @Transactional
-    public Cor criar(Cor cor, UUID usuarioId) {
+    public Cor criar(CorCommand cmd, UUID usuarioId) {
         UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
 
-        // Validar se já existe cor com o mesmo nome
-        if (corRepository.existsByNomeAndUsuarioSistema(cor.getNome(), usuario)) {
-            throw new IllegalArgumentException("Já existe uma cor com o nome '" + cor.getNome() + "'");
+        if (corRepository.existsByNomeAndUsuarioSistema(cmd.nome(), usuario)) {
+            throw new IllegalArgumentException("Já existe uma cor com o nome '" + cmd.nome() + "'");
         }
-
-        // Validar se já existe cor com o mesmo código hexadecimal
-        if (corRepository.existsByCodigoHexadecimalAndUsuarioSistema(cor.getCodigoHexadecimal(), usuario)) {
-            throw new IllegalArgumentException("Já existe uma cor com o código '" + cor.getCodigoHexadecimal() + "'");
+        if (corRepository.existsByCodigoHexadecimalAndUsuarioSistema(cmd.codigoHexadecimal(), usuario)) {
+            throw new IllegalArgumentException("Já existe uma cor com o código '" + cmd.codigoHexadecimal() + "'");
         }
-
-        // Validar formato hexadecimal
-        if (!cor.getCodigoHexadecimal().matches("^#[0-9A-Fa-f]{6}$")) {
+        if (!cmd.codigoHexadecimal().matches("^#[0-9A-Fa-f]{6}$")) {
             throw new IllegalArgumentException("Código hexadecimal inválido. Use o formato #RRGGBB");
         }
 
+        Cor cor = new Cor();
+        cor.setNome(cmd.nome());
+        cor.setCodigoHexadecimal(cmd.codigoHexadecimal().toUpperCase());
         cor.setUsuarioSistema(usuario);
+        cor.setIsVisivel(true);
         cor.setDataCriacao(new Date());
         cor.setDataAtualizacao(new Date());
 
         Cor corCriada = corRepository.save(cor);
-
-        log.info("🎨 Cor criada: {} ({}) para o usuário: {}",
-                corCriada.getNome(),
-                corCriada.getCodigoHexadecimal(),
-                usuario.getContato().getEmail());
-
+        log.info("🎨 Cor criada: {} ({}) para o usuário: {}", corCriada.getNome(), corCriada.getCodigoHexadecimal(), usuario.getContato().getEmail());
         return corCriada;
     }
 
@@ -85,35 +79,28 @@ public class CorService {
      * Atualizar cor existente
      */
     @Transactional
-    public Cor atualizar(UUID id, Cor corAtualizada, UUID usuarioId) {
+    public Cor atualizar(UUID id, CorCommand cmd, UUID usuarioId) {
         Cor cor = buscarPorId(id, usuarioId);
         UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
 
-        // Validar se o novo nome já existe (exceto para a própria cor)
-        if (!cor.getNome().equals(corAtualizada.getNome())) {
-            if (corRepository.existsByNomeAndUsuarioSistema(corAtualizada.getNome(), usuario)) {
-                throw new IllegalArgumentException("Já existe uma cor com o nome '" + corAtualizada.getNome() + "'");
+        if (!cor.getNome().equals(cmd.nome())) {
+            if (corRepository.existsByNomeAndUsuarioSistema(cmd.nome(), usuario)) {
+                throw new IllegalArgumentException("Já existe uma cor com o nome '" + cmd.nome() + "'");
             }
         }
-
-        // Validar se o novo código já existe (exceto para a própria cor)
-        if (!cor.getCodigoHexadecimal().equals(corAtualizada.getCodigoHexadecimal())) {
-            if (corRepository.existsByCodigoHexadecimalAndUsuarioSistema(corAtualizada.getCodigoHexadecimal(), usuario)) {
-                throw new IllegalArgumentException("Já existe uma cor com o código '" + corAtualizada.getCodigoHexadecimal() + "'");
+        if (!cor.getCodigoHexadecimal().equals(cmd.codigoHexadecimal())) {
+            if (corRepository.existsByCodigoHexadecimalAndUsuarioSistema(cmd.codigoHexadecimal(), usuario)) {
+                throw new IllegalArgumentException("Já existe uma cor com o código '" + cmd.codigoHexadecimal() + "'");
             }
         }
-
-        // Validar formato hexadecimal
-        if (!corAtualizada.getCodigoHexadecimal().matches("^#[0-9A-Fa-f]{6}$")) {
+        if (!cmd.codigoHexadecimal().matches("^#[0-9A-Fa-f]{6}$")) {
             throw new IllegalArgumentException("Código hexadecimal inválido. Use o formato #RRGGBB");
         }
 
-        cor.setNome(corAtualizada.getNome());
-        cor.setCodigoHexadecimal(corAtualizada.getCodigoHexadecimal());
+        cor.setNome(cmd.nome());
+        cor.setCodigoHexadecimal(cmd.codigoHexadecimal().toUpperCase());
         cor.setDataAtualizacao(new Date());
-
         log.info("✏️ Cor atualizada: {} ({})", cor.getNome(), cor.getCodigoHexadecimal());
-
         return corRepository.save(cor);
     }
 
@@ -123,11 +110,7 @@ public class CorService {
     @Transactional
     public void deletar(UUID id, UUID usuarioId) {
         Cor cor = buscarPorId(id, usuarioId);
-
         log.info("🗑️ Cor deletada: {} ({})", cor.getNome(), cor.getCodigoHexadecimal());
-
         corRepository.delete(cor);
     }
-
 }
-

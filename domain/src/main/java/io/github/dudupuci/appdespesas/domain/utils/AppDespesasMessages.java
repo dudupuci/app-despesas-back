@@ -1,24 +1,31 @@
 package io.github.dudupuci.appdespesas.domain.utils;
 
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
+import java.util.function.BiFunction;
 
-import java.util.Locale;
-
-@Component
+/**
+ * Utilitário de mensagens do domain.
+ * Não possui dependência de nenhum framework — recebe um provider injetado
+ * pela infrastructure via {@link #init(BiFunction)}.
+ */
 public final class AppDespesasMessages {
 
-    private static MessageSource messageSource;
+    private static BiFunction<String, Object[], String> provider;
 
-    public AppDespesasMessages(MessageSource messageSource) {
-        AppDespesasMessages.messageSource = messageSource;
+    private AppDespesasMessages() {}
+
+    /**
+     * Chamado pela infrastructure (AppDespesasMessagesInitializer) ao subir o contexto.
+     */
+    public static void init(BiFunction<String, Object[], String> messageProvider) {
+        AppDespesasMessages.provider = messageProvider;
     }
 
     public static String getMessage(String code, Object[] args) {
-        return messageSource.getMessage(code, args, new Locale("pt", "BR"));
+        if (provider == null) throw new IllegalStateException("AppDespesasMessages não foi inicializado.");
+        return provider.apply(code, args);
     }
 
     public static String getMessage(String code) {
-        return messageSource.getMessage(code, null, new Locale("pt", "BR"));
+        return getMessage(code, null);
     }
 }

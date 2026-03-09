@@ -1,8 +1,7 @@
 package io.github.dudupuci.appdespesas.application.commands.auth;
 
 /**
- * Command para registrar um novo usuário no sistema.
- * Não depende de nenhuma camada de infraestrutura.
+ * Command para registrar um novo usuário.
  */
 public record RegistroCommand(
         String nome,
@@ -13,4 +12,3 @@ public record RegistroCommand(
         String senha,
         String confirmacaoSenha
 ) {}
-

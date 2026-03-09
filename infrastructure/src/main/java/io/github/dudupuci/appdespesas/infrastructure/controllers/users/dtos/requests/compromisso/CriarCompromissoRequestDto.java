@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.compromisso;
 
+import io.github.dudupuci.appdespesas.application.commands.compromisso.CompromissoCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.domain.enums.Prioridade;
 import jakarta.validation.constraints.NotBlank;
@@ -21,7 +22,11 @@ public record CriarCompromissoRequestDto(
         String cor,
         String observacoes
 ) {
+    public CompromissoCommand toCommand() {
+        return new CompromissoCommand(titulo, descricao, dataInicio, dataFim, diaInteiro, prioridade, localizacao, cor, observacoes);
+    }
 
+    /** @deprecated use toCommand() */
     public Compromisso toCompromisso() {
         Compromisso compromisso = new Compromisso();
         compromisso.setTitulo(titulo);

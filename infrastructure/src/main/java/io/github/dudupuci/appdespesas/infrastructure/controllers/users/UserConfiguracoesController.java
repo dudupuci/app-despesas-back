@@ -2,7 +2,7 @@ package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.usuario.configuracoes.EditarConfiguracoesUsuarioRequestDto;
 import io.github.dudupuci.appdespesas.application.services.UsuarioConfigService;
-import io.github.dudupuci.appdespesas.domain.utils.SecurityUtils;
+import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,7 @@ public class UserConfiguracoesController {
             @RequestBody EditarConfiguracoesUsuarioRequestDto editarPreferenciasDto
     ) {
         UUID usuarioIdLogado = getUsuarioAutenticadoId();
-        usuarioConfigService.editarConfiguracoes(usuarioIdLogado, editarPreferenciasDto);
+        usuarioConfigService.editarConfiguracoes(usuarioIdLogado, editarPreferenciasDto.toCommand());
         return ResponseEntity.ok().build();
     }
 

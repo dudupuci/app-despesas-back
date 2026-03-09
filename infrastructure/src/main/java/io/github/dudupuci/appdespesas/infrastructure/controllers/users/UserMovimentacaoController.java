@@ -5,7 +5,7 @@ import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.resp
 import io.github.dudupuci.appdespesas.domain.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
 import io.github.dudupuci.appdespesas.application.services.MovimentacaoService;
-import io.github.dudupuci.appdespesas.domain.utils.SecurityUtils;
+import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,8 +30,7 @@ public class UserMovimentacaoController {
     @PostMapping
     public ResponseEntity<MovimentacaoCriadaResponseDto> create(@RequestBody CriarMovimentacaoRequestDto dto) {
         UUID usuarioId = getUsuarioAutenticadoId();
-
-        Movimentacao movimentacao = service.criarMovimentacao(dto, usuarioId);
+        Movimentacao movimentacao = service.criarMovimentacao(dto.toCommand(), usuarioId);
         MovimentacaoCriadaResponseDto responseDto = MovimentacaoCriadaResponseDto.fromEntityCriada(movimentacao);
         return ResponseEntity.created(URI.create("/movimentacoes/" + movimentacao.getId()))
                 .body(responseDto);

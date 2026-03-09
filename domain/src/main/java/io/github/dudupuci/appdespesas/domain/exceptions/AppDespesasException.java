@@ -1,17 +1,21 @@
 package io.github.dudupuci.appdespesas.domain.exceptions;
 
-import org.springframework.http.HttpStatus;
+import io.github.dudupuci.appdespesas.domain.exceptions.enums.DomainHttpStatus;
 
 public abstract class AppDespesasException extends RuntimeException {
 
-    private final HttpStatus httpStatus;
+    private final DomainHttpStatus httpStatus;
 
-    protected AppDespesasException(String message, HttpStatus httpStatus) {
+    protected AppDespesasException(String message, DomainHttpStatus httpStatus) {
         super(message);
         this.httpStatus = httpStatus;
     }
 
-    public HttpStatus getStatus() {
+    public DomainHttpStatus getStatus() {
         return httpStatus;
+    }
+
+    public int getStatusCode() {
+        return httpStatus.getValue();
     }
 }

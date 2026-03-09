@@ -3,7 +3,7 @@ package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.usuario.AtualizarMeuPerfilRequestDto;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.application.services.UsuarioService;
-import io.github.dudupuci.appdespesas.domain.utils.SecurityUtils;
+import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +46,7 @@ public class UserMeuPerfilController {
     ) {
         try {
             UUID usuarioIdLogado = getUsuarioAutenticadoId();
-            UsuarioSistema atualizado = usuarioService.atualizar(usuarioIdLogado, dto);
+            UsuarioSistema atualizado = usuarioService.atualizar(usuarioIdLogado, dto.toCommand());
             return ResponseEntity.ok(atualizado);
         } catch (AccessDeniedException err) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

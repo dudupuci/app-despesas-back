@@ -6,7 +6,7 @@ import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.resp
 import io.github.dudupuci.appdespesas.domain.entities.Categoria;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
 import io.github.dudupuci.appdespesas.application.services.CategoriaService;
-import io.github.dudupuci.appdespesas.domain.utils.SecurityUtils;
+import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -35,22 +35,16 @@ public class UserCategoriaController {
 
     @PostMapping
     public ResponseEntity<CategoriaCriadaResponseDto> create(@RequestBody CriarCategoriaRequestDto dto) {
-        // Obtém o ID do usuário autenticado do token JWT
         UUID usuarioId = getUsuarioAutenticadoId();
-
-        Categoria categoria = categoriaService.createCategoria(dto, usuarioId);
+        Categoria categoria = categoriaService.createCategoria(dto.toCommand(), usuarioId);
         return ResponseEntity.created(URI.create("/categorias/" + categoria.getId()))
                 .body(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
-
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoriaCriadaResponseDto> atualizar(
-            @PathVariable UUID id,
-            @RequestBody CriarCategoriaRequestDto dto
-    ) {
+    public ResponseEntity<CategoriaCriadaResponseDto> atualizar(@PathVariable UUID id, @RequestBody CriarCategoriaRequestDto dto) {
         UUID usuarioId = getUsuarioAutenticadoId();
-        Categoria categoria = categoriaService.updateCategoria(id, dto, usuarioId);
+        Categoria categoria = categoriaService.updateCategoria(id, dto.toCommand(), usuarioId);
         return ResponseEntity.ok(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
 
     }

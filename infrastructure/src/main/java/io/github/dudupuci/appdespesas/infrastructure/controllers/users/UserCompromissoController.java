@@ -4,15 +4,13 @@ import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requ
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.compromisso.CompromissoCriadoResponseDto;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.application.services.CompromissoService;
-import io.github.dudupuci.appdespesas.domain.utils.AppDespesasUtils;
-import io.github.dudupuci.appdespesas.domain.utils.SecurityUtils;
+import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +34,7 @@ public class UserCompromissoController {
     @PostMapping
     public ResponseEntity<CompromissoCriadoResponseDto> criar(@Valid @RequestBody CriarCompromissoRequestDto dto) {
         UUID usuarioId = getUsuarioAutenticadoId();
-        Compromisso compromisso = dto.toCompromisso();
-        Compromisso criado = compromissoService.criar(compromisso, usuarioId);
+        Compromisso criado = compromissoService.criar(dto.toCommand(), usuarioId);
         return ResponseEntity.created(URI.create("/compromissos/" + criado.getId()))
                 .body(CompromissoCriadoResponseDto.fromEntityCriado(criado));
     }
@@ -46,7 +43,7 @@ public class UserCompromissoController {
      * Buscar compromisso por ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Compromisso> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Compromisso> buscarPorId(@PathVariable UUID id) {
         Compromisso compromisso = compromissoService.buscarPorId(id);
         return ResponseEntity.ok(compromisso);
     }
@@ -57,26 +54,7 @@ public class UserCompromissoController {
     @GetMapping
     public ResponseEntity<List<Compromisso>> listar() {
         UUID usuarioId = getUsuarioAutenticadoId();
-        List<Compromisso> compromissos = compromissoService.listarTodos(usuarioId);
-        return ResponseEntity.ok(compromissos);
-    }
-
-    /**
-     * Listar compromissos por período
-     */
-    @GetMapping("/periodo")
-    public ResponseEntity<List<Compromisso>> listarPorPeriodo(
-            @RequestParam String dataInicio,
-            @RequestParam String dataFim
-    ) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        Date inicio = AppDespesasUtils.converterStringParaDate(dataInicio);
-        Date fim = AppDespesasUtils.converterStringParaDate(dataFim);
-
-        List<Compromisso> compromissos = compromissoService.listarPorPeriodo(
-                usuarioId, inicio, fim
-        );
-        return ResponseEntity.ok(compromissos);
+        return ResponseEntity.ok(compromissoService.listarTodos(usuarioId));
     }
 
     /**
@@ -85,8 +63,7 @@ public class UserCompromissoController {
     @GetMapping("/pendentes")
     public ResponseEntity<List<Compromisso>> listarPendentes() {
         UUID usuarioId = getUsuarioAutenticadoId();
-        List<Compromisso> pendentes = compromissoService.listarPendentes(usuarioId);
-        return ResponseEntity.ok(pendentes);
+        return ResponseEntity.ok(compromissoService.listarPendentes(usuarioId));
     }
 
     /**
@@ -95,46 +72,35 @@ public class UserCompromissoController {
     @GetMapping("/concluidos")
     public ResponseEntity<List<Compromisso>> listarConcluidos() {
         UUID usuarioId = getUsuarioAutenticadoId();
-        List<Compromisso> concluidos = compromissoService.listarConcluidos(usuarioId);
-        return ResponseEntity.ok(concluidos);
+        return ResponseEntity.ok(compromissoService.listarConcluidos(usuarioId));
     }
 
     /**
      * Atualizar compromisso
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Compromisso> atualizar(
-            @PathVariable Long id,
-            @RequestBody Compromisso compromisso
-    ) {
-        Compromisso atualizado = compromissoService.atualizar(id, compromisso);
-        return ResponseEntity.ok(atualizado);
+    public ResponseEntity<Compromisso> atualizar(@PathVariable UUID id, @Valid @RequestBody CriarCompromissoRequestDto dto) {
+        UUID usuarioId = getUsuarioAutenticadoId();
+        return ResponseEntity.ok(compromissoService.atualizar(id, dto.toCommand(), usuarioId));
     }
 
     /**
      * Marcar compromisso como concluído
      */
     @PatchMapping("/{id}/concluir")
-    public ResponseEntity<Compromisso> marcarComoConcluido(@PathVariable Long id) {
-        Compromisso compromisso = compromissoService.marcarComoConcluido(id);
-        return ResponseEntity.ok(compromisso);
-    }
-
-    /**
-     * Desmarcar conclusão do compromisso
-     */
-    @PatchMapping("/{id}/desmarcar")
-    public ResponseEntity<Compromisso> desmarcarConclusao(@PathVariable Long id) {
-        Compromisso compromisso = compromissoService.desmarcarConclusao(id);
-        return ResponseEntity.ok(compromisso);
+    public ResponseEntity<Void> concluir(@PathVariable UUID id) {
+        UUID usuarioId = getUsuarioAutenticadoId();
+        compromissoService.concluir(id, usuarioId);
+        return ResponseEntity.noContent().build();
     }
 
     /**
      * Deletar compromisso
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        compromissoService.deletar(id);
+    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
+        UUID usuarioId = getUsuarioAutenticadoId();
+        compromissoService.deletar(id, usuarioId);
         return ResponseEntity.noContent().build();
     }
 
@@ -142,4 +108,3 @@ public class UserCompromissoController {
         return SecurityUtils.getUsuarioAutenticadoId();
     }
 }
-

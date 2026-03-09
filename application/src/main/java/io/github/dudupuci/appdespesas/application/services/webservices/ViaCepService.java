@@ -1,7 +1,6 @@
 package io.github.dudupuci.appdespesas.application.services.webservices;
 
-
-import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.cep.ViaCepResponseDto;
+import io.github.dudupuci.appdespesas.application.responses.cep.ViaCepResponse;
 import io.github.dudupuci.appdespesas.application.services.webservices.feignclients.ViaCepFeignClient;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +13,7 @@ public class ViaCepService {
         this.viaCepFeignClient = viaCepFeignClient;
     }
 
-    public ViaCepResponseDto buscarEndereco(String cep) {
+    public ViaCepResponse buscarEndereco(String cep) {
         return viaCepFeignClient.buscarEnderecoPorCep(cep);
     }
 

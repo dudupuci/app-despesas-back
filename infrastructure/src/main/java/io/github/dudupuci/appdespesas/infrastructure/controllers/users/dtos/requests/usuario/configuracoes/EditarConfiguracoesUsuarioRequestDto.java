@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.usuario.configuracoes;
 
+import io.github.dudupuci.appdespesas.application.commands.usuario.EditarConfiguracoesCommand;
 import io.github.dudupuci.appdespesas.domain.enums.CanalNotificacao;
 import io.github.dudupuci.appdespesas.domain.enums.Idioma;
 import io.github.dudupuci.appdespesas.domain.enums.TomRespostaIA;
@@ -12,4 +13,7 @@ public record EditarConfiguracoesUsuarioRequestDto(
         Idioma idiomaPreferidoIA,
         String instrucoesIA
 ) {
+    public EditarConfiguracoesCommand toCommand() {
+        return new EditarConfiguracoesCommand(canaisNotificacao, tomRespostaIA, idiomaPreferidoIA, instrucoesIA);
+    }
 }

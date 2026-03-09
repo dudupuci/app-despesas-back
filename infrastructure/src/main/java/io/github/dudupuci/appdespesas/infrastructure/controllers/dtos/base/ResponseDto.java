@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.dtos.base;
 
+import io.github.dudupuci.appdespesas.infrastructure.controllers.dtos.Dto;
 import lombok.Getter;
 
 @Getter

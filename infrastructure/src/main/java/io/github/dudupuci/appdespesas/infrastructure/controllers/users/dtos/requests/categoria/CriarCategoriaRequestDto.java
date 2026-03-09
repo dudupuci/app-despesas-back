@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.categoria;
 
+import io.github.dudupuci.appdespesas.application.commands.categoria.CategoriaCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Categoria;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
 import jakarta.validation.constraints.NotBlank;
@@ -13,10 +14,14 @@ public record CriarCategoriaRequestDto(
         String descricao,
         @NotNull(message = "Tipo de movimentação é obrigatório")
         TipoMovimentacao tipoMovimentacao,
-        UUID corId  // ID da cor associada (opcional)
+        UUID corId
 ) {
+    public CategoriaCommand toCommand() {
+        return new CategoriaCommand(nome, descricao, tipoMovimentacao, corId);
+    }
 
+    /** @deprecated use toCommand() */
     public Categoria toCategoria() {
-      return new Categoria(nome, descricao, tipoMovimentacao);
+        return new Categoria(nome, descricao, tipoMovimentacao);
     }
 }
