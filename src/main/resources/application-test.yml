@@ -12,6 +12,18 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: false
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 
 server:
   servlet:
@@ -42,3 +54,10 @@ waha:
     url: ${WAHA_API_URL}
     key: ${WAHA_API_KEY}
 
+aws:
+  sqs:
+    region: ${AWS_SQS_REGION:us-east-2}
+    access-key: ${AWS_SQS_ACCESS_KEY}
+    secret-key: ${AWS_SQS_SECRET_KEY}
+    queue:
+      email: ${AWS_SQS_QUEUE_EMAIL:https://sqs.us-east-2.amazonaws.com/537124944153/tudin-email-queue}

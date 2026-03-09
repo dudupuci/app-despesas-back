@@ -1,0 +1,21 @@
+package io.github.dudupuci.appdespesas.domain.enums;
+
+import lombok.Getter;
+
+/**
+ * Enum que define os tipos de eventos que podem aparecer no calendário
+ */
+@Getter
+public enum TipoEvento {
+    COMPROMISSO("Compromisso"),
+    MOVIMENTACAO("Movimentação"),
+    EVENTO_RECORRENTE("Evento Recorrente"),
+    LEMBRETE("Lembrete");
+
+    private final String descricao;
+
+    TipoEvento(String descricao) {
+        this.descricao = descricao;
+    }
+
+}

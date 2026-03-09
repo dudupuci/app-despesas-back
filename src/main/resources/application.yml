@@ -24,6 +24,12 @@ tudin:
     super-adm-password: $2a$10$sbjfQBcevMHF80WwjaxBA.57jQsuZybpRcJ/Qq1FoDX.7D9mTwo4.
 
 integrations:
+  mailtrap:
+    api:
+      url: https://sandbox.api.mailtrap.io/api
+      token: 8c933f341d613db69aa033bd303b3747
+      from: dudupucinelli@gmail.com
+      name: Tudin App
   viacep:
     baseUrl: https://viacep.com.br/ws
   asaas:
@@ -36,5 +42,6 @@ integrations:
       webhook:
         sandbox:
           token: wh_asaas_sb_7Hd92KqLm4XpZ8vRt1Yw3Nc6Bj0Fs5Ua
+
 
 
