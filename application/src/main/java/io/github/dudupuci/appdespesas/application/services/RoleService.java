@@ -1,24 +1,18 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.RoleRepositoryPort;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.admin.dtos.request.role.CriarRoleRequestDto;
 import io.github.dudupuci.appdespesas.domain.entities.Role;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.RoleRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class RoleService {
 
-    private final RoleRepository rolesRepository;
+    private final RoleRepositoryPort rolesRepository;
 
-    public RoleService(RoleRepository rolesRepository) {
+    public RoleService(RoleRepositoryPort rolesRepository) {
         this.rolesRepository = rolesRepository;
-    }
-
-    public List<Role> buscarTodos() {
-        return rolesRepository.findAll();
     }
 
     @Transactional

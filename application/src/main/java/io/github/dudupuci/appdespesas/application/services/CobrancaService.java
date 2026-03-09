@@ -1,8 +1,8 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.CobrancaRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Cobranca;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CobrancaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -10,9 +10,9 @@ import java.util.Date;
 @Service
 public class CobrancaService {
 
-    private final CobrancaRepository cobrancaRepository;
+    private final CobrancaRepositoryPort cobrancaRepository;
 
-    public CobrancaService(CobrancaRepository cobrancaRepository) {
+    public CobrancaService(CobrancaRepositoryPort cobrancaRepository) {
         this.cobrancaRepository = cobrancaRepository;
     }
 

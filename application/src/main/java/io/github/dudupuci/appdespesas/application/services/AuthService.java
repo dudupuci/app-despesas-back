@@ -9,7 +9,11 @@ import io.github.dudupuci.appdespesas.domain.entities.*;
 import io.github.dudupuci.appdespesas.domain.exceptions.*;
 import io.github.dudupuci.appdespesas.domain.enums.Status;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.*;
+import io.github.dudupuci.appdespesas.application.ports.repositories.AssinaturaRepositoryPort;
+import io.github.dudupuci.appdespesas.application.ports.repositories.CategoriaRepositoryPort;
+import io.github.dudupuci.appdespesas.application.ports.repositories.CorRepositoryPort;
+import io.github.dudupuci.appdespesas.application.ports.repositories.RoleRepositoryPort;
+import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
 import io.github.dudupuci.appdespesas.application.services.generators.UsernameGenerator;
 import io.github.dudupuci.appdespesas.domain.utils.AppDespesasMessages;
 import jakarta.transaction.Transactional;
@@ -27,24 +31,24 @@ public class AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
-    private final UsuariosRepository usuariosRepository;
-    private final RoleRepository rolesRepository;
+    private final UsuarioRepositoryPort usuariosRepository;
+    private final RoleRepositoryPort rolesRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
     private final UsernameGenerator usernameGenerator;
-    private final CorRepository corRepository;
-    private final CategoriasRepository categoriasRepository;
-    private final AssinaturaRepository assinaturaRepository;
+    private final CorRepositoryPort corRepository;
+    private final CategoriaRepositoryPort categoriasRepository;
+    private final AssinaturaRepositoryPort assinaturaRepository;
 
     public AuthService(
-            UsuariosRepository usuariosRepository,
-            RoleRepository rolesRepository,
+            UsuarioRepositoryPort usuariosRepository,
+            RoleRepositoryPort rolesRepository,
             PasswordEncoder passwordEncoder,
             JwtConfig jwtConfig,
             UsernameGenerator usernameGenerator,
-            CorRepository corRepository,
-            CategoriasRepository categoriasRepository,
-            AssinaturaRepository assinaturaRepository
+            CorRepositoryPort corRepository,
+            CategoriaRepositoryPort categoriasRepository,
+            AssinaturaRepositoryPort assinaturaRepository
     ) {
         this.usuariosRepository = usuariosRepository;
         this.rolesRepository = rolesRepository;

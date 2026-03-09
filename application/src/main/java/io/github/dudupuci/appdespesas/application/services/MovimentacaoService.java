@@ -1,5 +1,7 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.MovimentacaoRepositoryPort;
+import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
 import io.github.dudupuci.appdespesas.infrastructure.config.persistence.Transacional;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.movimentacao.CriarMovimentacaoRequestDto;
 import io.github.dudupuci.appdespesas.domain.exceptions.CategoriaInativaException;
@@ -9,8 +11,6 @@ import io.github.dudupuci.appdespesas.domain.entities.Categoria;
 import io.github.dudupuci.appdespesas.domain.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.MovimentacoesRepository;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuariosRepository;
 import io.github.dudupuci.appdespesas.domain.utils.AppDespesasUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +22,14 @@ import java.util.UUID;
 @Service
 public class MovimentacaoService {
 
-    private final MovimentacoesRepository repository;
+    private final MovimentacaoRepositoryPort repository;
     private final CategoriaService categoriaService;
-    private final UsuariosRepository usuariosRepository;
+    private final UsuarioRepositoryPort usuariosRepository;
 
     public MovimentacaoService(
-            MovimentacoesRepository repository,
+            MovimentacaoRepositoryPort repository,
             CategoriaService categoriaService,
-            UsuariosRepository usuariosRepository
+            UsuarioRepositoryPort usuariosRepository
     ) {
         this.repository = repository;
         this.categoriaService = categoriaService;
@@ -47,19 +47,13 @@ public class MovimentacaoService {
             Date dataInicio,
             Date dataFim
     ) {
-
-        // Chama o método correto do repository baseado nos filtros
         if (tipoMovimentacao != null && dataInicio != null && dataFim != null) {
-            // Filtro por tipo E período
             return this.repository.listarPorUsuarioIdTipoEPeriodo(usuarioId, tipoMovimentacao, dataInicio, dataFim);
         } else if (tipoMovimentacao != null) {
-            // Filtro apenas por tipo
             return this.repository.listarPorUsuarioIdETipo(usuarioId, tipoMovimentacao);
         } else if (dataInicio != null && dataFim != null) {
-            // Filtro apenas por período
             return this.repository.listarPorUsuarioIdEPeriodo(usuarioId, dataInicio, dataFim);
         } else {
-            // Sem filtros
             return this.repository.listarTodasPorUsuarioId(usuarioId);
         }
     }
@@ -71,16 +65,13 @@ public class MovimentacaoService {
         Optional<UsuarioSistema> usuario;
 
         try {
-            // Buscar e validar categoria
             tempCategoria = this.categoriaService.validarCategoriaPorId(dto.categoriaId());
 
-            // Buscar usuário
             usuario = this.usuariosRepository.findById(usuarioId);
             if (usuario.isEmpty()) {
                 throw new UsuarioNotFoundException("Usuário não encontrado");
             }
 
-            // Criar movimentação
             movimentacao = dto.toMovimentacao();
             movimentacao.setCategoria(tempCategoria);
             movimentacao.setUsuarioSistema(usuario.get());
@@ -99,7 +90,6 @@ public class MovimentacaoService {
     public void deletar(Long id) {
         try {
             Movimentacao movimentacao = buscarPorId(id);
-
             if (AppDespesasUtils.isEntidadeNotNull(movimentacao)) {
                 this.repository.delete(movimentacao);
             }
@@ -107,5 +97,4 @@ public class MovimentacaoService {
             throw new EntityNotFoundException(e.getMessage());
         }
     }
-
 }

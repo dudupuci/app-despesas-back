@@ -1,9 +1,8 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.CompromissoRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CompromissoRepository;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuariosRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,115 +18,87 @@ public class CompromissoService {
 
     private static final Logger log = LoggerFactory.getLogger(CompromissoService.class);
 
-    private final CompromissoRepository compromissoRepository;
-    private final UsuariosRepository usuariosRepository;
+    private final CompromissoRepositoryPort compromissoRepository;
+    private final UsuarioService usuarioService;
 
-    public CompromissoService(
-            CompromissoRepository compromissoRepository,
-            UsuariosRepository usuariosRepository
-    ) {
+    public CompromissoService(CompromissoRepositoryPort compromissoRepository, UsuarioService usuarioService) {
         this.compromissoRepository = compromissoRepository;
-        this.usuariosRepository = usuariosRepository;
+        this.usuarioService = usuarioService;
     }
 
     @Transactional
     public Compromisso criar(Compromisso compromisso, UUID usuarioId) {
-         UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
         compromisso.setUsuarioSistema(usuario);
         compromisso.setDataCriacao(new Date());
         compromisso.setDataAtualizacao(new Date());
-
-        log.info("✅ Compromisso criado: {} para o usuário: {}",
-                compromisso.getTitulo(), usuario.getContato().getEmail());
-
+        log.info("✅ Compromisso criado: {} para o usuário: {}", compromisso.getTitulo(), usuario.getContato().getEmail());
         return compromissoRepository.save(compromisso);
     }
 
-    public Compromisso buscarPorId(Long id) {
+    public Compromisso buscarPorId(UUID id) {
         return compromissoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Compromisso não encontrado"));
     }
 
     public List<Compromisso> listarTodos(UUID usuarioId) {
-        Optional<UsuarioSistema> usuario = usuariosRepository.findById(usuarioId);
-        if (usuario.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado");
-        }
-        return compromissoRepository.findByUsuarioSistema(usuario.get());
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
+        return compromissoRepository.findByUsuarioSistema(usuario);
     }
 
     public List<Compromisso> listarPorPeriodo(UUID usuarioId, Date dataInicio, Date dataFim) {
-        Optional<UsuarioSistema> usuario = usuariosRepository.findById((usuarioId));
-        if (usuario.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado");
-        }
-        return compromissoRepository.findByUsuarioAndPeriodo(usuario.get(), dataInicio, dataFim);
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
+        return compromissoRepository.findByUsuarioAndPeriodo(usuario, dataInicio, dataFim);
     }
 
     public List<Compromisso> listarPendentes(UUID usuarioId) {
-        Optional<UsuarioSistema> usuario = usuariosRepository.findById((usuarioId));
-        if (usuario.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado");
-        }
-        return compromissoRepository.findByUsuarioAndConcluido(usuario.get(), false);
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
+        return compromissoRepository.findByUsuarioAndConcluido(usuario, false);
     }
 
     public List<Compromisso> listarConcluidos(UUID usuarioId) {
-        Optional<UsuarioSistema> usuario = usuariosRepository.findById((usuarioId));
-        if (usuario.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado");
-        }
-        return compromissoRepository.findByUsuarioAndConcluido(usuario.get(), true);
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
+        return compromissoRepository.findByUsuarioAndConcluido(usuario, true);
     }
 
-    public Compromisso atualizar(Long id, Compromisso compromissoAtualizado) {
+    @Transactional
+    public Compromisso atualizar(UUID id, Compromisso compromissoAtualizado, UUID usuarioId) {
         Compromisso compromisso = buscarPorId(id);
-
+        if (!compromisso.getUsuarioSistema().getId().equals(usuarioId)) {
+            throw new RuntimeException("Sem permissão para editar este compromisso");
+        }
         compromisso.setTitulo(compromissoAtualizado.getTitulo());
         compromisso.setDescricao(compromissoAtualizado.getDescricao());
+        compromisso.setLocalizacao(compromissoAtualizado.getLocalizacao());
         compromisso.setDataInicio(compromissoAtualizado.getDataInicio());
         compromisso.setDataFim(compromissoAtualizado.getDataFim());
-        compromisso.setDiaInteiro(compromissoAtualizado.getDiaInteiro());
         compromisso.setPrioridade(compromissoAtualizado.getPrioridade());
-        compromisso.setLocalizacao(compromissoAtualizado.getLocalizacao());
-        compromisso.setCor(compromissoAtualizado.getCor());
+        compromisso.setDiaInteiro(compromissoAtualizado.getDiaInteiro());
         compromisso.setLembrarEm(compromissoAtualizado.getLembrarEm());
+        compromisso.setCor(compromissoAtualizado.getCor());
         compromisso.setObservacoes(compromissoAtualizado.getObservacoes());
         compromisso.setDataAtualizacao(new Date());
-
-        log.info("✏️ Compromisso atualizado: ID {}", id);
-
         return compromissoRepository.save(compromisso);
     }
 
-    public Compromisso marcarComoConcluido(Long id) {
+    @Transactional
+    public void concluir(UUID id, UUID usuarioId) {
         Compromisso compromisso = buscarPorId(id);
+        if (!compromisso.getUsuarioSistema().getId().equals(usuarioId)) {
+            throw new RuntimeException("Sem permissão para concluir este compromisso");
+        }
         compromisso.setConcluido(true);
         compromisso.setDataConclusao(new Date());
         compromisso.setDataAtualizacao(new Date());
-
-        log.info("✅ Compromisso concluído: {}", compromisso.getTitulo());
-
-        return compromissoRepository.save(compromisso);
+        compromissoRepository.save(compromisso);
     }
 
-    public Compromisso desmarcarConclusao(Long id) {
+    @Transactional
+    public void deletar(UUID id, UUID usuarioId) {
         Compromisso compromisso = buscarPorId(id);
-        compromisso.setConcluido(false);
-        compromisso.setDataConclusao(null);
-        compromisso.setDataAtualizacao(new Date());
-
-        log.info("↩️ Compromisso desmarcado: {}", compromisso.getTitulo());
-
-        return compromissoRepository.save(compromisso);
-    }
-
-    public void deletar(Long id) {
-        Compromisso compromisso = buscarPorId(id);
-        log.info("🗑️ Compromisso deletado: {}", compromisso.getTitulo());
+        if (!compromisso.getUsuarioSistema().getId().equals(usuarioId)) {
+            throw new RuntimeException("Sem permissão para deletar este compromisso");
+        }
         compromissoRepository.delete(compromisso);
     }
 }
-

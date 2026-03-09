@@ -1,12 +1,11 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.CompromissoRepositoryPort;
+import io.github.dudupuci.appdespesas.application.ports.repositories.MovimentacaoRepositoryPort;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.calendario.EventoCalendarioResponseDto;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.domain.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CompromissoRepository;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.MovimentacoesRepository;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuariosRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,18 +17,18 @@ import java.util.*;
 @Service
 public class CalendarioService {
 
-    private final CompromissoRepository compromissoRepository;
-    private final MovimentacoesRepository movimentacoesRepository;
-    private final UsuariosRepository usuariosRepository;
+    private final CompromissoRepositoryPort compromissoRepository;
+    private final MovimentacaoRepositoryPort movimentacoesRepository;
+    private final UsuarioService usuarioService;
 
     public CalendarioService(
-            CompromissoRepository compromissoRepository,
-            MovimentacoesRepository movimentacoesRepository,
-            UsuariosRepository usuariosRepository
+            CompromissoRepositoryPort compromissoRepository,
+            MovimentacaoRepositoryPort movimentacoesRepository,
+            UsuarioService usuarioService
     ) {
         this.compromissoRepository = compromissoRepository;
         this.movimentacoesRepository = movimentacoesRepository;
-        this.usuariosRepository = usuariosRepository;
+        this.usuarioService = usuarioService;
     }
 
     /**
@@ -41,8 +40,7 @@ public class CalendarioService {
             Date dataInicio,
             Date dataFim
     ) {
-        UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
 
         List<EventoCalendarioResponseDto> eventos = new ArrayList<>();
 
@@ -67,11 +65,9 @@ public class CalendarioService {
                 )
         ));
 
-        // 3. Buscar Movimentações Previstas
+        // 2. Buscar Movimentações Previstas
         List<Movimentacao> movimentacoesPrevistas = movimentacoesRepository.listarPorUsuarioIdEPeriodo(
-                usuarioId,
-                dataInicio,
-                dataFim
+                usuarioId, dataInicio, dataFim
         );
         movimentacoesPrevistas.forEach(m -> {
             String cor = m.getTipoMovimentacao().name().equals("DESPESA") ? "#FF5733" : "#28A745";
@@ -91,4 +87,3 @@ public class CalendarioService {
     }
 
 }
-

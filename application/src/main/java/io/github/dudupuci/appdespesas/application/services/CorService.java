@@ -1,11 +1,10 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.CorRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.exceptions.UsuarioNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CorRepository;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuariosRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,17 +20,11 @@ public class CorService {
 
     private static final Logger log = LoggerFactory.getLogger(CorService.class);
 
-    private final CorRepository corRepository;
-    private final UsuariosRepository usuariosRepository;
+    private final CorRepositoryPort corRepository;
     private final UsuarioService usuarioService;
 
-
-    public CorService(
-            CorRepository corRepository,
-            UsuariosRepository usuariosRepository,
-            UsuarioService usuarioService) {
+    public CorService(CorRepositoryPort corRepository, UsuarioService usuarioService) {
         this.corRepository = corRepository;
-        this.usuariosRepository = usuariosRepository;
         this.usuarioService = usuarioService;
     }
 
@@ -40,8 +33,7 @@ public class CorService {
      */
     @Transactional
     public Cor criar(Cor cor, UUID usuarioId) {
-        UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
-                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado"));
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
 
         // Validar se já existe cor com o mesmo nome
         if (corRepository.existsByNomeAndUsuarioSistema(cor.getNome(), usuario)) {
@@ -85,9 +77,7 @@ public class CorService {
      * Listar todas as cores do usuário
      */
     public List<Cor> listarTodas(UUID usuarioId) {
-        UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
-                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado"));
-
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
         return corRepository.listarTodasPorUsuarioId(usuario.getId());
     }
 
@@ -97,8 +87,7 @@ public class CorService {
     @Transactional
     public Cor atualizar(UUID id, Cor corAtualizada, UUID usuarioId) {
         Cor cor = buscarPorId(id, usuarioId);
-        UsuarioSistema usuario = usuariosRepository.findById(usuarioId)
-                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado"));
+        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
 
         // Validar se o novo nome já existe (exceto para a própria cor)
         if (!cor.getNome().equals(corAtualizada.getNome())) {

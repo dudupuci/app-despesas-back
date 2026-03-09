@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.CategoriaRepositoryPort;
 import io.github.dudupuci.appdespesas.infrastructure.config.persistence.Transacional;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.categoria.CriarCategoriaRequestDto;
 import io.github.dudupuci.appdespesas.domain.exceptions.CategoriaInativaException;
@@ -8,7 +9,6 @@ import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Categoria;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CategoriasRepository;
 import io.github.dudupuci.appdespesas.domain.utils.AppDespesasMessages;
 import io.github.dudupuci.appdespesas.domain.utils.AppDespesasUtils;
 import org.springframework.stereotype.Service;
@@ -21,12 +21,12 @@ import java.util.UUID;
 @Service
 public class CategoriaService {
 
-    private final CategoriasRepository repository;
+    private final CategoriaRepositoryPort repository;
     private final UsuarioService usuarioService;
     private final CorService corService;
 
     public CategoriaService(
-            CategoriasRepository repository,
+            CategoriaRepositoryPort repository,
             UsuarioService usuarioService,
             CorService corService
     ) {

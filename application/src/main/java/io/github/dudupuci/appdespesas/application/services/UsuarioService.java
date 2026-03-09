@@ -1,5 +1,6 @@
 package io.github.dudupuci.appdespesas.application.services;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.admin.dtos.request.usuarios.AtualizarUsuarioSistemaRequestDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.dtos.request.endereco.AtualizarEnderecoRequestDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.usuario.AtualizarMeuPerfilRequestDto;
@@ -7,28 +8,22 @@ import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Contato;
 import io.github.dudupuci.appdespesas.domain.entities.Endereco;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuariosRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @Service
 public class UsuarioService {
 
-    private final UsuariosRepository usuariosRepository;
+    private final UsuarioRepositoryPort usuariosRepository;
 
-    public UsuarioService(UsuariosRepository usuariosRepository) {
+    public UsuarioService(UsuarioRepositoryPort usuariosRepository) {
         this.usuariosRepository = usuariosRepository;
     }
 
     public boolean existePorNomeUsuario(String nomeUsuario) {
         return this.usuariosRepository.existsByNomeUsuario(nomeUsuario);
-    }
-
-    public List<UsuarioSistema> listarUsuarios() {
-        return this.usuariosRepository.findAll();
     }
 
     public UsuarioSistema buscarPorId(UUID id) {
@@ -41,12 +36,10 @@ public class UsuarioService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuário de email " + email + " não encontrado."));
     }
 
-
     // Endpoint admin
     public UsuarioSistema atualizar(UUID usuarioIdLogado, AtualizarUsuarioSistemaRequestDto dto) {
         UsuarioSistema usuarioExistente = buscarPorId(usuarioIdLogado);
 
-        // Atualiza contato
         Contato contato = usuarioExistente.getContato();
         if (contato == null) contato = new Contato();
         if (dto.contatoDto().celular() != null && !dto.contatoDto().celular().isBlank())
@@ -55,12 +48,10 @@ public class UsuarioService {
             contato.setTelefoneFixo(dto.contatoDto().telefoneFixo());
         usuarioExistente.setContato(contato);
 
-        // Atualiza CPF/CNPJ
         if (dto.cpfCnpj() != null && !dto.cpfCnpj().isBlank()) {
             usuarioExistente.setCpfCnpj(dto.cpfCnpj());
         }
 
-        // Atualiza endereco
         AtualizarEnderecoRequestDto enderecoDto = dto.enderecoDto();
         if (enderecoDto != null) {
             Endereco endereco = usuarioExistente.getEndereco();
@@ -81,7 +72,6 @@ public class UsuarioService {
     public UsuarioSistema atualizar(UUID usuarioIdLogado, AtualizarMeuPerfilRequestDto dto) {
         UsuarioSistema usuarioExistente = buscarPorId(usuarioIdLogado);
 
-        // Atualiza contato
         Contato contato = usuarioExistente.getContato();
         if (contato == null) contato = new Contato();
         if (dto.contatoDto().celular() != null && !dto.contatoDto().celular().isBlank())
@@ -90,12 +80,10 @@ public class UsuarioService {
             contato.setTelefoneFixo(dto.contatoDto().telefoneFixo());
         usuarioExistente.setContato(contato);
 
-        // Atualiza CPF/CNPJ
         if (dto.cpfCnpj() != null && !dto.cpfCnpj().isBlank()) {
             usuarioExistente.setCpfCnpj(dto.cpfCnpj());
         }
 
-        // Atualiza endereco
         AtualizarEnderecoRequestDto enderecoDto = dto.enderecoDto();
         if (enderecoDto != null) {
             Endereco endereco = usuarioExistente.getEndereco();
@@ -112,12 +100,8 @@ public class UsuarioService {
         return this.usuariosRepository.save(usuarioExistente);
     }
 
-
     public void atualizar(UsuarioSistema usuarioSistema) {
         usuarioSistema.setDataAtualizacao(new Date());
         this.usuariosRepository.save(usuarioSistema);
     }
-
-
-
 }
