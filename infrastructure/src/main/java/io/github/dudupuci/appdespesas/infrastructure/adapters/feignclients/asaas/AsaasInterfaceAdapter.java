@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.adapters.feignclients.asaas;
 
-import io.github.dudupuci.appdespesas.application.ports.services.AsaasPort;
+import io.github.dudupuci.appdespesas.application.services.interfaces.AsaasPort;
 import io.github.dudupuci.appdespesas.application.services.webservices.dtos.request.CriarCobrancaAsaasRequestDto;
 import io.github.dudupuci.appdespesas.application.services.webservices.dtos.request.CriarCustomerAsaasRequestDto;
 import io.github.dudupuci.appdespesas.application.services.webservices.dtos.response.CobrancaCriadaAsaasResponseDto;

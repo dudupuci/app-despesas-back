@@ -1,4 +1,4 @@
-package io.github.dudupuci.appdespesas.application.ports.services;
+package io.github.dudupuci.appdespesas.application.services.interfaces;
 
 import io.github.dudupuci.appdespesas.application.services.webservices.dtos.request.CriarCobrancaAsaasRequestDto;
 import io.github.dudupuci.appdespesas.application.services.webservices.dtos.request.CriarCustomerAsaasRequestDto;
