@@ -1,7 +1,7 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.movimentacao;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.github.dudupuci.appdespesas.application.commands.movimentacao.MovimentacaoCommand;
+import io.github.dudupuci.appdespesas.application.usecases.movimentacao.MovimentacaoCommand;
 import io.github.dudupuci.appdespesas.infrastructure.config.app.DateDeserializer;
 import io.github.dudupuci.appdespesas.domain.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
@@ -26,8 +26,8 @@ public record CriarMovimentacaoRequestDto(
         @NotNull(message = "Categoria é obrigatória")
         UUID categoriaId
 ) {
-    public MovimentacaoCommand toCommand() {
-        return new MovimentacaoCommand(titulo, descricao, valor, dataDaMovimentacao, tipoMovimentacao, categoriaId);
+    public MovimentacaoCommand toCommand(UUID usuarioId) {
+        return new MovimentacaoCommand(usuarioId, titulo, descricao, valor, dataDaMovimentacao, tipoMovimentacao, categoriaId);
     }
 
     /** @deprecated use toCommand() */

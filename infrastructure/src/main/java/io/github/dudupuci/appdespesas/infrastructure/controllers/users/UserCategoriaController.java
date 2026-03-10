@@ -1,8 +1,7 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
-import io.github.dudupuci.appdespesas.application.ports.repositories.CategoriaRepositoryPort;
 import io.github.dudupuci.appdespesas.application.services.CategoriaService;
-import io.github.dudupuci.appdespesas.application.services.CorService;
+import io.github.dudupuci.appdespesas.application.usecases.base.DeleteCommand;
 import io.github.dudupuci.appdespesas.application.usecases.categoria.*;
 import io.github.dudupuci.appdespesas.domain.entities.Categoria;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
@@ -19,45 +18,40 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Controller para gerenciar categorias de movimentações financeiras (despesas, receitas, etc.)
- * Cada categoria pertence a um usuário específico e pode ser associada a várias movimentações.
- * As categorias ajudam a organizar e classificar as movimentações, permitindo análises e relatórios mais detalhados.
- */
-
 @RestController
 @RequestMapping("/categorias")
 @PreAuthorize("hasRole('USER')")
 public class UserCategoriaController {
 
-    private final CategoriaRepositoryPort categoriaRepository;
+    private final CriarCategoriaUseCase criarCategoriaUseCase;
+    private final AtualizarCategoriaUseCase atualizarCategoriaUseCase;
+    private final DeletarCategoriaUseCase deletarCategoriaUseCase;
     private final CategoriaService categoriaService;
-    private final CorService corService;
 
-    public UserCategoriaController(CategoriaRepositoryPort categoriaRepository,
-                                   CategoriaService categoriaService,
-                                   CorService corService) {
-        this.categoriaRepository = categoriaRepository;
+    public UserCategoriaController(CriarCategoriaUseCase criarCategoriaUseCase,
+                                   AtualizarCategoriaUseCase atualizarCategoriaUseCase,
+                                   DeletarCategoriaUseCase deletarCategoriaUseCase,
+                                   CategoriaService categoriaService) {
+        this.criarCategoriaUseCase = criarCategoriaUseCase;
+        this.atualizarCategoriaUseCase = atualizarCategoriaUseCase;
+        this.deletarCategoriaUseCase = deletarCategoriaUseCase;
         this.categoriaService = categoriaService;
-        this.corService = corService;
     }
 
     @PostMapping
     public ResponseEntity<CategoriaCriadaResponseDto> create(@RequestBody CriarCategoriaRequestDto dto) {
         UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
-        Categoria categoria = new CriarCategoriaUseCaseImpl(categoriaRepository, categoriaService.getUsuarioService(), corService, usuarioId)
-                .executar(dto.toCommand());
+        Categoria categoria = criarCategoriaUseCase.executar(dto.toCommand(usuarioId, null));
         return ResponseEntity.created(URI.create("/categorias/" + categoria.getId()))
                 .body(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoriaCriadaResponseDto> atualizar(@PathVariable UUID id, @RequestBody CriarCategoriaRequestDto dto) {
+    public ResponseEntity<CategoriaCriadaResponseDto> atualizar(@PathVariable UUID id,
+                                                                @RequestBody CriarCategoriaRequestDto dto) {
         UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
-        Categoria categoria = new AtualizarCategoriaUseCaseImpl(categoriaRepository, categoriaService, corService, id, usuarioId)
-                .executar(dto.toCommand());
+        Categoria categoria = atualizarCategoriaUseCase.executar(dto.toCommand(usuarioId, id));
         return ResponseEntity.ok(CategoriaCriadaResponseDto.fromEntityCriada(categoria));
-
     }
 
     @GetMapping("/{id}")
@@ -71,14 +65,16 @@ public class UserCategoriaController {
     }
 
     @GetMapping("/pesquisar")
-    public ResponseEntity<List<ListCategoriaResponseDto>> listarBySearch(@RequestParam(name = "search", required = false) String search) {
+    public ResponseEntity<List<ListCategoriaResponseDto>> listarBySearch(
+            @RequestParam(name = "search", required = false) String search) {
         return ResponseEntity.ok(categoriaService.listarCategoriasBySearch(search)
                 .stream().map(ListCategoriaResponseDto::toDto).collect(Collectors.toList()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        new DeletarCategoriaUseCaseImpl(categoriaRepository, categoriaService).executar(id);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        deletarCategoriaUseCase.executar(new DeleteCommand(usuarioId, id));
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,8 +1,8 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.webhooks;
 
 import io.github.dudupuci.appdespesas.infrastructure.controllers.webhooks.dtos.request.WahaWebhookDto;
-import io.github.dudupuci.appdespesas.application.services.ai.ChatBotService;
-import io.github.dudupuci.appdespesas.application.services.waha.WahaService;
+import io.github.dudupuci.appdespesas.infrastructure.services.ai.ChatBotService;
+import io.github.dudupuci.appdespesas.infrastructure.services.waha.WahaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;

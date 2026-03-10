@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.UUID;
+
 public record AssinarAssinaturaRequestDto(
         String nomeCompleto,
 
@@ -23,8 +25,8 @@ public record AssinarAssinaturaRequestDto(
         @NotNull(message = "Selecione uma forma de pagamento.")
         BillingType formaPagamento
 ) {
-    public AssinarAssinaturaCommand toCommand() {
-        return new AssinarAssinaturaCommand(nomeCompleto, email, cpfCnpj, assinaturaParaOutraPessoa, formaPagamento);
+    public AssinarAssinaturaCommand toCommand(UUID usuarioIdLogado, Long assinaturaId) {
+        return new AssinarAssinaturaCommand(usuarioIdLogado, assinaturaId, nomeCompleto, email, cpfCnpj, assinaturaParaOutraPessoa, formaPagamento);
     }
 
     public void validarParaAssinaturaPropria() {

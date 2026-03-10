@@ -2,30 +2,25 @@ package io.github.dudupuci.appdespesas.application.usecases.compromisso;
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.CompromissoRepositoryPort;
 import io.github.dudupuci.appdespesas.application.services.CompromissoService;
+import io.github.dudupuci.appdespesas.application.usecases.base.DeleteCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
-
-import java.util.UUID;
 
 public class DeletarCompromissoUseCaseImpl extends DeletarCompromissoUseCase {
 
     private final CompromissoRepositoryPort compromissoRepository;
     private final CompromissoService compromissoService;
-    private final UUID usuarioId;
 
     public DeletarCompromissoUseCaseImpl(CompromissoRepositoryPort compromissoRepository,
-                                         CompromissoService compromissoService, UUID usuarioId) {
+                                         CompromissoService compromissoService) {
         this.compromissoRepository = compromissoRepository;
         this.compromissoService = compromissoService;
-        this.usuarioId = usuarioId;
     }
 
     @Override
-    public void executar(UUID id) {
-        Compromisso compromisso = compromissoService.buscarPorId(id);
-        if (!compromisso.getUsuarioSistema().getId().equals(usuarioId)) {
+    public void executar(DeleteCommand cmd) {
+        Compromisso compromisso = compromissoService.buscarPorId(cmd.id());
+        if (!compromisso.getUsuarioSistema().getId().equals(cmd.usuarioId()))
             throw new RuntimeException("Sem permissão para deletar este compromisso");
-        }
         compromissoRepository.delete(compromisso);
     }
 }
-

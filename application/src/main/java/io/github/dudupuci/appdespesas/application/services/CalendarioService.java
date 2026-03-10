@@ -6,15 +6,12 @@ import io.github.dudupuci.appdespesas.application.responses.calendario.EventoCal
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.domain.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 /**
  * Service responsável por gerenciar o calendário unificado
  * Agrega Compromissos, Eventos Recorrentes e Movimentações Previstas
  */
-@Service
 public class CalendarioService {
 
     private final CompromissoRepositoryPort compromissoRepository;

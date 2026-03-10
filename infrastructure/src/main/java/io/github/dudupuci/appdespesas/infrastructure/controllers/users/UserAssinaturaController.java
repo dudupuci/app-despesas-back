@@ -1,10 +1,5 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
-import io.github.dudupuci.appdespesas.application.responses.assinatura.CheckoutAssinaturaResult;
-import io.github.dudupuci.appdespesas.application.services.AssinaturaService;
-import io.github.dudupuci.appdespesas.application.services.CobrancaService;
-import io.github.dudupuci.appdespesas.application.services.UsuarioService;
-import io.github.dudupuci.appdespesas.application.services.webservices.AsaasService;
 import io.github.dudupuci.appdespesas.application.services.webservices.dtos.response.ObterQrCodePixResponseDto;
 import io.github.dudupuci.appdespesas.application.usecases.assinatura.*;
 import io.github.dudupuci.appdespesas.domain.entities.Assinatura;
@@ -25,30 +20,21 @@ import java.util.UUID;
 @PreAuthorize("hasAnyRole('USER')")
 public class UserAssinaturaController {
 
-    // Injetados pois não têm contexto de requisição
     private final BuscarAssinaturaUsuarioUseCase buscarAssinaturaUsuarioUseCase;
     private final BuscarOutrasAssinaturasUsuarioUseCase buscarOutrasAssinaturasUseCase;
-
-    // Injetados para montar os contextuais nos endpoints
-    private final UsuarioService usuarioService;
-    private final AssinaturaService assinaturaService;
-    private final CobrancaService cobrancaService;
-    private final AsaasService asaasService;
+    private final PrepararAssinaturaPlanoUseCase prepararAssinaturaPlanoUseCase;
+    private final AssinarPlanoUseCase assinarPlanoUseCase;
 
     public UserAssinaturaController(
             BuscarAssinaturaUsuarioUseCase buscarAssinaturaUsuarioUseCase,
             BuscarOutrasAssinaturasUsuarioUseCase buscarOutrasAssinaturasUseCase,
-            UsuarioService usuarioService,
-            AssinaturaService assinaturaService,
-            CobrancaService cobrancaService,
-            AsaasService asaasService
+            PrepararAssinaturaPlanoUseCase prepararAssinaturaPlanoUseCase,
+            AssinarPlanoUseCase assinarPlanoUseCase
     ) {
         this.buscarAssinaturaUsuarioUseCase = buscarAssinaturaUsuarioUseCase;
         this.buscarOutrasAssinaturasUseCase = buscarOutrasAssinaturasUseCase;
-        this.usuarioService = usuarioService;
-        this.assinaturaService = assinaturaService;
-        this.cobrancaService = cobrancaService;
-        this.asaasService = asaasService;
+        this.prepararAssinaturaPlanoUseCase = prepararAssinaturaPlanoUseCase;
+        this.assinarPlanoUseCase = assinarPlanoUseCase;
     }
 
     /**
@@ -66,8 +52,7 @@ public class UserAssinaturaController {
             @PathVariable Long assinaturaId
     ) {
         UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
-        CheckoutAssinaturaResult result = new PrepararAssinaturaPlanoUseCaseImpl(usuarioService, assinaturaService, usuarioId)
-                .executar(assinaturaId);
+        var result = prepararAssinaturaPlanoUseCase.executar(new PrepararAssinaturaCommand(usuarioId, assinaturaId));
         return ResponseEntity.ok(CheckoutAssinaturaResponseDto.fromResult(result));
     }
 
@@ -88,10 +73,7 @@ public class UserAssinaturaController {
             @PathVariable Long assinaturaId
     ) {
         UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
-        ObterQrCodePixResponseDto response = new AssinarPlanoUseCaseImpl(
-                usuarioService, assinaturaService, cobrancaService, asaasService, usuarioId, assinaturaId)
-                .executar(assinaturaRequestDto.toCommand());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(assinarPlanoUseCase.executar(assinaturaRequestDto.toCommand(usuarioId, assinaturaId)));
     }
 
 

@@ -2,7 +2,6 @@ package io.github.dudupuci.appdespesas.application.services.ai;
 
 import io.github.dudupuci.appdespesas.domain.ConversationSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Service para gerenciar sessões de conversa contínua
  */
-@Service
 @Slf4j
 public class ConversationService {
 
@@ -118,4 +116,3 @@ public class ConversationService {
         );
     }
 }
-

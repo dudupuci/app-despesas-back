@@ -2,18 +2,15 @@ package io.github.dudupuci.appdespesas.application.services;
 
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
-import io.github.dudupuci.appdespesas.application.usecases.usuario.AtualizarUsuarioCommand;
-import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Contato;
 import io.github.dudupuci.appdespesas.domain.entities.Endereco;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import org.springframework.stereotype.Service;
+import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-@Service
 public class UsuarioService {
 
     private final UsuarioRepositoryPort usuariosRepository;

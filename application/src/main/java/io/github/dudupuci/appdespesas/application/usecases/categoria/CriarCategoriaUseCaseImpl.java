@@ -8,21 +8,18 @@ import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityAlreadyExistsException;
 
-import java.util.UUID;
-
 public class CriarCategoriaUseCaseImpl extends CriarCategoriaUseCase {
 
     private final CategoriaRepositoryPort repository;
     private final UsuarioService usuarioService;
     private final CorService corService;
-    private final UUID usuarioId;
 
-    public CriarCategoriaUseCaseImpl(CategoriaRepositoryPort repository, UsuarioService usuarioService,
-                                     CorService corService, UUID usuarioId) {
+    public CriarCategoriaUseCaseImpl(CategoriaRepositoryPort repository,
+                                     UsuarioService usuarioService,
+                                     CorService corService) {
         this.repository = repository;
         this.usuarioService = usuarioService;
         this.corService = corService;
-        this.usuarioId = usuarioId;
     }
 
     @Override
@@ -30,14 +27,13 @@ public class CriarCategoriaUseCaseImpl extends CriarCategoriaUseCase {
         if (repository.buscarPorNome(cmd.nome()).isPresent()) {
             throw new EntityAlreadyExistsException("Categoria com o nome '" + cmd.nome() + "' já existe.");
         }
-        UsuarioSistema usuario = usuarioService.buscarPorId(usuarioId);
+        UsuarioSistema usuario = usuarioService.buscarPorId(cmd.usuarioId());
         Categoria categoria = new Categoria(cmd.nome(), cmd.descricao(), cmd.tipoMovimentacao());
         categoria.setUsuarioSistema(usuario);
         if (cmd.corId() != null) {
-            Cor cor = corService.buscarPorId(cmd.corId(), usuarioId);
+            Cor cor = corService.buscarPorId(cmd.corId(), cmd.usuarioId());
             categoria.setCor(cor);
         }
         return repository.save(categoria);
     }
 }
-

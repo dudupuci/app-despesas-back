@@ -1,16 +1,14 @@
 package io.github.dudupuci.appdespesas.application.services;
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.AssinaturaRepositoryPort;
-import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
-import io.github.dudupuci.appdespesas.domain.exceptions.UsuarioJaTemEssaAssinaturaException;
 import io.github.dudupuci.appdespesas.domain.entities.Assinatura;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import org.springframework.stereotype.Service;
+import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
+import io.github.dudupuci.appdespesas.domain.exceptions.UsuarioJaTemEssaAssinaturaException;
 
 import java.util.List;
 import java.util.UUID;
 
-@Service
 public class AssinaturaService {
 
     private final AssinaturaRepositoryPort assinaturaRepository;
@@ -43,5 +41,4 @@ public class AssinaturaService {
             throw new UsuarioJaTemEssaAssinaturaException("Você já possui esta assinatura.");
         }
     }
-
 }

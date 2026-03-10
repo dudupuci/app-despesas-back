@@ -1,7 +1,7 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.noauth;
 
 import io.github.dudupuci.appdespesas.application.responses.cep.ViaCepResponse;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.cep.ViaCepResponseDto;
+import io.github.dudupuci.appdespesas.application.services.webservices.dtos.response.ViaCepResponseDto;
 import io.github.dudupuci.appdespesas.domain.annotations.Cep;
 import io.github.dudupuci.appdespesas.application.services.webservices.ViaCepService;
 import org.springframework.http.HttpStatus;

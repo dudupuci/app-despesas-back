@@ -3,11 +3,9 @@ package io.github.dudupuci.appdespesas.application.services;
 import io.github.dudupuci.appdespesas.application.usecases.usuario.EditarConfiguracoesCommand;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service
 public class UsuarioConfigService {
 
     private final UsuarioService usuarioService;

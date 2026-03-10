@@ -1,10 +1,12 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.cor;
 
-import io.github.dudupuci.appdespesas.application.commands.cor.CorCommand;
+import io.github.dudupuci.appdespesas.application.usecases.cor.CorCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import java.util.UUID;
 
 public record CriarCorRequestDto(
         @NotBlank(message = "Nome da cor é obrigatório")
@@ -15,8 +17,8 @@ public record CriarCorRequestDto(
         @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "Código hexadecimal inválido. Use o formato #RRGGBB")
         String codigoHexadecimal
 ) {
-    public CorCommand toCommand() {
-        return new CorCommand(nome, codigoHexadecimal.toUpperCase());
+    public CorCommand toCommand(UUID usuarioId, UUID corId) {
+        return new CorCommand(usuarioId, corId, nome, codigoHexadecimal.toUpperCase());
     }
 
     /** @deprecated use toCommand() */

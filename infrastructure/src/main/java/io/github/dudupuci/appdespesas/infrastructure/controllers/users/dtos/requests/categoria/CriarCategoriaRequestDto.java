@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.categoria;
 
-import io.github.dudupuci.appdespesas.application.commands.categoria.CategoriaCommand;
+import io.github.dudupuci.appdespesas.application.usecases.categoria.CategoriaCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Categoria;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
 import jakarta.validation.constraints.NotBlank;
@@ -16,11 +16,11 @@ public record CriarCategoriaRequestDto(
         TipoMovimentacao tipoMovimentacao,
         UUID corId
 ) {
-    public CategoriaCommand toCommand() {
-        return new CategoriaCommand(nome, descricao, tipoMovimentacao, corId);
+    public CategoriaCommand toCommand(UUID usuarioId, UUID categoriaId) {
+        return new CategoriaCommand(usuarioId, categoriaId, nome, descricao, tipoMovimentacao, corId);
     }
 
-    /** @deprecated use toCommand() */
+    /** @deprecated use toCommand(usuarioId, categoriaId) */
     public Categoria toCategoria() {
         return new Categoria(nome, descricao, tipoMovimentacao);
     }

@@ -10,6 +10,7 @@ import java.util.UUID;
  * Command para criar uma movimentação.
  */
 public record MovimentacaoCommand(
+        UUID usuarioId,
         String titulo,
         String descricao,
         BigDecimal valor,
@@ -17,4 +18,3 @@ public record MovimentacaoCommand(
         TipoMovimentacao tipoMovimentacao,
         UUID categoriaId
 ) {}
-

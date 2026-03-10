@@ -1,13 +1,11 @@
 package io.github.dudupuci.appdespesas.application.services;
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.CobrancaRepositoryPort;
-import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Cobranca;
-import org.springframework.stereotype.Service;
+import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 
 import java.util.Date;
 
-@Service
 public class CobrancaService {
 
     private final CobrancaRepositoryPort cobrancaRepository;
@@ -25,9 +23,8 @@ public class CobrancaService {
             String asaasCobrancaId
     ) {
         Cobranca cobranca = this.cobrancaRepository.findByAsaasCobrancaId(asaasCobrancaId)
-                .orElseThrow(() -> new EntityNotFoundException("Cobrança não encontrada para o ID do pagamento do Asaas: " + asaasCobrancaId));
+                .orElseThrow(() -> new EntityNotFoundException("Cobrança não encontrada para o ID: " + asaasCobrancaId));
         cobranca.confirmarCobranca(dataPagamento);
         return this.cobrancaRepository.save(cobranca);
     }
-
 }

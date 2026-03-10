@@ -1,9 +1,11 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
-import io.github.dudupuci.appdespesas.application.ports.repositories.CorRepositoryPort;
 import io.github.dudupuci.appdespesas.application.services.CorService;
-import io.github.dudupuci.appdespesas.application.services.UsuarioService;
+import io.github.dudupuci.appdespesas.application.usecases.cor.AtualizarCorUseCase;
+import io.github.dudupuci.appdespesas.application.usecases.base.DeleteCommand;
 import io.github.dudupuci.appdespesas.application.usecases.cor.*;
+import io.github.dudupuci.appdespesas.application.usecases.cor.CriarCorUseCase;
+import io.github.dudupuci.appdespesas.application.usecases.cor.DeletarCorUseCase;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.cor.CriarCorRequestDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.cor.CorCriadaResponseDto;
@@ -22,14 +24,21 @@ import java.util.UUID;
 @PreAuthorize("hasRole('USER')")
 public class UserCorController {
 
-    private final CorRepositoryPort corRepository;
+    private final CriarCorUseCase criarCorUseCase;
+    private final AtualizarCorUseCase atualizarCorUseCase;
+    private final DeletarCorUseCase deletarCorUseCase;
     private final CorService corService;
-    private final UsuarioService usuarioService;
 
-    public UserCorController(CorRepositoryPort corRepository, CorService corService, UsuarioService usuarioService) {
-        this.corRepository = corRepository;
+    public UserCorController(
+            CriarCorUseCase criarCorUseCase,
+            AtualizarCorUseCase atualizarCorUseCase,
+            DeletarCorUseCase deletarCorUseCase,
+            CorService corService
+    ) {
+        this.criarCorUseCase = criarCorUseCase;
+        this.atualizarCorUseCase = atualizarCorUseCase;
+        this.deletarCorUseCase = deletarCorUseCase;
         this.corService = corService;
-        this.usuarioService = usuarioService;
     }
 
     /**
@@ -39,7 +48,7 @@ public class UserCorController {
     @PostMapping
     public ResponseEntity<CorCriadaResponseDto> criar(@Valid @RequestBody CriarCorRequestDto dto) {
         UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
-        Cor criada = new CriarCorUseCaseImpl(corRepository, usuarioService, usuarioId).executar(dto.toCommand());
+        Cor criada = criarCorUseCase.executar(dto.toCommand(usuarioId, null));
         return ResponseEntity.created(URI.create("/cores/" + criada.getId()))
                 .body(CorCriadaResponseDto.fromEntityCriada(criada));
     }
@@ -69,7 +78,7 @@ public class UserCorController {
     @PutMapping("/{id}")
     public ResponseEntity<Cor> atualizar(@PathVariable UUID id, @Valid @RequestBody CriarCorRequestDto dto) {
         UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
-        return ResponseEntity.ok(new AtualizarCorUseCaseImpl(corRepository, corService, usuarioService, id, usuarioId).executar(dto.toCommand()));
+        return ResponseEntity.ok(atualizarCorUseCase.executar(dto.toCommand(usuarioId, id)));
     }
 
     /**
@@ -78,7 +87,8 @@ public class UserCorController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable UUID id) {
-        new DeletarCorUseCaseImpl(corRepository, corService, SecurityUtils.getUsuarioAutenticadoId()).executar(id);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        deletarCorUseCase.executar(new DeleteCommand(usuarioId, id));
         return ResponseEntity.noContent().build();
     }
 }

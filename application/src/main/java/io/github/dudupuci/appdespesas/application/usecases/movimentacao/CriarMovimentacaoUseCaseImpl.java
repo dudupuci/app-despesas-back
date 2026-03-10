@@ -9,27 +9,25 @@ import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.domain.exceptions.UsuarioNotFoundException;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public class CriarMovimentacaoUseCaseImpl extends CriarMovimentacaoUseCase {
 
     private final MovimentacaoRepositoryPort repository;
     private final CategoriaService categoriaService;
     private final UsuarioRepositoryPort usuariosRepository;
-    private final UUID usuarioId;
 
-    public CriarMovimentacaoUseCaseImpl(MovimentacaoRepositoryPort repository, CategoriaService categoriaService,
-                                        UsuarioRepositoryPort usuariosRepository, UUID usuarioId) {
+    public CriarMovimentacaoUseCaseImpl(MovimentacaoRepositoryPort repository,
+                                        CategoriaService categoriaService,
+                                        UsuarioRepositoryPort usuariosRepository) {
         this.repository = repository;
         this.categoriaService = categoriaService;
         this.usuariosRepository = usuariosRepository;
-        this.usuarioId = usuarioId;
     }
 
     @Override
     public Movimentacao executar(MovimentacaoCommand cmd) {
         Categoria categoria = categoriaService.validarCategoriaPorId(cmd.categoriaId());
-        Optional<UsuarioSistema> usuario = usuariosRepository.findById(usuarioId);
+        Optional<UsuarioSistema> usuario = usuariosRepository.findById(cmd.usuarioId());
         if (usuario.isEmpty()) throw new UsuarioNotFoundException("Usuário não encontrado");
 
         Movimentacao movimentacao = new Movimentacao();
@@ -43,4 +41,3 @@ public class CriarMovimentacaoUseCaseImpl extends CriarMovimentacaoUseCase {
         return repository.save(movimentacao);
     }
 }
-

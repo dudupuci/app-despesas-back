@@ -2,10 +2,8 @@ package io.github.dudupuci.appdespesas.application.usecases.categoria;
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.CategoriaRepositoryPort;
 import io.github.dudupuci.appdespesas.application.services.CategoriaService;
+import io.github.dudupuci.appdespesas.application.usecases.base.DeleteCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Categoria;
-import io.github.dudupuci.appdespesas.domain.utils.AppDespesasUtils;
-
-import java.util.UUID;
 
 public class DeletarCategoriaUseCaseImpl extends DeletarCategoriaUseCase {
 
@@ -18,10 +16,10 @@ public class DeletarCategoriaUseCaseImpl extends DeletarCategoriaUseCase {
     }
 
     @Override
-    public void executar(UUID id) {
-        Categoria categoria = categoriaService.buscarPorId(id);
-            repository.delete(categoria);
-
+    public void executar(DeleteCommand cmd) {
+        Categoria categoria = categoriaService.buscarPorId(cmd.id());
+        if (!categoria.getUsuarioSistema().getId().equals(cmd.usuarioId()))
+            throw new RuntimeException("Você não tem permissão para deletar esta categoria");
+        repository.delete(categoria);
     }
 }
-

@@ -1,8 +1,6 @@
 package io.github.dudupuci.appdespesas.application.usecases.cor;
 
+import io.github.dudupuci.appdespesas.application.usecases.base.DeleteCommand;
 import io.github.dudupuci.appdespesas.application.usecases.base.UnitUseCase;
 
-import java.util.UUID;
-
-public abstract class DeletarCorUseCase extends UnitUseCase<UUID> {}
-
+public abstract class DeletarCorUseCase extends UnitUseCase<DeleteCommand> {}

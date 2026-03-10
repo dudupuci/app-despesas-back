@@ -1,19 +1,20 @@
 package io.github.dudupuci.appdespesas.application.services.webservices;
 
+import io.github.dudupuci.appdespesas.application.ports.services.ViaCepPort;
 import io.github.dudupuci.appdespesas.application.responses.cep.ViaCepResponse;
+import io.github.dudupuci.appdespesas.application.services.webservices.dtos.response.ViaCepResponseDto;
 import io.github.dudupuci.appdespesas.application.services.webservices.feignclients.ViaCepFeignClient;
-import org.springframework.stereotype.Service;
 
 public class ViaCepService {
 
-    private final ViaCepFeignClient viaCepFeignClient;
+    private final ViaCepPort viaCepPort;
 
-    public ViaCepService(ViaCepFeignClient viaCepFeignClient) {
-        this.viaCepFeignClient = viaCepFeignClient;
+    public ViaCepService(ViaCepPort viaCepPort) {
+        this.viaCepPort = viaCepPort;
     }
 
     public ViaCepResponse buscarEndereco(String cep) {
-        return viaCepFeignClient.buscarEnderecoPorCep(cep);
+        return this.viaCepPort.buscarEnderecoPorCep(cep);
     }
 
 }

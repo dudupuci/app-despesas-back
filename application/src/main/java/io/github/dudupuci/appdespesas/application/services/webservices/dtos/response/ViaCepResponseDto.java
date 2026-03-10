@@ -1,4 +1,4 @@
-package io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.cep;
+package io.github.dudupuci.appdespesas.application.services.webservices.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.dudupuci.appdespesas.application.responses.cep.ViaCepResponse;

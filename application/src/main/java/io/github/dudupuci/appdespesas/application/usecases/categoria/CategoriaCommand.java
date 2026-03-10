@@ -8,9 +8,10 @@ import java.util.UUID;
  * Command para criar ou atualizar uma categoria.
  */
 public record CategoriaCommand(
+        UUID usuarioId,
+        UUID categoriaId, // usado apenas no update
         String nome,
         String descricao,
         TipoMovimentacao tipoMovimentacao,
         UUID corId
 ) {}
-

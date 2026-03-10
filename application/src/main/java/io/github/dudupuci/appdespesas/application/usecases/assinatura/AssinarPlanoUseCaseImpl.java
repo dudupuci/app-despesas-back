@@ -19,33 +19,26 @@ import io.github.dudupuci.appdespesas.domain.exceptions.*;
 import io.github.dudupuci.appdespesas.domain.utils.AppDespesasUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.UUID;
-
 public class AssinarPlanoUseCaseImpl extends AssinarPlanoUseCase {
 
     private final UsuarioService usuarioService;
     private final AssinaturaService assinaturaService;
     private final CobrancaService cobrancaService;
     private final AsaasService asaasService;
-    private final UUID usuarioIdLogado;
-    private final Long assinaturaId;
 
     public AssinarPlanoUseCaseImpl(UsuarioService usuarioService, AssinaturaService assinaturaService,
-                                   CobrancaService cobrancaService, AsaasService asaasService,
-                                   UUID usuarioIdLogado, Long assinaturaId) {
+                                   CobrancaService cobrancaService, AsaasService asaasService) {
         this.usuarioService = usuarioService;
         this.assinaturaService = assinaturaService;
         this.cobrancaService = cobrancaService;
         this.asaasService = asaasService;
-        this.usuarioIdLogado = usuarioIdLogado;
-        this.assinaturaId = assinaturaId;
     }
 
     @Override
     public ObterQrCodePixResponseDto executar(AssinarAssinaturaCommand cmd) {
         if (cmd == null) throw new FormularioNaoPreenchidoException("Dados não preenchidos para realizar assinatura.");
 
-        UsuarioSistema usuarioLogado = usuarioService.buscarPorId(usuarioIdLogado);
+        UsuarioSistema usuarioLogado = usuarioService.buscarPorId(cmd.usuarioIdLogado());
         UsuarioSistema usuarioBeneficiario;
 
         if (cmd.assinaturaParaOutraPessoa()) {
@@ -60,11 +53,11 @@ public class AssinarPlanoUseCaseImpl extends AssinarPlanoUseCase {
         }
 
         if (AppDespesasUtils.isEntidadeNotNull(usuarioBeneficiario.getAssinatura())
-                && usuarioBeneficiario.getAssinatura().getId().equals(assinaturaId)) {
+                && usuarioBeneficiario.getAssinatura().getId().equals(cmd.assinaturaId())) {
             throw new UsuarioJaTemEssaAssinaturaException("Este usuário já possui essa assinatura ativa.");
         }
 
-        Assinatura assinatura = assinaturaService.buscarAssinaturaPorId(assinaturaId);
+        Assinatura assinatura = assinaturaService.buscarAssinaturaPorId(cmd.assinaturaId());
 
         if (StringUtils.isEmpty(usuarioLogado.getAsaasCustomerId())) {
             if (!cmd.assinaturaParaOutraPessoa() && StringUtils.isEmpty(cmd.cpfCnpj())) {
@@ -104,4 +97,3 @@ public class AssinarPlanoUseCaseImpl extends AssinarPlanoUseCase {
                 usuarioBeneficiario.getId(), usuarioBeneficiario.getContato().getEmail());
     }
 }
-

@@ -1,8 +1,7 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
-import io.github.dudupuci.appdespesas.application.ports.repositories.CompromissoRepositoryPort;
 import io.github.dudupuci.appdespesas.application.services.CompromissoService;
-import io.github.dudupuci.appdespesas.application.services.UsuarioService;
+import io.github.dudupuci.appdespesas.application.usecases.base.DeleteCommand;
 import io.github.dudupuci.appdespesas.application.usecases.compromisso.*;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.compromisso.CriarCompromissoRequestDto;
@@ -25,16 +24,22 @@ import java.util.UUID;
 @PreAuthorize("hasRole('USER')")
 public class UserCompromissoController {
 
-    private final CompromissoRepositoryPort compromissoRepository;
+    private final CriarCompromissoUseCase criarCompromissoUseCase;
+    private final AtualizarCompromissoUseCase atualizarCompromissoUseCase;
+    private final ConcluirCompromissoUseCase concluirCompromissoUseCase;
+    private final DeletarCompromissoUseCase deletarCompromissoUseCase;
     private final CompromissoService compromissoService;
-    private final UsuarioService usuarioService;
 
-    public UserCompromissoController(CompromissoRepositoryPort compromissoRepository,
-                                     CompromissoService compromissoService,
-                                     UsuarioService usuarioService) {
-        this.compromissoRepository = compromissoRepository;
+    public UserCompromissoController(CriarCompromissoUseCase criarCompromissoUseCase,
+                                     AtualizarCompromissoUseCase atualizarCompromissoUseCase,
+                                     ConcluirCompromissoUseCase concluirCompromissoUseCase,
+                                     DeletarCompromissoUseCase deletarCompromissoUseCase,
+                                     CompromissoService compromissoService) {
+        this.criarCompromissoUseCase = criarCompromissoUseCase;
+        this.atualizarCompromissoUseCase = atualizarCompromissoUseCase;
+        this.concluirCompromissoUseCase = concluirCompromissoUseCase;
+        this.deletarCompromissoUseCase = deletarCompromissoUseCase;
         this.compromissoService = compromissoService;
-        this.usuarioService = usuarioService;
     }
 
     /**
@@ -43,8 +48,7 @@ public class UserCompromissoController {
     @PostMapping
     public ResponseEntity<CompromissoCriadoResponseDto> criar(@Valid @RequestBody CriarCompromissoRequestDto dto) {
         UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
-        Compromisso criado = new CriarCompromissoUseCaseImpl(compromissoRepository, usuarioService, usuarioId)
-                .executar(dto.toCommand());
+        Compromisso criado = criarCompromissoUseCase.executar(dto.toCommand(usuarioId, null));
         return ResponseEntity.created(URI.create("/compromissos/" + criado.getId()))
                 .body(CompromissoCriadoResponseDto.fromEntityCriado(criado));
     }
@@ -85,10 +89,10 @@ public class UserCompromissoController {
      * Atualizar compromisso
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Compromisso> atualizar(@PathVariable UUID id, @Valid @RequestBody CriarCompromissoRequestDto dto) {
+    public ResponseEntity<Compromisso> atualizar(@PathVariable UUID id,
+                                                 @Valid @RequestBody CriarCompromissoRequestDto dto) {
         UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
-        return ResponseEntity.ok(new AtualizarCompromissoUseCaseImpl(compromissoRepository, compromissoService, id, usuarioId)
-                .executar(dto.toCommand()));
+        return ResponseEntity.ok(atualizarCompromissoUseCase.executar(dto.toCommand(usuarioId, id)));
     }
 
     /**
@@ -96,8 +100,8 @@ public class UserCompromissoController {
      */
     @PatchMapping("/{id}/concluir")
     public ResponseEntity<Void> concluir(@PathVariable UUID id) {
-        new ConcluirCompromissoUseCaseImpl(compromissoRepository, compromissoService, SecurityUtils.getUsuarioAutenticadoId())
-                .executar(id);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        concluirCompromissoUseCase.executar(new DeleteCommand(usuarioId, id));
         return ResponseEntity.noContent().build();
     }
 
@@ -106,8 +110,8 @@ public class UserCompromissoController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable UUID id) {
-        new DeletarCompromissoUseCaseImpl(compromissoRepository, compromissoService, SecurityUtils.getUsuarioAutenticadoId())
-                .executar(id);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        deletarCompromissoUseCase.executar(new DeleteCommand(usuarioId, id));
         return ResponseEntity.noContent().build();
     }
 }

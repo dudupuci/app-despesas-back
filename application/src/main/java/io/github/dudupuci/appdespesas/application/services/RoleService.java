@@ -3,7 +3,6 @@ package io.github.dudupuci.appdespesas.application.services;
 import io.github.dudupuci.appdespesas.application.ports.repositories.RoleRepositoryPort;
 import io.github.dudupuci.appdespesas.application.usecases.role.CriarRoleCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Role;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

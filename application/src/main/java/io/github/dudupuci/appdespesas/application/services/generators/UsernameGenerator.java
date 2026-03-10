@@ -2,9 +2,7 @@ package io.github.dudupuci.appdespesas.application.services.generators;
 
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.application.services.UsuarioService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class UsernameGenerator {
 
     private final UsuarioService usuarioService;
