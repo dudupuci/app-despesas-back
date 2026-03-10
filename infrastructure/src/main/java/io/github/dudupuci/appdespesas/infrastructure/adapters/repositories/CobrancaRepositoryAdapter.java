@@ -2,8 +2,8 @@ package io.github.dudupuci.appdespesas.infrastructure.adapters.repositories;
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.CobrancaRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.entities.Cobranca;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaCobranca;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CobrancaRepository;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.CobrancaJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.CobrancaJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,16 +14,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CobrancaRepositoryAdapter implements CobrancaRepositoryPort {
 
-    private final CobrancaRepository jpaRepository;
+    private final CobrancaJpaRepository jpaRepository;
 
     @Override
     public Cobranca save(Cobranca cobranca) {
-        JpaCobranca jpa = JpaCobranca.fromEntity(cobranca);
+        CobrancaJpaEntity jpa = CobrancaJpaEntity.fromEntity(cobranca);
 
         if (cobranca.getId() != null) {
-            Optional<JpaCobranca> existing = jpaRepository.findById(cobranca.getId());
+            Optional<CobrancaJpaEntity> existing = jpaRepository.findById(cobranca.getId());
             if (existing.isPresent()) {
-                JpaCobranca existingEntity = existing.get();
+                CobrancaJpaEntity existingEntity = existing.get();
                 existingEntity.updateFromEntity(cobranca);
                 jpa = existingEntity;
             }
@@ -34,12 +34,12 @@ public class CobrancaRepositoryAdapter implements CobrancaRepositoryPort {
 
     @Override
     public Optional<Cobranca> findById(UUID id) {
-        return jpaRepository.findById(id).map(JpaCobranca::toEntity);
+        return jpaRepository.findById(id).map(CobrancaJpaEntity::toEntity);
     }
 
     @Override
     public Optional<Cobranca> findByAsaasCobrancaId(String asaasCobrancaId) {
-        return jpaRepository.findByAsaasCobrancaId(asaasCobrancaId).map(JpaCobranca::toEntity);
+        return jpaRepository.findByAsaasCobrancaId(asaasCobrancaId).map(CobrancaJpaEntity::toEntity);
     }
 
     @Override

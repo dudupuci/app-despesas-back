@@ -3,9 +3,9 @@ package io.github.dudupuci.appdespesas.infrastructure.adapters.repositories;
 import io.github.dudupuci.appdespesas.application.ports.repositories.CompromissoRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.entities.Compromisso;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaCompromisso;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaUsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CompromissoRepository;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.CompromissoJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.UsuarioSistemaJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.CompromissoJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,23 +19,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CompromissoRepositoryAdapter implements CompromissoRepositoryPort {
 
-    private final CompromissoRepository jpaRepository;
+    private final CompromissoJpaRepository jpaRepository;
 
     @Override
     public Compromisso save(Compromisso compromisso) {
-        JpaCompromisso jpa = JpaCompromisso.fromEntity(compromisso);
+        CompromissoJpaEntity jpa = CompromissoJpaEntity.fromEntity(compromisso);
 
         if (compromisso.getId() != null) {
-            Optional<JpaCompromisso> existing = jpaRepository.findById(compromisso.getId());
+            Optional<CompromissoJpaEntity> existing = jpaRepository.findById(compromisso.getId());
             if (existing.isPresent()) {
-                JpaCompromisso existingEntity = existing.get();
+                CompromissoJpaEntity existingEntity = existing.get();
                 existingEntity.updateFromEntity(compromisso);
                 jpa = existingEntity;
             }
         }
 
         if (compromisso.getUsuarioSistema() != null) {
-            jpa.setUsuarioSistema(JpaUsuarioSistema.fromEntity(compromisso.getUsuarioSistema()));
+            jpa.setUsuarioSistema(UsuarioSistemaJpaEntity.fromEntity(compromisso.getUsuarioSistema()));
         }
 
         return jpaRepository.save(jpa).toEntity();
@@ -43,35 +43,35 @@ public class CompromissoRepositoryAdapter implements CompromissoRepositoryPort {
 
     @Override
     public Optional<Compromisso> findById(UUID id) {
-        return jpaRepository.findById(id).map(JpaCompromisso::toEntity);
+        return jpaRepository.findById(id).map(CompromissoJpaEntity::toEntity);
     }
 
     @Override
     public List<Compromisso> findByUsuarioSistema(UsuarioSistema usuarioSistema) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuarioSistema);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuarioSistema);
         return jpaRepository.findByUsuarioSistema(jpaUsuario).stream()
-                .map(JpaCompromisso::toEntity).collect(Collectors.toList());
+                .map(CompromissoJpaEntity::toEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<Compromisso> findByUsuarioAndPeriodo(UsuarioSistema usuario, Date dataInicio, Date dataFim) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuario);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuario);
         return jpaRepository.findByUsuarioAndPeriodo(jpaUsuario, dataInicio, dataFim).stream()
-                .map(JpaCompromisso::toEntity).collect(Collectors.toList());
+                .map(CompromissoJpaEntity::toEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<Compromisso> findByUsuarioAndConcluido(UsuarioSistema usuario, Boolean concluido) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuario);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuario);
         return jpaRepository.findByUsuarioAndConcluido(jpaUsuario, concluido).stream()
-                .map(JpaCompromisso::toEntity).collect(Collectors.toList());
+                .map(CompromissoJpaEntity::toEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<Compromisso> findByUsuarioAndData(UsuarioSistema usuario, Date data) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuario);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuario);
         return jpaRepository.findByUsuarioAndData(jpaUsuario, data).stream()
-                .map(JpaCompromisso::toEntity).collect(Collectors.toList());
+                .map(CompromissoJpaEntity::toEntity).collect(Collectors.toList());
     }
 
     @Override

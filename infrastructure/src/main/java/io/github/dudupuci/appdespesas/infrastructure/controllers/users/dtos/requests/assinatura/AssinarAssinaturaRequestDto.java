@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.assinatura;
 
-import io.github.dudupuci.appdespesas.application.commands.assinatura.AssinarAssinaturaCommand;
+import io.github.dudupuci.appdespesas.application.usecases.assinatura.AssinarAssinaturaCommand;
 import io.github.dudupuci.appdespesas.domain.annotations.CpfOuCnpj;
 import io.github.dudupuci.appdespesas.domain.enums.BillingType;
 import jakarta.validation.constraints.Email;

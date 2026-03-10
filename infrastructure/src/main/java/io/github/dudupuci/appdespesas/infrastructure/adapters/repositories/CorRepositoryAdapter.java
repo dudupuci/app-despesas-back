@@ -3,11 +3,12 @@ package io.github.dudupuci.appdespesas.infrastructure.adapters.repositories;
 import io.github.dudupuci.appdespesas.application.ports.repositories.CorRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaCor;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaUsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CorRepository;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.CorJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.UsuarioSistemaJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.CorJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,77 +19,78 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CorRepositoryAdapter implements CorRepositoryPort {
 
-    private final CorRepository jpaRepository;
+    private final CorJpaRepository jpaRepository;
 
+    @Transactional
     @Override
     public Cor save(Cor cor) {
-        JpaCor jpaCor = JpaCor.fromEntity(cor);
+        CorJpaEntity corJpaEntity = CorJpaEntity.fromEntity(cor);
 
         if (cor.getId() != null) {
-            Optional<JpaCor> existing = jpaRepository.findById(cor.getId());
+            Optional<CorJpaEntity> existing = jpaRepository.findById(cor.getId());
             if (existing.isPresent()) {
-                JpaCor existingEntity = existing.get();
+                CorJpaEntity existingEntity = existing.get();
                 existingEntity.updateFromEntity(cor);
-                jpaCor = existingEntity;
+                corJpaEntity = existingEntity;
             }
         }
 
         // Setar usuario JPA se existir
         if (cor.getUsuarioSistema() != null && cor.getUsuarioSistema().getId() != null) {
-            JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(cor.getUsuarioSistema());
-            jpaCor.setUsuarioSistema(jpaUsuario);
+            UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(cor.getUsuarioSistema());
+            corJpaEntity.setUsuarioSistema(jpaUsuario);
         }
 
-        JpaCor saved = jpaRepository.save(jpaCor);
+        CorJpaEntity saved = jpaRepository.save(corJpaEntity);
         return saved.toEntity();
     }
 
     @Override
     public Optional<Cor> findById(UUID id) {
-        return jpaRepository.findById(id).map(JpaCor::toEntity);
+        return jpaRepository.findById(id).map(CorJpaEntity::toEntity);
     }
 
     @Override
     public List<Cor> findByUsuarioSistema(UsuarioSistema usuarioSistema) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuarioSistema);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuarioSistema);
         return jpaRepository.findByUsuarioSistema(jpaUsuario).stream()
-                .map(JpaCor::toEntity).collect(Collectors.toList());
+                .map(CorJpaEntity::toEntity).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Cor> findByNome(String nome) {
-        return jpaRepository.findByNome(nome).map(JpaCor::toEntity);
+        return jpaRepository.findByNome(nome).map(CorJpaEntity::toEntity);
     }
 
     @Override
     public List<Cor> listarTodasPorUsuarioId(UUID usuarioId) {
         return jpaRepository.listarTodasPorUsuarioId(usuarioId).stream()
-                .map(JpaCor::toEntity).collect(Collectors.toList());
+                .map(CorJpaEntity::toEntity).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Cor> findByIdAndUsuarioSistema(UUID id, UsuarioSistema usuarioSistema) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuarioSistema);
-        return jpaRepository.findByIdAndUsuarioSistema(id, jpaUsuario).map(JpaCor::toEntity);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuarioSistema);
+        return jpaRepository.findByIdAndUsuarioSistema(id, jpaUsuario).map(CorJpaEntity::toEntity);
     }
 
     @Override
     public boolean existsByNomeAndUsuarioSistema(String nome, UsuarioSistema usuarioSistema) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuarioSistema);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuarioSistema);
         return jpaRepository.existsByNomeAndUsuarioSistema(nome, jpaUsuario);
     }
 
     @Override
     public boolean existsByCodigoHexadecimalAndUsuarioSistema(String codigoHexadecimal, UsuarioSistema usuarioSistema) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuarioSistema);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuarioSistema);
         return jpaRepository.existsByCodigoHexadecimalAndUsuarioSistema(codigoHexadecimal, jpaUsuario);
     }
 
     @Override
     public List<Cor> findByUsuarioSistemaAndNomeContainingIgnoreCase(UsuarioSistema usuarioSistema, String nome) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuarioSistema);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuarioSistema);
         return jpaRepository.findByUsuarioSistemaAndNomeContainingIgnoreCase(jpaUsuario, nome).stream()
-                .map(JpaCor::toEntity).collect(Collectors.toList());
+                .map(CorJpaEntity::toEntity).collect(Collectors.toList());
     }
 
     @Override

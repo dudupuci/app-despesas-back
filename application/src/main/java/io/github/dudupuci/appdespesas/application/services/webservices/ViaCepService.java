@@ -4,7 +4,6 @@ import io.github.dudupuci.appdespesas.application.responses.cep.ViaCepResponse;
 import io.github.dudupuci.appdespesas.application.services.webservices.feignclients.ViaCepFeignClient;
 import org.springframework.stereotype.Service;
 
-@Service
 public class ViaCepService {
 
     private final ViaCepFeignClient viaCepFeignClient;

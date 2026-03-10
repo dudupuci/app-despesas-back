@@ -3,8 +3,8 @@ package io.github.dudupuci.appdespesas.infrastructure.adapters.repositories;
 import io.github.dudupuci.appdespesas.application.ports.repositories.NotificacaoRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.entities.NotificacaoEmail;
 import io.github.dudupuci.appdespesas.domain.entities.base.Notificacao;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaNotificacaoEmail;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.NotificacaoRepository;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.NotificacaoEmailJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.NotificacaoJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +15,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NotificacaoRepositoryAdapter implements NotificacaoRepositoryPort {
 
-    private final NotificacaoRepository jpaRepository;
+    private final NotificacaoJpaRepository jpaRepository;
 
     @Override
     public Notificacao save(Notificacao notificacao) {
         if (notificacao instanceof NotificacaoEmail notificacaoEmail) {
-            JpaNotificacaoEmail jpa = JpaNotificacaoEmail.fromEntity(notificacaoEmail);
+            NotificacaoEmailJpaEntity jpa = NotificacaoEmailJpaEntity.fromEntity(notificacaoEmail);
             return jpaRepository.save(jpa).toEntity();
         }
         throw new IllegalArgumentException("Tipo de notificação não suportado: " + notificacao.getClass().getSimpleName());
@@ -28,7 +28,7 @@ public class NotificacaoRepositoryAdapter implements NotificacaoRepositoryPort {
 
     @Override
     public Optional<Notificacao> findById(UUID id) {
-        return jpaRepository.findById(id).map(JpaNotificacaoEmail::toEntity);
+        return jpaRepository.findById(id).map(NotificacaoEmailJpaEntity::toEntity);
     }
 }
 

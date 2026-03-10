@@ -14,11 +14,9 @@ import java.util.UUID;
 public class AssinaturaService {
 
     private final AssinaturaRepositoryPort assinaturaRepository;
-    private final UsuarioService usuarioService;
 
-    public AssinaturaService(AssinaturaRepositoryPort assinaturaRepository, UsuarioService usuarioService) {
+    public AssinaturaService(AssinaturaRepositoryPort assinaturaRepository) {
         this.assinaturaRepository = assinaturaRepository;
-        this.usuarioService = usuarioService;
     }
 
     public List<Assinatura> listarAssinaturas() {

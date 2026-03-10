@@ -4,9 +4,9 @@ import io.github.dudupuci.appdespesas.application.ports.repositories.CategoriaRe
 import io.github.dudupuci.appdespesas.domain.entities.Categoria;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaCategoria;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaUsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.CategoriasRepository;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.CategoriaJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.UsuarioSistemaJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.CategoriaJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,56 +22,56 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CategoriaRepositoryAdapter implements CategoriaRepositoryPort {
 
-    private final CategoriasRepository jpaRepository;
+    private final CategoriaJpaRepository jpaRepository;
 
     @Override
     public Categoria save(Categoria categoria) {
-        JpaCategoria jpaCategoria = JpaCategoria.fromEntity(categoria);
+        CategoriaJpaEntity categoriaJpaEntity = CategoriaJpaEntity.fromEntity(categoria);
 
         if (categoria.getId() != null) {
-            Optional<JpaCategoria> existing = jpaRepository.findById(categoria.getId());
+            Optional<CategoriaJpaEntity> existing = jpaRepository.findById(categoria.getId());
             if (existing.isPresent()) {
-                JpaCategoria existingEntity = existing.get();
+                CategoriaJpaEntity existingEntity = existing.get();
                 existingEntity.updateFromEntity(categoria);
-                jpaCategoria = existingEntity;
+                categoriaJpaEntity = existingEntity;
             }
         }
 
-        JpaCategoria saved = jpaRepository.save(jpaCategoria);
+        CategoriaJpaEntity saved = jpaRepository.save(categoriaJpaEntity);
         return saved.toEntity();
     }
 
     @Override
     public Optional<Categoria> findById(UUID id) {
         return jpaRepository.findById(id)
-                .map(JpaCategoria::toEntity);
+                .map(CategoriaJpaEntity::toEntity);
     }
 
     @Override
     public List<Categoria> listarCategoriasBySearch(String search) {
         return jpaRepository.listarCategoriasBySearch(search).stream()
-                .map(JpaCategoria::toEntity)
+                .map(CategoriaJpaEntity::toEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Categoria> listarTodasPorUsuarioId(UUID usuarioId, TipoMovimentacao tipoMovimentacao) {
         return jpaRepository.listarTodasPorUsuarioId(usuarioId, tipoMovimentacao).stream()
-                .map(JpaCategoria::toEntity)
+                .map(CategoriaJpaEntity::toEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Optional<Categoria> buscarPorNome(String nome) {
         return jpaRepository.buscarPorNome(nome)
-                .map(JpaCategoria::toEntity);
+                .map(CategoriaJpaEntity::toEntity);
     }
 
     @Override
     public Categoria buscarPorNomeEUsuario(String nome, UsuarioSistema usuarioSistema) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuarioSistema);
-        JpaCategoria jpaCategoria = jpaRepository.buscarPorNomeEUsuario(nome, jpaUsuario);
-        return jpaCategoria != null ? jpaCategoria.toEntity() : null;
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuarioSistema);
+        CategoriaJpaEntity categoriaJpaEntity = jpaRepository.buscarPorNomeEUsuario(nome, jpaUsuario);
+        return categoriaJpaEntity != null ? categoriaJpaEntity.toEntity() : null;
     }
 
     @Override

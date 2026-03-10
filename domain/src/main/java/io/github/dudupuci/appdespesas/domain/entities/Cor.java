@@ -16,7 +16,7 @@ public class Cor extends EntidadeUuid {
     private String nome;
     private String codigoHexadecimal;
 
-    @JsonIgnore
+    //@JsonIgnore
     private UsuarioSistema usuarioSistema;
 
     private Boolean isVisivel = true;

@@ -1,6 +1,7 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.admin.dtos.request.role;
 
-import io.github.dudupuci.appdespesas.application.commands.role.CriarRoleCommand;
+
+import io.github.dudupuci.appdespesas.application.usecases.role.CriarRoleCommand;
 import jakarta.validation.constraints.NotBlank;
 
 public record CriarRoleRequestDto(

@@ -19,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class UsuarioSistemaConfig extends EntidadeUuid {
 
-    @JsonIgnore
+    //@JsonIgnore
     private UsuarioSistema usuarioSistema;
 
     private Set<CanalNotificacao> canaisNotificacao = new HashSet<>();

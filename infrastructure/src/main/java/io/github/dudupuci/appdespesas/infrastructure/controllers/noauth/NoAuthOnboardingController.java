@@ -2,7 +2,9 @@ package io.github.dudupuci.appdespesas.infrastructure.controllers.noauth;
 
 import io.github.dudupuci.appdespesas.application.responses.auth.AuthResult;
 import io.github.dudupuci.appdespesas.application.responses.auth.RefreshTokenResult;
-import io.github.dudupuci.appdespesas.application.services.AuthService;
+import io.github.dudupuci.appdespesas.application.usecases.auth.LoginUseCase;
+import io.github.dudupuci.appdespesas.application.usecases.auth.RefreshTokenUseCase;
+import io.github.dudupuci.appdespesas.application.usecases.auth.RegistrarUsuarioUseCase;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.request.login.LoginRequestDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.request.registro.RegistroRequestDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.login.LoginResponseDto;
@@ -16,28 +18,36 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/public/auth")
 public class NoAuthOnboardingController {
 
-    private final AuthService authService;
+    private final RegistrarUsuarioUseCase registrarUsuarioUseCase;
+    private final LoginUseCase loginUseCase;
+    private final RefreshTokenUseCase refreshTokenUseCase;
 
-    public NoAuthOnboardingController(AuthService authService) {
-        this.authService = authService;
+    public NoAuthOnboardingController(
+            RegistrarUsuarioUseCase registrarUsuarioUseCase,
+            LoginUseCase loginUseCase,
+            RefreshTokenUseCase refreshTokenUseCase
+    ) {
+        this.registrarUsuarioUseCase = registrarUsuarioUseCase;
+        this.loginUseCase = loginUseCase;
+        this.refreshTokenUseCase = refreshTokenUseCase;
     }
 
     @PostMapping("/registro")
     public ResponseEntity<LoginResponseDto> registrar(@Valid @RequestBody RegistroRequestDto dto) {
-        AuthResult result = authService.registrar(dto.toCommand());
+        AuthResult result = registrarUsuarioUseCase.executar(dto.toCommand());
         return ResponseEntity.status(HttpStatus.CREATED).body(LoginResponseDto.fromResultRegistro(result));
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto dto) {
-        AuthResult result = authService.login(dto.toCommand());
+        AuthResult result = loginUseCase.executar(dto.toCommand());
         return ResponseEntity.ok(LoginResponseDto.fromResultLogin(result));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<RefreshTokenResponseDto> refresh(@RequestHeader("Authorization") String authHeader) {
         String refreshToken = authHeader.substring(7);
-        RefreshTokenResult result = authService.refreshToken(refreshToken);
+        RefreshTokenResult result = refreshTokenUseCase.executar(refreshToken);
         return ResponseEntity.ok(RefreshTokenResponseDto.fromResult(result));
     }
 }

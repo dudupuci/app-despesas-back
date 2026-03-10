@@ -1,15 +1,16 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
 import io.github.dudupuci.appdespesas.application.responses.assinatura.CheckoutAssinaturaResult;
+import io.github.dudupuci.appdespesas.application.services.AssinaturaService;
+import io.github.dudupuci.appdespesas.application.services.CobrancaService;
+import io.github.dudupuci.appdespesas.application.services.UsuarioService;
+import io.github.dudupuci.appdespesas.application.services.webservices.AsaasService;
+import io.github.dudupuci.appdespesas.application.services.webservices.dtos.response.ObterQrCodePixResponseDto;
+import io.github.dudupuci.appdespesas.application.usecases.assinatura.*;
+import io.github.dudupuci.appdespesas.domain.entities.Assinatura;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.noauth.dtos.response.assinatura.AssinaturaResponseDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.assinatura.AssinarAssinaturaRequestDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.assinatura.CheckoutAssinaturaResponseDto;
-import io.github.dudupuci.appdespesas.domain.entities.Assinatura;
-import io.github.dudupuci.appdespesas.application.usecases.AssinarPlanoUseCase;
-import io.github.dudupuci.appdespesas.application.usecases.BuscarAssinaturaUsuarioUseCase;
-import io.github.dudupuci.appdespesas.application.usecases.BuscarOutrasAssinaturasUsuarioUseCase;
-import io.github.dudupuci.appdespesas.application.usecases.PrepararAssinaturaPlanoUseCase;
-import io.github.dudupuci.appdespesas.application.services.webservices.dtos.response.ObterQrCodePixResponseDto;
 import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -24,22 +25,30 @@ import java.util.UUID;
 @PreAuthorize("hasAnyRole('USER')")
 public class UserAssinaturaController {
 
-    private final PrepararAssinaturaPlanoUseCase prepararAssinaturaUseCase;
-    private final AssinarPlanoUseCase assinarPlanoUseCase;
-    private final BuscarAssinaturaUsuarioUseCase buscarAssinaturaUsuarioIdUseCase;
-    private final BuscarOutrasAssinaturasUsuarioUseCase buscarOutrasAssinaturasByUsuarioId;
+    // Injetados pois não têm contexto de requisição
+    private final BuscarAssinaturaUsuarioUseCase buscarAssinaturaUsuarioUseCase;
+    private final BuscarOutrasAssinaturasUsuarioUseCase buscarOutrasAssinaturasUseCase;
+
+    // Injetados para montar os contextuais nos endpoints
+    private final UsuarioService usuarioService;
+    private final AssinaturaService assinaturaService;
+    private final CobrancaService cobrancaService;
+    private final AsaasService asaasService;
 
     public UserAssinaturaController(
-            PrepararAssinaturaPlanoUseCase prepararAssinaturaUseCase,
-            AssinarPlanoUseCase assinarPlanoUseCase,
-            BuscarAssinaturaUsuarioUseCase buscarAssinaturaByUsuarioIdUseCase,
-            BuscarAssinaturaUsuarioUseCase buscarAssinaturaUsuarioIdUseCase,
-            BuscarOutrasAssinaturasUsuarioUseCase buscarOutrasAssinaturasByUsuarioId
+            BuscarAssinaturaUsuarioUseCase buscarAssinaturaUsuarioUseCase,
+            BuscarOutrasAssinaturasUsuarioUseCase buscarOutrasAssinaturasUseCase,
+            UsuarioService usuarioService,
+            AssinaturaService assinaturaService,
+            CobrancaService cobrancaService,
+            AsaasService asaasService
     ) {
-        this.prepararAssinaturaUseCase = prepararAssinaturaUseCase;
-        this.assinarPlanoUseCase = assinarPlanoUseCase;
-        this.buscarAssinaturaUsuarioIdUseCase = buscarAssinaturaUsuarioIdUseCase;
-        this.buscarOutrasAssinaturasByUsuarioId = buscarOutrasAssinaturasByUsuarioId;
+        this.buscarAssinaturaUsuarioUseCase = buscarAssinaturaUsuarioUseCase;
+        this.buscarOutrasAssinaturasUseCase = buscarOutrasAssinaturasUseCase;
+        this.usuarioService = usuarioService;
+        this.assinaturaService = assinaturaService;
+        this.cobrancaService = cobrancaService;
+        this.asaasService = asaasService;
     }
 
     /**
@@ -56,10 +65,10 @@ public class UserAssinaturaController {
     public ResponseEntity<CheckoutAssinaturaResponseDto> prepararAssinatura(
             @PathVariable Long assinaturaId
     ) {
-        UUID usuarioIdLogado = getUsuarioAutenticadoId();
-        CheckoutAssinaturaResult result = prepararAssinaturaUseCase.executar(usuarioIdLogado, assinaturaId);
-        CheckoutAssinaturaResponseDto response = CheckoutAssinaturaResponseDto.fromResult(result);
-        return ResponseEntity.ok(response);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        CheckoutAssinaturaResult result = new PrepararAssinaturaPlanoUseCaseImpl(usuarioService, assinaturaService, usuarioId)
+                .executar(assinaturaId);
+        return ResponseEntity.ok(CheckoutAssinaturaResponseDto.fromResult(result));
     }
 
     /**
@@ -78,42 +87,24 @@ public class UserAssinaturaController {
             @Valid @RequestBody AssinarAssinaturaRequestDto assinaturaRequestDto,
             @PathVariable Long assinaturaId
     ) {
-        UUID usuarioIdLogado = getUsuarioAutenticadoId();
-
-        ObterQrCodePixResponseDto obterQrCodePixResponse = assinarPlanoUseCase.executar(
-                assinaturaRequestDto.toCommand(),
-                usuarioIdLogado,
-                assinaturaId
-        );
-
-        return ResponseEntity.ok().body(obterQrCodePixResponse);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        ObterQrCodePixResponseDto response = new AssinarPlanoUseCaseImpl(
+                usuarioService, assinaturaService, cobrancaService, asaasService, usuarioId, assinaturaId)
+                .executar(assinaturaRequestDto.toCommand());
+        return ResponseEntity.ok(response);
     }
 
 
     @GetMapping("/minha-assinatura")
     public ResponseEntity<AssinaturaResponseDto> listarMinhaAssinatura() {
-        UUID usuarioIdLogado = getUsuarioAutenticadoId();
-
-        Assinatura assinatura = buscarAssinaturaUsuarioIdUseCase.executar(usuarioIdLogado);
+        Assinatura assinatura = buscarAssinaturaUsuarioUseCase.executar(SecurityUtils.getUsuarioAutenticadoId());
         return ResponseEntity.ok(AssinaturaResponseDto.fromEntity(assinatura));
     }
 
 
     @GetMapping("/outras-assinaturas")
     public ResponseEntity<List<AssinaturaResponseDto>> listarOutrasAssinaturas() {
-        UUID usuarioIdLogado = getUsuarioAutenticadoId();
-        List<Assinatura> outrasAssinaturas = buscarOutrasAssinaturasByUsuarioId.executar(usuarioIdLogado);
-
-        List<AssinaturaResponseDto> responseDtos = outrasAssinaturas
-                .stream()
-                .map(AssinaturaResponseDto::fromEntity)
-                .toList();
-
-        return ResponseEntity.ok(responseDtos);
-
-    }
-
-    private UUID getUsuarioAutenticadoId() {
-        return SecurityUtils.getUsuarioAutenticadoId();
+        List<Assinatura> outras = buscarOutrasAssinaturasUseCase.executar(SecurityUtils.getUsuarioAutenticadoId());
+        return ResponseEntity.ok(outras.stream().map(AssinaturaResponseDto::fromEntity).toList());
     }
 }

@@ -1,14 +1,12 @@
 package io.github.dudupuci.appdespesas.application.services;
 
-import io.github.dudupuci.appdespesas.application.commands.role.CriarRoleCommand;
 import io.github.dudupuci.appdespesas.application.ports.repositories.RoleRepositoryPort;
+import io.github.dudupuci.appdespesas.application.usecases.role.CriarRoleCommand;
 import io.github.dudupuci.appdespesas.domain.entities.Role;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class RoleService {
 
     private final RoleRepositoryPort rolesRepository;
@@ -17,7 +15,6 @@ public class RoleService {
         this.rolesRepository = rolesRepository;
     }
 
-    @Transactional
     public Role criarRoleIfNaoExistir(CriarRoleCommand cmd) {
         Role role = rolesRepository.buscarPorNome(cmd.nome());
         if (role == null) {

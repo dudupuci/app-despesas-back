@@ -1,10 +1,15 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
-import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.movimentacao.CriarMovimentacaoRequestDto;
-import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.movimentacao.MovimentacaoCriadaResponseDto;
+import io.github.dudupuci.appdespesas.application.ports.repositories.MovimentacaoRepositoryPort;
+import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
+import io.github.dudupuci.appdespesas.application.services.CategoriaService;
+import io.github.dudupuci.appdespesas.application.services.MovimentacaoService;
+import io.github.dudupuci.appdespesas.application.usecases.movimentacao.CriarMovimentacaoUseCaseImpl;
+import io.github.dudupuci.appdespesas.application.usecases.movimentacao.DeletarMovimentacaoUseCaseImpl;
 import io.github.dudupuci.appdespesas.domain.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
-import io.github.dudupuci.appdespesas.application.services.MovimentacaoService;
+import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.movimentacao.CriarMovimentacaoRequestDto;
+import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.movimentacao.MovimentacaoCriadaResponseDto;
 import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -21,53 +26,46 @@ import java.util.UUID;
 @PreAuthorize("hasRole('USER')")
 public class UserMovimentacaoController {
 
-    private final MovimentacaoService service;
+    private final MovimentacaoRepositoryPort movimentacaoRepository;
+    private final CategoriaService categoriaService;
+    private final UsuarioRepositoryPort usuariosRepository;
+    private final MovimentacaoService movimentacaoService;
 
-    public UserMovimentacaoController(MovimentacaoService service) {
-        this.service = service;
+    public UserMovimentacaoController(MovimentacaoRepositoryPort movimentacaoRepository,
+                                      CategoriaService categoriaService,
+                                      UsuarioRepositoryPort usuariosRepository,
+                                      MovimentacaoService movimentacaoService) {
+        this.movimentacaoRepository = movimentacaoRepository;
+        this.categoriaService = categoriaService;
+        this.usuariosRepository = usuariosRepository;
+        this.movimentacaoService = movimentacaoService;
     }
 
     @PostMapping
     public ResponseEntity<MovimentacaoCriadaResponseDto> create(@RequestBody CriarMovimentacaoRequestDto dto) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        Movimentacao movimentacao = service.criarMovimentacao(dto.toCommand(), usuarioId);
-        MovimentacaoCriadaResponseDto responseDto = MovimentacaoCriadaResponseDto.fromEntityCriada(movimentacao);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        Movimentacao movimentacao = new CriarMovimentacaoUseCaseImpl(movimentacaoRepository, categoriaService, usuariosRepository, usuarioId)
+                .executar(dto.toCommand());
         return ResponseEntity.created(URI.create("/movimentacoes/" + movimentacao.getId()))
-                .body(responseDto);
+                .body(MovimentacaoCriadaResponseDto.fromEntityCriada(movimentacao));
     }
 
     @GetMapping
     public ResponseEntity<List<Movimentacao>> listarTodas(
             @RequestParam(required = false) TipoMovimentacao tipo,
             @RequestParam(name = "dataInicio", required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date dataInicio,
-            @RequestParam(name = "dataFim", required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date dataFim
-    ) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-
-        List<Movimentacao> movimentacoes = service.listarTodasPorUsuarioId(
-                usuarioId,
-                tipo,
-                dataInicio,
-                dataFim
-        );
-        return ResponseEntity.ok(movimentacoes);
+            @RequestParam(name = "dataFim", required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date dataFim) {
+        return ResponseEntity.ok(movimentacaoService.listarTodasPorUsuarioId(SecurityUtils.getUsuarioAutenticadoId(), tipo, dataInicio, dataFim));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
-        Movimentacao movimentacao = service.buscarPorId(id);
-        return ResponseEntity.ok(movimentacao);
+    public ResponseEntity<Movimentacao> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(movimentacaoService.buscarPorId(id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        this.service.deletar(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        new DeletarMovimentacaoUseCaseImpl(movimentacaoRepository, movimentacaoService).executar(id);
         return ResponseEntity.noContent().build();
-    }
-
-
-    // Obtém o ID do usuário autenticado do token JWT
-    private UUID getUsuarioAutenticadoId() {
-        return SecurityUtils.getUsuarioAutenticadoId();
     }
 }

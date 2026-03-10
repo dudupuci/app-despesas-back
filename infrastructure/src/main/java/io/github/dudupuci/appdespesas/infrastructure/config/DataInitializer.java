@@ -3,9 +3,9 @@ package io.github.dudupuci.appdespesas.infrastructure.config;
 import io.github.dudupuci.appdespesas.domain.entities.Administrador;
 import io.github.dudupuci.appdespesas.domain.entities.Assinatura;
 import io.github.dudupuci.appdespesas.domain.entities.Role;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.AdministradorRepository;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.AssinaturaRepository;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.RoleRepository;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.AdministradorJpaRepository;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.AssinaturaJpaRepository;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.RoleJpaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -33,9 +33,9 @@ public class DataInitializer {
     @Bean
     @Transactional
     public CommandLineRunner initDatabase(
-            AdministradorRepository administradorRepository,
-            RoleRepository roleRepository,
-            AssinaturaRepository assinaturaRepository,
+            AdministradorJpaRepository administradorJpaRepository,
+            RoleJpaRepository roleJpaRepository,
+            AssinaturaJpaRepository assinaturaJpaRepository,
             ApplicationConfig applicationConfig
     ) {
         return args -> {
@@ -49,15 +49,15 @@ public class DataInitializer {
             log.info("🚀 Iniciando criação de dados padrão do sistema...");
 
             // Criar roles padrão
-            createDefaultRoles(roleRepository);
+            createDefaultRoles(roleJpaRepository);
 
             // Criar assinaturas padrão
-            createDefaultAssinaturas(assinaturaRepository);
+            createDefaultAssinaturas(assinaturaJpaRepository);
 
             // Buscar ou criar administrador do sistema
             getOrCreateSuperAdmin(
-                    administradorRepository,
-                    roleRepository,
+                    administradorJpaRepository,
+                    roleJpaRepository,
                     superAdmId,
                     superAdminName,
                     superAdminMiddleName,
@@ -71,30 +71,30 @@ public class DataInitializer {
         };
     }
 
-    private void createDefaultRoles(RoleRepository roleRepository) {
+    private void createDefaultRoles(RoleJpaRepository roleJpaRepository) {
         log.info("🔐 Criando roles padrão...");
-        createRoleIfNotExists(roleRepository, "USER", "Papel de Usuário", 1);
-        createRoleIfNotExists(roleRepository, "ADMIN", "Papel de Administrador", 2);
-        createRoleIfNotExists(roleRepository, "MASTER_ADMIN", "Papel de Administrador Master", 3);
+        createRoleIfNotExists(roleJpaRepository, "USER", "Papel de Usuário", 1);
+        createRoleIfNotExists(roleJpaRepository, "ADMIN", "Papel de Administrador", 2);
+        createRoleIfNotExists(roleJpaRepository, "MASTER_ADMIN", "Papel de Administrador Master", 3);
         log.info("✓ Roles padrão criadas!");
     }
 
-    private void createDefaultAssinaturas(AssinaturaRepository assinaturaRepository) {
+    private void createDefaultAssinaturas(AssinaturaJpaRepository assinaturaJpaRepository) {
         log.info("📄 Verificando assinaturas padrão...");
         for (String plano : ASSINATURAS) {
-            createAssinaturaIfNotExists(assinaturaRepository, plano);
+            createAssinaturaIfNotExists(assinaturaJpaRepository, plano);
         }
         log.info("✓ Assinaturas padrão verificadas/criadas!");
     }
 
 
     private static void createRoleIfNotExists(
-            RoleRepository roleRepository,
+            RoleJpaRepository roleJpaRepository,
             String nome,
             String descricao,
             Integer poder
     ) {
-        Role existente = roleRepository.buscarPorNome(nome);
+        Role existente = roleJpaRepository.buscarPorNome(nome);
 
         if (existente == null) {
             Role role = new Role();
@@ -103,7 +103,7 @@ public class DataInitializer {
             role.setPoder(poder);
             role.setDataCriacao(new Date());
             role.setDataAtualizacao(new Date());
-            roleRepository.save(role);
+            roleJpaRepository.save(role);
             log.info("✓ Role criada: {} (poder: {})", nome, poder);
         } else {
             log.info("- Role já existe: {}", nome);
@@ -111,8 +111,8 @@ public class DataInitializer {
     }
 
     private static void getOrCreateSuperAdmin(
-            AdministradorRepository administradorRepository,
-            RoleRepository roleRepository,
+            AdministradorJpaRepository administradorJpaRepository,
+            RoleJpaRepository roleJpaRepository,
             UUID superAdmId,
             String nome,
             String sobrenome,
@@ -121,7 +121,7 @@ public class DataInitializer {
             String password
     ) {
         // Verificar se o administrador já existe pelo ID fixo
-        Administrador superAdmin = administradorRepository.findById(superAdmId).orElse(null);
+        Administrador superAdmin = administradorJpaRepository.findById(superAdmId).orElse(null);
 
         if (superAdmin != null) {
             log.info("👤 Super Admin já existe (ID: {})", superAdmin.getId());
@@ -131,7 +131,7 @@ public class DataInitializer {
         log.info("👤 Criando Super Admin...");
 
         // Buscar a role MASTER_ADMIN
-        Role masterAdminRole = roleRepository.buscarPorNome("ADMIN");
+        Role masterAdminRole = roleJpaRepository.buscarPorNome("ADMIN");
 
         if (masterAdminRole == null) {
             throw new RuntimeException("Role ADMIN não encontrada. Certifique-se de que as roles foram criadas antes.");
@@ -150,17 +150,17 @@ public class DataInitializer {
         superAdmin.setDataCriacao(new Date());
         superAdmin.setDataAtualizacao(new Date());
 
-        Administrador savedAdmin = administradorRepository.save(superAdmin);
+        Administrador savedAdmin = administradorJpaRepository.save(superAdmin);
         log.info("✅ Super Admin criado com ID fixo: {}", savedAdmin.getId());
         log.info("📧 Email: {}", savedAdmin.getEmail());
 
     }
 
     private static void createAssinaturaIfNotExists(
-            AssinaturaRepository assinaturaRepository,
+            AssinaturaJpaRepository assinaturaJpaRepository,
             String nomePlano
     ) {
-        Assinatura existente = assinaturaRepository.buscarPorNomePlano(nomePlano);
+        Assinatura existente = assinaturaJpaRepository.buscarPorNomePlano(nomePlano);
 
         if (existente != null) {
             log.info("- Assinatura já existe: {}", nomePlano);
@@ -202,7 +202,7 @@ public class DataInitializer {
 
         assinatura.setDataCriacao(new Date());
         assinatura.setDataAtualizacao(new Date());
-        assinaturaRepository.save(assinatura);
+        assinaturaJpaRepository.save(assinatura);
         log.info("✓ Assinatura criada: {}", nomePlano);
     }
 }

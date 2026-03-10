@@ -1,8 +1,7 @@
 package io.github.dudupuci.appdespesas.application.services;
 
-import io.github.dudupuci.appdespesas.application.commands.categoria.CategoriaCommand;
 import io.github.dudupuci.appdespesas.application.ports.repositories.CategoriaRepositoryPort;
-import jakarta.transaction.Transactional;
+import io.github.dudupuci.appdespesas.application.usecases.categoria.CategoriaCommand;
 import io.github.dudupuci.appdespesas.domain.exceptions.CategoriaInativaException;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityAlreadyExistsException;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
@@ -35,7 +34,6 @@ public class CategoriaService {
         return this.repository.listarCategoriasBySearch(search);
     }
 
-    @Transactional
     public Categoria createCategoria(CategoriaCommand cmd, UUID usuarioId) {
         validarCriacao(cmd.nome());
         UsuarioSistema usuarioSistema = this.usuarioService.buscarPorId(usuarioId);
@@ -51,7 +49,6 @@ public class CategoriaService {
         return this.repository.save(categoria);
     }
 
-    @Transactional
     public Categoria updateCategoria(UUID id, CategoriaCommand cmd, UUID usuarioId) {
         Categoria categoria = buscarPorId(id);
 
@@ -97,7 +94,6 @@ public class CategoriaService {
         return categoria;
     }
 
-    @Transactional
     public void deletar(UUID id) {
         Categoria categoria = buscarPorId(id);
         if (AppDespesasUtils.isEntidadeNotNull(categoria)) {

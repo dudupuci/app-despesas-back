@@ -1,7 +1,8 @@
 package io.github.dudupuci.appdespesas.application.services;
 
-import io.github.dudupuci.appdespesas.application.commands.usuario.AtualizarUsuarioCommand;
+
 import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
+import io.github.dudupuci.appdespesas.application.usecases.usuario.AtualizarUsuarioCommand;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Contato;
 import io.github.dudupuci.appdespesas.domain.entities.Endereco;
@@ -39,7 +40,7 @@ public class UsuarioService {
         return this.usuariosRepository.findAll();
     }
 
-    public UsuarioSistema atualizar(UUID usuarioId, AtualizarUsuarioCommand cmd) {
+    public UsuarioSistema atualizar(UUID usuarioId, io.github.dudupuci.appdespesas.application.usecases.usuario.AtualizarUsuarioCommand cmd) {
         UsuarioSistema usuario = buscarPorId(usuarioId);
 
         if (cmd.cpfCnpj() != null && !cmd.cpfCnpj().isBlank()) {

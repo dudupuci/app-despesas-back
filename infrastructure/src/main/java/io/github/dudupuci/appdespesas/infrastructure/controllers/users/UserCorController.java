@@ -1,9 +1,12 @@
 package io.github.dudupuci.appdespesas.infrastructure.controllers.users;
 
+import io.github.dudupuci.appdespesas.application.ports.repositories.CorRepositoryPort;
+import io.github.dudupuci.appdespesas.application.services.CorService;
+import io.github.dudupuci.appdespesas.application.services.UsuarioService;
+import io.github.dudupuci.appdespesas.application.usecases.cor.*;
+import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.requests.cor.CriarCorRequestDto;
 import io.github.dudupuci.appdespesas.infrastructure.controllers.users.dtos.responses.cor.CorCriadaResponseDto;
-import io.github.dudupuci.appdespesas.domain.entities.Cor;
-import io.github.dudupuci.appdespesas.application.services.CorService;
 import io.github.dudupuci.appdespesas.infrastructure.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +22,14 @@ import java.util.UUID;
 @PreAuthorize("hasRole('USER')")
 public class UserCorController {
 
+    private final CorRepositoryPort corRepository;
     private final CorService corService;
+    private final UsuarioService usuarioService;
 
-    public UserCorController(CorService corService) {
+    public UserCorController(CorRepositoryPort corRepository, CorService corService, UsuarioService usuarioService) {
+        this.corRepository = corRepository;
         this.corService = corService;
+        this.usuarioService = usuarioService;
     }
 
     /**
@@ -31,8 +38,8 @@ public class UserCorController {
      */
     @PostMapping
     public ResponseEntity<CorCriadaResponseDto> criar(@Valid @RequestBody CriarCorRequestDto dto) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        Cor criada = corService.criar(dto.toCommand(), usuarioId);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        Cor criada = new CriarCorUseCaseImpl(corRepository, usuarioService, usuarioId).executar(dto.toCommand());
         return ResponseEntity.created(URI.create("/cores/" + criada.getId()))
                 .body(CorCriadaResponseDto.fromEntityCriada(criada));
     }
@@ -43,8 +50,7 @@ public class UserCorController {
      */
     @GetMapping
     public ResponseEntity<List<Cor>> listarTodas() {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        return ResponseEntity.ok(corService.listarTodas(usuarioId));
+        return ResponseEntity.ok(corService.listarTodas(SecurityUtils.getUsuarioAutenticadoId()));
     }
 
     /**
@@ -53,8 +59,7 @@ public class UserCorController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Cor> buscarPorId(@PathVariable UUID id) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        return ResponseEntity.ok(corService.buscarPorId(id, usuarioId));
+        return ResponseEntity.ok(corService.buscarPorId(id, SecurityUtils.getUsuarioAutenticadoId()));
     }
 
     /**
@@ -63,9 +68,8 @@ public class UserCorController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Cor> atualizar(@PathVariable UUID id, @Valid @RequestBody CriarCorRequestDto dto) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        Cor cor = corService.atualizar(id, dto.toCommand(), usuarioId);
-        return ResponseEntity.ok(cor);
+        UUID usuarioId = SecurityUtils.getUsuarioAutenticadoId();
+        return ResponseEntity.ok(new AtualizarCorUseCaseImpl(corRepository, corService, usuarioService, id, usuarioId).executar(dto.toCommand()));
     }
 
     /**
@@ -74,12 +78,7 @@ public class UserCorController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable UUID id) {
-        UUID usuarioId = getUsuarioAutenticadoId();
-        corService.deletar(id, usuarioId);
+        new DeletarCorUseCaseImpl(corRepository, corService, SecurityUtils.getUsuarioAutenticadoId()).executar(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private UUID getUsuarioAutenticadoId() {
-        return SecurityUtils.getUsuarioAutenticadoId();
     }
 }

@@ -22,10 +22,10 @@ public class Categoria extends EntidadeUuid {
     private Status status;
     private TipoMovimentacao tipoMovimentacao;
 
-    @JsonIgnore
+    //@JsonIgnore
     private Set<Movimentacao> movimentacoes = new HashSet<>();
 
-    @JsonIgnore
+    //@JsonIgnore
     private UsuarioSistema usuarioSistema;
 
     private Cor cor;

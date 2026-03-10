@@ -1,7 +1,7 @@
 package io.github.dudupuci.appdespesas.application.services;
 
-import io.github.dudupuci.appdespesas.application.commands.cor.CorCommand;
 import io.github.dudupuci.appdespesas.application.ports.repositories.CorRepositoryPort;
+import io.github.dudupuci.appdespesas.application.usecases.cor.CorCommand;
 import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Cor;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;

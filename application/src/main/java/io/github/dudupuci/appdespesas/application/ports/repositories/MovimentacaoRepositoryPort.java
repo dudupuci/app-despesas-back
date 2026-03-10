@@ -15,7 +15,7 @@ public interface MovimentacaoRepositoryPort {
 
     Movimentacao save(Movimentacao movimentacao);
 
-    Optional<Movimentacao> findById(Long id);
+    Optional<Movimentacao> findById(UUID id);
 
     List<Movimentacao> listarTodasPorUsuarioId(UUID usuarioId);
 

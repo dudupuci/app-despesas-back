@@ -2,8 +2,8 @@ package io.github.dudupuci.appdespesas.infrastructure.adapters.repositories;
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaUsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuariosRepository;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.UsuarioSistemaJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuarioJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,42 +20,42 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
 
-    private final UsuariosRepository jpaRepository;
+    private final UsuarioJpaRepository jpaRepository;
 
     @Override
     public UsuarioSistema save(UsuarioSistema usuario) {
-        JpaUsuarioSistema jpaUsuario = JpaUsuarioSistema.fromEntity(usuario);
+        UsuarioSistemaJpaEntity jpaUsuario = UsuarioSistemaJpaEntity.fromEntity(usuario);
 
         // Se já existe, busca e atualiza
         if (usuario.getId() != null) {
-            Optional<JpaUsuarioSistema> existing = jpaRepository.findById(usuario.getId());
+            Optional<UsuarioSistemaJpaEntity> existing = jpaRepository.findById(usuario.getId());
             if (existing.isPresent()) {
-                JpaUsuarioSistema existingEntity = existing.get();
+                UsuarioSistemaJpaEntity existingEntity = existing.get();
                 existingEntity.updateFromEntity(usuario);
                 jpaUsuario = existingEntity;
             }
         }
 
-        JpaUsuarioSistema saved = jpaRepository.save(jpaUsuario);
+        UsuarioSistemaJpaEntity saved = jpaRepository.save(jpaUsuario);
         return saved.toEntity();
     }
 
     @Override
     public Optional<UsuarioSistema> findById(UUID id) {
         return jpaRepository.findById(id)
-                .map(JpaUsuarioSistema::toEntity);
+                .map(UsuarioSistemaJpaEntity::toEntity);
     }
 
     @Override
     public Optional<UsuarioSistema> buscarPorEmail(String email) {
         return jpaRepository.buscarPorEmail(email)
-                .map(JpaUsuarioSistema::toEntity);
+                .map(UsuarioSistemaJpaEntity::toEntity);
     }
 
     @Override
     public Optional<UsuarioSistema> buscarPorNomeUsuario(String nomeUsuario) {
         return jpaRepository.buscarPorNomeUsuario(nomeUsuario)
-                .map(JpaUsuarioSistema::toEntity);
+                .map(UsuarioSistemaJpaEntity::toEntity);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
     @Override
     public List<UsuarioSistema> findAll() {
         return jpaRepository.findAll().stream()
-                .map(JpaUsuarioSistema::toEntity)
+                .map(UsuarioSistemaJpaEntity::toEntity)
                 .collect(Collectors.toList());
     }
 

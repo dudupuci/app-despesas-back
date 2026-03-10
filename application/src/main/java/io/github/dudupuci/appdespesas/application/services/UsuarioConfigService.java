@@ -1,6 +1,6 @@
 package io.github.dudupuci.appdespesas.application.services;
 
-import io.github.dudupuci.appdespesas.application.commands.usuario.EditarConfiguracoesCommand;
+import io.github.dudupuci.appdespesas.application.usecases.usuario.EditarConfiguracoesCommand;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

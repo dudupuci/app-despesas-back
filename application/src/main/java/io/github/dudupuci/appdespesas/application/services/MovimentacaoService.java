@@ -1,16 +1,14 @@
 package io.github.dudupuci.appdespesas.application.services;
 
-import io.github.dudupuci.appdespesas.application.commands.movimentacao.MovimentacaoCommand;
 import io.github.dudupuci.appdespesas.application.ports.repositories.MovimentacaoRepositoryPort;
 import io.github.dudupuci.appdespesas.application.ports.repositories.UsuarioRepositoryPort;
-import jakarta.transaction.Transactional;
-import io.github.dudupuci.appdespesas.domain.exceptions.CategoriaInativaException;
-import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
-import io.github.dudupuci.appdespesas.domain.exceptions.UsuarioNotFoundException;
 import io.github.dudupuci.appdespesas.domain.entities.Categoria;
 import io.github.dudupuci.appdespesas.domain.entities.Movimentacao;
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
 import io.github.dudupuci.appdespesas.domain.enums.TipoMovimentacao;
+import io.github.dudupuci.appdespesas.domain.exceptions.CategoriaInativaException;
+import io.github.dudupuci.appdespesas.domain.exceptions.EntityNotFoundException;
+import io.github.dudupuci.appdespesas.domain.exceptions.UsuarioNotFoundException;
 import io.github.dudupuci.appdespesas.domain.utils.AppDespesasUtils;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +34,7 @@ public class MovimentacaoService {
         this.usuariosRepository = usuariosRepository;
     }
 
-    public Movimentacao buscarPorId(Long id) throws EntityNotFoundException {
+    public Movimentacao buscarPorId(UUID id) throws EntityNotFoundException {
         return this.repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Movimentação com ID " + id + " não encontrada"));
     }
@@ -58,8 +56,7 @@ public class MovimentacaoService {
         }
     }
 
-    @Transactional
-    public Movimentacao criarMovimentacao(MovimentacaoCommand cmd, UUID usuarioId) {
+    public Movimentacao criarMovimentacao(io.github.dudupuci.appdespesas.application.usecases.movimentacao.MovimentacaoCommand cmd, UUID usuarioId) {
         try {
             Categoria tempCategoria = this.categoriaService.validarCategoriaPorId(cmd.categoriaId());
 
@@ -86,8 +83,7 @@ public class MovimentacaoService {
         }
     }
 
-    @Transactional
-    public void deletar(Long id) {
+    public void deletar(UUID id) {
         Movimentacao movimentacao = buscarPorId(id);
         if (AppDespesasUtils.isEntidadeNotNull(movimentacao)) {
             this.repository.delete(movimentacao);

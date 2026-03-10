@@ -23,9 +23,8 @@ public class Compromisso extends Evento {
     private Date lembrarEm;
     private String cor;
 
-    @JsonIgnore
+    //@JsonIgnore
     private UsuarioSistema usuarioSistema;
-
     private String observacoes;
 
     public Compromisso(String titulo, String descricao, String localizacao, Date dataInicio, Date dataFim, Prioridade prioridade, Boolean diaInteiro, Date lembrarEm, String cor, UsuarioSistema usuarioSistema, String observacoes) {

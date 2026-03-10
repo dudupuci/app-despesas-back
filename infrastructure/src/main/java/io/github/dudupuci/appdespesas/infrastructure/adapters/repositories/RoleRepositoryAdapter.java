@@ -2,8 +2,8 @@ package io.github.dudupuci.appdespesas.infrastructure.adapters.repositories;
 
 import io.github.dudupuci.appdespesas.application.ports.repositories.RoleRepositoryPort;
 import io.github.dudupuci.appdespesas.domain.entities.Role;
-import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.JpaRole;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.RoleRepository;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.RoleJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.RoleJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,41 +12,41 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Adapter para RoleRepository
+ * Adapter para RoleJpaRepository
  */
 @Component
 @RequiredArgsConstructor
 public class RoleRepositoryAdapter implements RoleRepositoryPort {
 
-    private final RoleRepository jpaRepository;
+    private final RoleJpaRepository jpaRepository;
 
     @Override
     public Role save(Role role) {
-        JpaRole jpaRole = JpaRole.fromEntity(role);
+        RoleJpaEntity roleJpaEntity = RoleJpaEntity.fromEntity(role);
 
         if (role.getId() != null) {
-            Optional<JpaRole> existing = jpaRepository.findById(role.getId());
+            Optional<RoleJpaEntity> existing = jpaRepository.findById(role.getId());
             if (existing.isPresent()) {
-                JpaRole existingEntity = existing.get();
+                RoleJpaEntity existingEntity = existing.get();
                 existingEntity.updateFromEntity(role);
-                jpaRole = existingEntity;
+                roleJpaEntity = existingEntity;
             }
         }
 
-        JpaRole saved = jpaRepository.save(jpaRole);
+        RoleJpaEntity saved = jpaRepository.save(roleJpaEntity);
         return saved.toEntity();
     }
 
     @Override
     public Optional<Role> findById(Long id) {
         return jpaRepository.findById(id)
-                .map(JpaRole::toEntity);
+                .map(RoleJpaEntity::toEntity);
     }
 
     @Override
     public Role buscarPorNome(String nome) {
-        JpaRole jpaRole = jpaRepository.buscarPorNome(nome);
-        return jpaRole != null ? jpaRole.toEntity() : null;
+        RoleJpaEntity roleJpaEntity = jpaRepository.buscarPorNome(nome);
+        return roleJpaEntity != null ? roleJpaEntity.toEntity() : null;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class RoleRepositoryAdapter implements RoleRepositoryPort {
     @Override
     public List<Role> findAll() {
         return jpaRepository.findAll().stream()
-                .map(JpaRole::toEntity)
+                .map(RoleJpaEntity::toEntity)
                 .collect(Collectors.toList());
     }
 }

@@ -1,9 +1,12 @@
 package io.github.dudupuci.appdespesas.domain.exceptions.enums;
 
+import lombok.Getter;
+
 /**
  * Enum que representa códigos HTTP no domínio, sem depender do Spring.
  * Permite que as exceptions de domínio carreguem o status HTTP sem acoplar ao framework.
  */
+@Getter
 public enum DomainHttpStatus {
 
     OK(200),
@@ -22,8 +25,5 @@ public enum DomainHttpStatus {
         this.value = value;
     }
 
-    public int getValue() {
-        return value;
-    }
 }
 

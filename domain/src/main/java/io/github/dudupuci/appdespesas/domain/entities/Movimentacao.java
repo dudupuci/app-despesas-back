@@ -25,10 +25,10 @@ public class Movimentacao extends EntidadeUuid {
     private Date dataDaMovimentacao;
     private TipoMovimentacao tipoMovimentacao;
 
-    @JsonIgnore
+    //@JsonIgnore
     private Categoria categoria;
 
-    @JsonIgnore
+    //@JsonIgnore
     private UsuarioSistema usuarioSistema;
 
     private Boolean isRecorrente = false;

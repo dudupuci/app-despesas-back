@@ -1,7 +1,8 @@
 package io.github.dudupuci.appdespesas.infrastructure.config.app.jwt;
 
 import io.github.dudupuci.appdespesas.domain.entities.UsuarioSistema;
-import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuariosRepository;
+import io.github.dudupuci.appdespesas.infrastructure.persistence.entities.UsuarioSistemaJpaEntity;
+import io.github.dudupuci.appdespesas.infrastructure.repositories.UsuarioJpaRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,10 +22,10 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtConfig jwtConfig;
-    private final UsuariosRepository usuariosRepository;
+    private final UsuarioJpaRepository usuariosRepository;
 
     public JwtAuthenticationFilter(JwtConfig jwtConfig,
-                                   UsuariosRepository usuariosRepository) {
+                                   UsuarioJpaRepository usuariosRepository) {
         this.jwtConfig = jwtConfig;
         this.usuariosRepository = usuariosRepository;
     }
@@ -55,7 +56,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            Optional<UsuarioSistema> usuarioOptional = usuariosRepository.buscarPorEmail(email);
+            Optional<UsuarioSistema> usuarioOptional = usuariosRepository.buscarPorEmail(email).map(
+                    UsuarioSistemaJpaEntity::toEntity
+            );
 
             if (usuarioOptional.isPresent()) {
                 UsernamePasswordAuthenticationToken authentication = getUsernamePasswordAuthenticationToken(usuarioOptional);
